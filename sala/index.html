@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liquid Glass Music Room</title>
+    <!-- Bibliotecas -->
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- jsmediatags para extrair a capa do MP3 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsmediatags/3.9.5/jsmediatags.min.js"></script>
+    <!-- Ícones -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        /* Fundo Líquido Animado */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: liquidBackground 15s ease infinite;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+        }
+
+        @keyframes liquidBackground {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Efeito Vidro Base */
+        .glass {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 24px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+        }
+
+        .container {
+            width: 90%;
+            max-width: 500px;
+            position: relative;
+            padding: 30px;
+            overflow: hidden;
+            min-height: 400px;
+            transition: all 0.5s ease;
+        }
+
+        /* Telas (Transições suaves) */
+        .screen {
+            position: absolute;
+            top: 30px; left: 30px; right: 30px;
+            opacity: 0;
+            visibility: hidden;
+            transform: scale(0.95) translateY(20px);
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        
+        .screen.active {
+            position: relative;
+            top: 0; left: 0; right: 0;
+            opacity: 1;
+            visibility: visible;
+            transform: scale(1) translateY(0);
+        }
+
+        h1, h2, h3 { margin-top: 0; text-align: center; font-weight: 600; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        
+        /* Botões e Inputs de Vidro */
+        button, input {
+            width: 100%; padding: 15px; margin: 10px 0;
+            border-radius: 12px; border: 1px solid rgba(255,255,255,0.4);
+            background: rgba(255,255,255,0.2); color: white;
+            font-size: 16px; font-weight: bold; cursor: pointer;
+            backdrop-filter: blur(5px); transition: all 0.3s ease;
+        }
+        button:hover { background: rgba(255,255,255,0.3); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        input::placeholder { color: rgba(255,255,255,0.7); }
+        input { text-align: center; font-size: 24px; letter-spacing: 5px; }
+        
+        /* Lista de Músicas */
+        .playlist { list-style: none; padding: 0; max-height: 250px; overflow-y: auto; margin: 20px 0; }
+        .playlist::-webkit-scrollbar { width: 6px; }
+        .playlist::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.5); border-radius: 10px; }
+        .playlist li {
+            padding: 15px; margin-bottom: 10px; border-radius: 12px;
+            background: rgba(0,0,0,0.2); cursor: pointer;
+            transition: all 0.3s; display: flex; align-items: center; gap: 10px;
+        }
+        .playlist li:hover { background: rgba(0,0,0,0.4); transform: scale(1.02); }
+        .playlist li.active { background: rgba(255,255,255,0.3); border-left: 4px solid #fff; }
+
+        /* Card do Player (Escondido inicialmente) */
+        #player-card {
+            background: rgba(0,0,0,0.3); border-radius: 20px; padding: 20px;
+            margin-top: 20px; display: none; opacity: 0; transform: translateY(20px);
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        #player-card.visible { display: block; opacity: 1; transform: translateY(0); }
+        
+        .cover-art {
+            width: 120px; height: 120px; border-radius: 15px;
+            object-fit: cover; margin: 0 auto 15px; display: block;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.4); background: #333;
+        }
+        .song-title { text-align: center; font-size: 1.2rem; margin-bottom: 15px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+        
+        /* Controles do Player */
+        .controls { display: flex; justify-content: center; align-items: center; gap: 20px; }
+        .ctrl-btn {
+            background: none; border: none; font-size: 24px; color: white;
+            width: auto; padding: 10px; cursor: pointer; transition: transform 0.2s;
+        }
+        .ctrl-btn:hover { background: none; transform: scale(1.2); box-shadow: none;}
+        .play-btn { font-size: 40px; }
+
+        /* Volume */
+        .volume-container { display: flex; align-items: center; gap: 10px; margin-top: 20px; }
+        input[type="range"] {
+            -webkit-appearance: none; height: 6px; background: rgba(255,255,255,0.3);
+            border-radius: 5px; outline: none; padding: 0; margin: 0; width: 100%; border: none;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none; width: 16px; height: 16px;
+            background: #fff; border-radius: 50%; cursor: pointer; box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+
+        /* QR Code & Status */
+        .room-info { text-align: center; margin-bottom: 15px; }
+        .room-code { font-size: 32px; font-weight: 900; letter-spacing: 4px; text-shadow: 0 2px 10px rgba(0,0,0,0.3); }
+        #qrcode { display: flex; justify-content: center; margin: 15px 0; }
+        #qrcode img { border-radius: 10px; border: 5px solid white; }
+        .status-badge { display: inline-block; padding: 5px 15px; border-radius: 20px; font-size: 12px; background: rgba(0,0,0,0.3); }
+        
+        #btn-join-client { background: #28a745; margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+<div class="glass container">
+    
+    <!-- TELA 1: INÍCIO -->
+    <div id="screen-home" class="screen active">
+        <h1><i class="fas fa-music"></i> Vibes Sync</h1>
+        <p style="text-align: center; margin-bottom: 30px;">Crie uma sala ou entre com um código para sincronizar músicas.</p>
+        
+        <button onclick="createRoom()"><i class="fas fa-plus-circle"></i> Criar Nova Sala</button>
+        
+        <div style="margin: 30px 0; text-align: center; font-size: 14px; opacity: 0.7;">OU</div>
+        
+        <input type="text" id="join-code-input" placeholder="CÓDIGO (Ex: 1234)" maxlength="4">
+        <button onclick="joinRoomFromInput()"><i class="fas fa-sign-in-alt"></i> Entrar na Sala</button>
+    </div>
+
+    <!-- TELA 2: HOST (CRIADOR DA SALA) -->
+    <div id="screen-host" class="screen">
+        <div class="room-info">
+            <div>Código da Sala:</div>
+            <div class="room-code" id="display-room-code">----</div>
+            <div class="status-badge" id="host-status">Aguardando conexões...</div>
+        </div>
+
+        <!-- Inputs para ajustar o QR Code para uso local -->
+        <div id="ip-config" style="display:none; font-size: 12px; text-align: center; margin-bottom:10px;">
+            <p style="margin:0 0 5px 0;">Para o celular ler o QR Code, digite seu IP (Ex: 192.168.0.x)</p>
+            <input type="text" id="host-ip-input" placeholder="IP Local" style="font-size: 12px; padding: 8px; width: 60%; letter-spacing: normal;">
+            <button onclick="updateQRCode()" style="width: 30%; padding: 8px; font-size: 12px;">Atualizar</button>
+        </div>
+
+        <div id="qrcode"></div>
+
+        <ul class="playlist" id="playlist-ui"></ul>
+
+        <!-- CARD DO PLAYER (HOST) -->
+        <div id="player-card" class="glass">
+            <img src="" id="host-cover" class="cover-art" style="display: none;">
+            <div class="song-title" id="host-title">Selecione uma música</div>
+            
+            <div class="controls">
+                <button class="ctrl-btn" onclick="prevTrack()"><i class="fas fa-step-backward"></i></button>
+                <button class="ctrl-btn play-btn" onclick="togglePlay()"><i class="fas fa-play" id="host-play-icon"></i></button>
+                <button class="ctrl-btn" onclick="nextTrack()"><i class="fas fa-step-forward"></i></button>
+            </div>
+            
+            <div class="volume-container">
+                <i class="fas fa-volume-down"></i>
+                <input type="range" id="host-volume" min="0" max="1" step="0.01" value="0.5" oninput="changeVolume(this.value)">
+                <i class="fas fa-volume-up"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- TELA 3: CLIENTE (OUVINTE) -->
+    <div id="screen-client" class="screen">
+        <h2>Sala: <span id="client-room-code"></span></h2>
+        <div class="status-badge" id="client-status">Conectando...</div>
+        
+        <button id="btn-join-client" onclick="enableClientAudio()">🎵 Tocar Áudio</button>
+        
+        <!-- CARD DO PLAYER (CLIENTE - Somente Visualização) -->
+        <div id="client-player-card" class="glass" style="margin-top: 20px; padding: 20px; text-align: center; display: none;">
+            <img src="" id="client-cover" class="cover-art" style="display: none;">
+            <div class="song-title" id="client-title" style="margin-top: 15px;">Aguardando música...</div>
+            <p style="font-size: 12px; opacity: 0.8;"><i class="fas fa-lock"></i> O criador da sala controla a música.</p>
+        </div>
+    </div>
+
+</div>
+
+<!-- Áudio Oculto -->
+<audio id="core-audio"></audio>
+
+<script>
+    // ==========================================
+    // 1. LISTA DE MÚSICAS (Arquivos na mesma pasta)
+    // ==========================================
+    const playlist = [
+        "musica1.mp3",
+        "musica2.mp3"
+    ];
+
+    let peer = null;
+    let connections = [];
+    let isHost = false;
+    let roomCode = "";
+    
+    // Controles de Player
+    let currentTrackIndex = -1;
+    let audio = document.getElementById('core-audio');
+    audio.volume = 0.5;
+
+    // Utilitário de Troca de Telas
+    function showScreen(screenId) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(screenId).classList.add('active');
+        // Recalcular a altura do container dependendo do conteúdo inserido (suaviza transição)
+    }
+
+    // Checar se veio via QR Code (URL param ?join=XXXX)
+    window.onload = () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const joinCode = urlParams.get('join');
+        if(joinCode && joinCode.length === 4) {
+            document.getElementById('join-code-input').value = joinCode;
+            joinRoomFromInput();
+        }
+    }
+
+    // ==========================================
+    // LÓGICA DO HOST
+    // ==========================================
+    function createRoom() {
+        // Gera código numérico de 4 dígitos (1000 - 9999)
+        roomCode = Math.floor(1000 + Math.random() * 9000).toString();
+        const peerId = `vibessync-${roomCode}`;
+        
+        showScreen('screen-host');
+        document.getElementById('display-room-code').innerText = roomCode;
+        
+        peer = new Peer(peerId);
+        isHost = true;
+
+        peer.on('open', (id) => {
+            updateQRCode();
+            updateHostStatus();
+        });
+
+        peer.on('connection', (conn) => {
+            connections.push(conn);
+            updateHostStatus();
+            
+            conn.on('open', () => {
+                // Ao conectar, envia a música atual se estiver tocando
+                if(currentTrackIndex !== -1) {
+                    conn.send({ 
+                        type: 'sync', 
+                        track: playlist[currentTrackIndex], 
+                        time: audio.currentTime, 
+                        playing: !audio.paused,
+                        volume: audio.volume
+                    });
+                }
+            });
+
+            conn.on('close', () => {
+                connections = connections.filter(c => c !== conn);
+                updateHostStatus();
+            });
+        });
+
+        renderPlaylist();
+        setupHostAudioEvents();
+    }
+
+    function updateHostStatus() {
+        document.getElementById('host-status').innerText = `${connections.length} Ouvinte(s) conectado(s)`;
+    }
+
+    function updateQRCode() {
+        const qrContainer = document.getElementById("qrcode");
+        qrContainer.innerHTML = ""; 
+        
+        let baseUrl = window.location.href.split('?')[0];
+        
+        if (baseUrl.includes('localhost') || baseUrl.includes('127.0.0.1')) {
+            document.getElementById('ip-config').style.display = 'block';
+            const customIp = document.getElementById('host-ip-input').value.trim();
+            if(customIp) {
+                baseUrl = `http://${customIp}:${window.location.port}${window.location.pathname}`;
+            }
+        }
+
+        const joinUrl = `${baseUrl}?join=${roomCode}`;
+        new QRCode(qrContainer, {
+            text: joinUrl, width: 150, height: 150,
+            colorDark: "#222", colorLight: "#fff", correctLevel: QRCode.CorrectLevel.H
+        });
+    }
+
+    function renderPlaylist() {
+        const listEl = document.getElementById('playlist-ui');
+        listEl.innerHTML = '';
+        playlist.forEach((musica, index) => {
+            const li = document.createElement('li');
+            li.innerHTML = `<i class="fas fa-music"></i> ${musica}`;
+            li.onclick = () => playTrack(index);
+            listEl.appendChild(li);
+        });
+    }
+
+    // ==========================================
+    // CONTROLES DE ÁUDIO & METADADOS (ID3)
+    // ==========================================
+    function playTrack(index) {
+        if(index < 0 || index >= playlist.length) return;
+        currentTrackIndex = index;
+        const fileName = playlist[index];
+        
+        // Atualiza UI da Lista
+        document.querySelectorAll('.playlist li').forEach((el, i) => {
+            el.classList.toggle('active', i === index);
+        });
+
+        // Exibe o Card e Atualiza Info
+        const card = document.getElementById('player-card');
+        card.classList.add('visible');
+        document.getElementById('host-title').innerText = fileName;
+        
+        // Toca a música
+        audio.src = fileName;
+        audio.play();
+
+        // Tenta pegar a Capa do MP3 local
+        extractCoverArt(fileName, 'host-cover');
+
+        // Avisa os clientes
+        broadcast({ type: 'track', track: fileName });
+    }
+
+    function togglePlay() {
+        if(!audio.src) return;
+        if(audio.paused) audio.play();
+        else audio.pause();
+    }
+
+    function nextTrack() { playTrack((currentTrackIndex + 1) % playlist.length); }
+    function prevTrack() { playTrack((currentTrackIndex - 1 + playlist.length) % playlist.length); }
+    function changeVolume(val) { audio.volume = val; broadcast({ type: 'volume', val: val }); }
+
+    function setupHostAudioEvents() {
+        const playIcon = document.getElementById('host-play-icon');
+        audio.addEventListener('play', () => {
+            playIcon.classList.replace('fa-play', 'fa-pause');
+            broadcast({ type: 'play', time: audio.currentTime });
+        });
+        audio.addEventListener('pause', () => {
+            playIcon.classList.replace('fa-pause', 'fa-play');
+            broadcast({ type: 'pause', time: audio.currentTime });
+        });
+        audio.addEventListener('seeked', () => {
+            broadcast({ type: 'time', time: audio.currentTime });
+        });
+        audio.addEventListener('ended', nextTrack);
+    }
+
+    function broadcast(data) {
+        connections.forEach(conn => { if (conn.open) conn.send(data); });
+    }
+
+    // ==========================================
+    // LÓGICA DO CLIENTE
+    // ==========================================
+    let hostConn = null;
+
+    function joinRoomFromInput() {
+        const code = document.getElementById('join-code-input').value.trim();
+        if(code.length !== 4) return alert("Digite um código de 4 dígitos!");
+        joinRoom(code);
+    }
+
+    function joinRoom(code) {
+        roomCode = code;
+        showScreen('screen-client');
+        document.getElementById('client-room-code').innerText = code;
+        
+        peer = new Peer();
+        
+        peer.on('open', () => {
+            hostConn = peer.connect(`vibessync-${code}`);
+            
+            hostConn.on('open', () => {
+                document.getElementById('client-status').innerText = "✅ Conectado à Sala";
+                document.getElementById('client-status').style.background = 'rgba(40, 167, 69, 0.5)';
+            });
+
+            hostConn.on('data', (data) => {
+                switch(data.type) {
+                    case 'track':
+                    case 'sync':
+                        document.getElementById('client-player-card').style.display = 'block';
+                        document.getElementById('client-title').innerText = data.track;
+                        audio.src = data.track;
+                        extractCoverArt(data.track, 'client-cover');
+                        if(data.type === 'sync') {
+                            audio.currentTime = data.time || 0;
+                            audio.volume = data.volume || 0.5;
+                            if(data.playing) audio.play().catch(e => console.log("Aguardando interação."));
+                        }
+                        break;
+                    case 'play':
+                        if(data.time) audio.currentTime = data.time;
+                        audio.play().catch(e => console.log("Aguardando botão 'Tocar'"));
+                        break;
+                    case 'pause':
+                        audio.pause();
+                        if(data.time) audio.currentTime = data.time;
+                        break;
+                    case 'time':
+                        audio.currentTime = data.time;
+                        break;
+                    case 'volume':
+                        audio.volume = data.val;
+                        break;
+                }
+            });
+
+            hostConn.on('close', () => {
+                document.getElementById('client-status').innerText = "❌ Conexão Perdida";
+                document.getElementById('client-status').style.background = 'rgba(220, 53, 69, 0.5)';
+            });
+        });
+    }
+
+    function enableClientAudio() {
+        document.getElementById('btn-join-client').style.display = 'none';
+        // Desbloqueia o áudio no celular tocando um silêncio rápido
+        audio.play().then(() => { audio.pause(); }).catch(e=>{});
+        alert("Áudio liberado! Agora a música do Host vai tocar aqui.");
+    }
+
+    // ==========================================
+    // EXTRAÇÃO DA CAPA DO MP3 (ID3 TAGS)
+    // ==========================================
+    function extractCoverArt(url, imgId) {
+        const imgEl = document.getElementById(imgId);
+        const jsmediatags = window.jsmediatags;
+        
+        if(jsmediatags) {
+            jsmediatags.read(url, {
+                onSuccess: function(tag) {
+                    const picture = tag.tags.picture;
+                    if (picture) {
+                        let base64String = "";
+                        for (let i = 0; i < picture.data.length; i++) {
+                            base64String += String.fromCharCode(picture.data[i]);
+                        }
+                        const base64 = "data:" + picture.format + ";base64," + window.btoa(base64String);
+                        imgEl.src = base64;
+                        imgEl.style.display = 'block';
+                    } else {
+                        imgEl.style.display = 'none'; // Sem capa
+                    }
+                },
+                onError: function(error) {
+                    imgEl.style.display = 'none';
+                    console.log("Sem capa ou erro ao ler tag ID3.");
+                }
+            });
+        }
+    }
+</script>
+</body>
+</html>
