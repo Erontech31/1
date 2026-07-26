@@ -20,13 +20,10 @@
             --text-main: #1e293b;
             --text-muted: #475569;
             --white: #ffffff;
-            
-            /* Cores translúcidas para o Glassmorphism */
             --glass-bg: rgba(255, 255, 255, 0.45);
             --glass-bg-hover: rgba(255, 255, 255, 0.6);
             --glass-border: rgba(255, 255, 255, 0.6);
             --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
-            
             --primary: rgba(59, 130, 246, 0.85);
             --primary-hover: rgba(37, 99, 235, 1);
             --success: rgba(16, 185, 129, 0.85);
@@ -34,11 +31,9 @@
             --danger: rgba(239, 68, 68, 0.85);
             --danger-hover: rgba(220, 38, 38, 1);
             --teal: rgba(20, 184, 166, 0.85);
-
             --grad-adm: linear-gradient(135deg, rgba(71, 85, 105, 0.85) 0%, rgba(30, 41, 59, 0.85) 100%);
             --grad-dir: linear-gradient(135deg, rgba(15, 118, 110, 0.85) 0%, rgba(17, 94, 89, 0.85) 100%);
             --grad-prof: linear-gradient(135deg, rgba(5, 150, 105, 0.85) 0%, rgba(4, 120, 87, 0.85) 100%);
-            
             --radius-md: 16px;
             --radius-lg: 24px;
         }
@@ -58,32 +53,17 @@
             overflow-x: hidden;
         }
 
-        /* Fundo e Efeitos de Ambiente */
         .fundo-midia {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            object-fit: cover; 
-            z-index: -2;
-            pointer-events: none;
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            object-fit: cover; z-index: -2; pointer-events: none;
         }
 
         .overlay-fundo {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            /* Um gradiente escurecido animado para dar contraste ao vidro */
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: linear-gradient(45deg, rgba(15, 23, 42, 0.2), rgba(56, 189, 248, 0.2));
-            background-size: 200% 200%;
-            animation: moveGradient 10s ease infinite;
-            z-index: -1;
-            pointer-events: none;
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
+            background-size: 200% 200%; animation: moveGradient 10s ease infinite;
+            z-index: -1; pointer-events: none;
+            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
         }
 
         @keyframes moveGradient {
@@ -93,18 +73,10 @@
         }
         
         .logo-escola {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            width: 75px;
-            height: 75px;
-            border-radius: 50%; 
-            object-fit: cover; 
-            border: 3px solid rgba(255, 255, 255, 0.8);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            z-index: 1000;
-            background-color: var(--white);
-            animation: float 4s ease-in-out infinite;
+            position: absolute; top: 20px; left: 20px; width: 75px; height: 75px;
+            border-radius: 50%; object-fit: cover; border: 3px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 1000;
+            background-color: var(--white); animation: float 4s ease-in-out infinite;
         }
 
         @keyframes float {
@@ -115,92 +87,53 @@
         
         h1, h2, h3 { margin-top: 0; font-weight: 600; color: var(--text-main); text-shadow: 0 1px 2px rgba(255,255,255,0.5); }
         
-        /* Classe Base Vidro Líquido (Glassmorphism) */
         .glass-panel {
-            background: var(--glass-bg);
-            backdrop-filter: blur(16px) saturate(120%);
+            background: var(--glass-bg); backdrop-filter: blur(16px) saturate(120%);
             -webkit-backdrop-filter: blur(16px) saturate(120%);
-            border: 1px solid var(--glass-border);
-            box-shadow: var(--glass-shadow);
+            border: 1px solid var(--glass-border); box-shadow: var(--glass-shadow);
         }
 
         button { 
-            padding: 14px 22px; 
-            font-size: 15px; 
-            font-weight: 600;
-            font-family: 'Poppins', sans-serif;
-            color: var(--white); 
-            border: 1px solid rgba(255,255,255,0.3); 
-            border-radius: var(--radius-md); 
-            cursor: pointer; 
-            background: var(--primary); 
-            backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(4px);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+            padding: 14px 22px; font-size: 15px; font-weight: 600; font-family: 'Poppins', sans-serif;
+            color: var(--white); border: 1px solid rgba(255,255,255,0.3); border-radius: var(--radius-md); 
+            cursor: pointer; background: var(--primary); backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); display: inline-flex;
+            align-items: center; justify-content: center; gap: 8px; text-shadow: 0 1px 2px rgba(0,0,0,0.2);
         }
 
         button:hover { 
-            background: var(--primary-hover); 
-            transform: translateY(-4px) scale(1.02); 
-            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4);
-            border-color: rgba(255,255,255,0.6);
+            background: var(--primary-hover); transform: translateY(-4px) scale(1.02); 
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4); border-color: rgba(255,255,255,0.6);
         }
         
         button:active { transform: translateY(2px) scale(0.98); }
         button:disabled { background: rgba(203, 213, 225, 0.7); cursor: not-allowed; transform: none; box-shadow: none; color: #64748b; border: none; }
         
         input, select { 
-            padding: 15px 18px; 
-            border-radius: var(--radius-md); 
-            border: 1.5px solid rgba(255, 255, 255, 0.5); 
-            font-size: 14px; 
-            font-family: 'Poppins', sans-serif;
-            margin-bottom: 12px; 
-            background: rgba(255, 255, 255, 0.4);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            color: var(--text-main);
-            transition: all 0.3s ease;
-            width: 100%;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.03);
+            padding: 15px 18px; border-radius: var(--radius-md); border: 1.5px solid rgba(255, 255, 255, 0.5); 
+            font-size: 14px; font-family: 'Poppins', sans-serif; margin-bottom: 12px; 
+            background: rgba(255, 255, 255, 0.4); backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px); color: var(--text-main); transition: all 0.3s ease;
+            width: 100%; box-shadow: inset 0 2px 4px rgba(0,0,0,0.03);
         }
 
         input:focus, select:focus { 
-            outline: none; 
-            border-color: rgba(59, 130, 246, 0.8); 
-            background: rgba(255, 255, 255, 0.7);
-            box-shadow: 0 0 15px rgba(59, 130, 246, 0.2), inset 0 2px 4px rgba(0,0,0,0.02); 
-            transform: translateY(-2px);
+            outline: none; border-color: rgba(59, 130, 246, 0.8); background: rgba(255, 255, 255, 0.7);
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.2), inset 0 2px 4px rgba(0,0,0,0.02); transform: translateY(-2px);
         }
         
         .topo-barra { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            color: var(--white); 
-            padding: 18px 26px; 
-            border-radius: var(--radius-lg); 
-            margin-bottom: 30px; 
-            max-width: 750px; 
-            margin-left: auto; 
-            margin-right: auto; 
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255,255,255,0.2);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: flex; justify-content: space-between; align-items: center; color: var(--white); 
+            padding: 18px 26px; border-radius: var(--radius-lg); margin-bottom: 30px; 
+            max-width: 750px; margin-left: auto; margin-right: auto; backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
 
         .topo-barra h2 { margin: 0; color: var(--white); font-size: 20px; font-weight: 600; letter-spacing: 0.5px; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
         .btn-sair { background: rgba(255, 255, 255, 0.15); padding: 10px 18px; font-size: 14px; }
         .btn-sair:hover { background: var(--danger-hover); box-shadow: 0 6px 15px rgba(239, 68, 68, 0.4); }
 
-        /* Animações Globais das Telas */
         .tela { display: none; max-width: 750px; margin: 0 auto; animation: slideFadeUpScale 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         
         @keyframes slideFadeUpScale {
@@ -209,44 +142,24 @@
         }
 
         #tela-login { 
-            display: block; 
-            max-width: 400px; 
-            margin: 12vh auto 8vh auto; 
-            padding: 45px 35px; 
-            border-radius: var(--radius-lg); 
-            position: relative;
-            overflow: hidden;
+            display: block; max-width: 400px; margin: 12vh auto 8vh auto; 
+            padding: 45px 35px; border-radius: var(--radius-lg); position: relative; overflow: hidden;
         }
 
         #tela-login::before {
             content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 6px;
             background: linear-gradient(90deg, #3b82f6, #8b5cf6, #10b981);
-            background-size: 200% 200%;
-            animation: moveGradient 4s ease infinite;
+            background-size: 200% 200%; animation: moveGradient 4s ease infinite;
         }
 
         #tela-login h2 { margin-bottom: 5px; font-size: 28px; font-weight: 700; color: var(--text-main); }
-        #tela-login input { 
-            text-align: center; 
-            font-size: 22px; 
-            letter-spacing: 8px; 
-            border-width: 2px; 
-            padding: 18px;
-            margin-top: 20px;
-            font-weight: 600;
-        }
-
-        #tela-login button { 
-            width: 100%; 
-            font-size: 17px; 
-            padding: 18px; 
-            background: linear-gradient(135deg, rgba(16,185,129,0.9) 0%, rgba(5,150,105,0.9) 100%);
-            margin-top: 15px; 
-        }
+        #tela-login input { text-align: center; font-size: 22px; letter-spacing: 8px; border-width: 2px; padding: 18px; margin-top: 20px; font-weight: 600; }
+        #tela-login button { width: 100%; font-size: 17px; padding: 18px; background: linear-gradient(135deg, rgba(16,185,129,0.9) 0%, rgba(5,150,105,0.9) 100%); margin-top: 15px; }
 
         #status-conexao { font-size: 14px; color: var(--text-muted); font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 10px; }
         .status-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background-color: var(--text-muted); transition: all 0.5s ease; }
         .status-dot.online { background-color: #10b981; box-shadow: 0 0 12px #10b981, 0 0 20px #10b981; animation: pulse 2s infinite; }
+        .status-dot.erro { background-color: #ef4444; box-shadow: 0 0 12px #ef4444; }
 
         @keyframes pulse {
             0% { transform: scale(1); opacity: 1; }
@@ -254,28 +167,9 @@
             100% { transform: scale(1); opacity: 1; }
         }
 
-        .card { 
-            padding: 30px; 
-            border-radius: var(--radius-lg); 
-            margin-bottom: 30px; 
-            text-align: left; 
-            transition: transform 0.4s ease, box-shadow 0.4s ease;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
-        }
-
-        .card h3 { 
-            font-size: 18px; 
-            color: #1e293b; 
-            margin-bottom: 22px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
+        .card { padding: 30px; border-radius: var(--radius-lg); margin-bottom: 30px; text-align: left; transition: transform 0.4s ease, box-shadow 0.4s ease; }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15); }
+        .card h3 { font-size: 18px; color: #1e293b; margin-bottom: 22px; display: flex; align-items: center; gap: 10px; }
         .linha-form { display: flex; gap: 15px; margin-bottom: 10px; flex-wrap: wrap; }
         .linha-form input { flex: 1; min-width: 160px; margin: 0; }
         .linha-form button { margin: 0; white-space: nowrap; }
@@ -287,17 +181,13 @@
         
         .lista-itens li { 
             display: flex; justify-content: space-between; align-items: center; 
-            padding: 14px 20px; 
-            margin-bottom: 10px;
-            border-radius: var(--radius-md); 
-            background: var(--glass-bg); 
-            border: 1px solid var(--glass-border);
+            padding: 14px 20px; margin-bottom: 10px; border-radius: var(--radius-md); 
+            background: var(--glass-bg); border: 1px solid var(--glass-border);
             font-size: 15px; color: var(--text-main); font-weight: 500;
             transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             animation: slideInRight 0.5s ease backwards;
         }
 
-        /* Animação em Cascata para Listas */
         .lista-itens li:nth-child(1), #lista-prof-alunos li:nth-child(1) { animation-delay: 0.1s; }
         .lista-itens li:nth-child(2), #lista-prof-alunos li:nth-child(2) { animation-delay: 0.2s; }
         .lista-itens li:nth-child(3), #lista-prof-alunos li:nth-child(3) { animation-delay: 0.3s; }
@@ -305,13 +195,9 @@
         .lista-itens li:nth-child(5), #lista-prof-alunos li:nth-child(5) { animation-delay: 0.5s; }
         .lista-itens li:nth-child(n+6), #lista-prof-alunos li:nth-child(n+6) { animation-delay: 0.6s; }
 
-        @keyframes slideInRight {
-            from { opacity: 0; transform: translateX(30px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
+        @keyframes slideInRight { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
 
         .lista-itens li:hover { transform: scale(1.02) translateX(5px); background: var(--glass-bg-hover); box-shadow: 0 5px 15px rgba(0,0,0,0.08); }
-        
         .btn-remover { background: rgba(239, 68, 68, 0.15); color: #dc2626; font-size: 13px; padding: 8px 14px; border-radius: 8px; border: 1px solid rgba(239, 68, 68, 0.3); }
         .btn-remover:hover { background: var(--danger-hover); color: var(--white); border-color: transparent; }
 
@@ -327,18 +213,9 @@
         .badge-ok { background-color: rgba(16, 185, 129, 0.2); color: #047857; border: 1px solid rgba(16, 185, 129, 0.4); }
         .badge-cheio { background-color: rgba(239, 68, 68, 0.2); color: #b91c1c; border: 1px solid rgba(239, 68, 68, 0.4); animation: shake 0.5s ease-in-out; }
 
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-4px); }
-            75% { transform: translateX(4px); }
-        }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
 
-        #leitor-container { 
-            padding: 20px; border-radius: var(--radius-lg); 
-            margin-bottom: 30px; 
-            transition: all 0.4s ease;
-        }
-        
+        #leitor-container { padding: 20px; border-radius: var(--radius-lg); margin-bottom: 30px; transition: all 0.4s ease; }
         #reader { width: 100%; border-radius: var(--radius-md); overflow: hidden; border: 2px solid rgba(255,255,255,0.5) !important; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
         #reader video { object-fit: cover; border-radius: calc(var(--radius-md) - 2px); }
         #reader img { display: none !important; } 
@@ -371,15 +248,11 @@
             backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
         }
 
-        @keyframes popIn {
-            0% { opacity: 0; transform: scale(0.8) translateY(20px); }
-            100% { opacity: 1; transform: scale(1) translateY(0); }
-        }
+        @keyframes popIn { 0% { opacity: 0; transform: scale(0.8) translateY(20px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
 
         .verde { color: #064e3b; background: rgba(16, 185, 129, 0.25); border: 2px solid rgba(16, 185, 129, 0.5); display: block !important; }
         .vermelho { color: #7f1d1d; background: rgba(239, 68, 68, 0.25); border: 2px solid rgba(239, 68, 68, 0.5); display: block !important; }
 
-        /* --- IMPRESSÃO QR CODE --- */
         #area-impressao { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
         .cartao-qr { 
             display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -398,65 +271,21 @@
             .topo-barra h2 { width: 100%; text-align: right; }
         }
 
-        /* --- MODO IMPRESSÃO GARANTIDO (Sem Vidro, Fundo Branco) --- */
         @media print {
             @page { size: A4 portrait; margin: 10mm; }
-
             .fundo-midia, .overlay-fundo, .logo-escola, .topo-barra, .btn-imprimir { display: none !important; }
             body { background: white !important; margin: 0; padding: 0; min-height: auto; color: black !important; }
             .tela { display: none !important; animation: none !important; }
             
-            #tela-gerenciamento { 
-                display: block !important; max-width: 100% !important; 
-                margin: 0 !important; padding: 0 !important; 
-                background: white !important; border: none !important; box-shadow: none !important;
-            }
-            #tela-gerenciamento > .card:nth-child(2),
-            #tela-gerenciamento > .card:nth-child(3) { display: none !important; }
+            #tela-gerenciamento { display: block !important; max-width: 100% !important; margin: 0 !important; padding: 0 !important; background: white !important; border: none !important; box-shadow: none !important; }
+            #tela-gerenciamento > .card:nth-child(2), #tela-gerenciamento > .card:nth-child(3) { display: none !important; }
 
-            .card, .glass-panel {
-                border: none !important; box-shadow: none !important; background: transparent !important;
-                padding: 0 !important; margin: 0 !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important;
-            }
+            .card, .glass-panel { border: none !important; box-shadow: none !important; background: transparent !important; padding: 0 !important; margin: 0 !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+            #tela-gerenciamento .card h3, #tela-gerenciamento .card select, #tela-gerenciamento .card .linha-form, #tela-gerenciamento .card button, #tela-gerenciamento .card ul, #btn-remover-selecionados { display: none !important; }
+            #area-acoes-impressao { display: block !important; border: none !important; background: transparent !important; padding: 0 !important; margin: 0 !important; }
 
-            #tela-gerenciamento .card h3, #tela-gerenciamento .card select,
-            #tela-gerenciamento .card .linha-form, #tela-gerenciamento .card button,
-            #tela-gerenciamento .card ul, #btn-remover-selecionados { display: none !important; }
-
-            #area-acoes-impressao {
-                display: block !important; border: none !important;
-                background: transparent !important; padding: 0 !important; margin: 0 !important;
-            }
-
-            #area-impressao { 
-                display: grid !important; 
-                grid-template-columns: repeat(4, 1fr) !important; 
-                gap: 5mm !important; 
-                justify-items: center !important; 
-                align-items: start !important;
-                width: 100% !important; 
-            }
-
-            .cartao-qr { 
-                border: 1px dashed #000 !important; 
-                padding: 4mm !important; 
-                margin: 0 !important; 
-                page-break-inside: avoid !important; 
-                background: white !important; 
-                border-radius: 0 !important; 
-                box-shadow: none !important; 
-                transform: none !important; 
-                width: 44mm !important; 
-                height: 53mm !important; 
-                display: flex !important; 
-                flex-direction: column !important; 
-                align-items: center !important;
-                justify-content: center !important;
-                box-sizing: border-box !important;
-                backdrop-filter: none !important;
-                -webkit-backdrop-filter: none !important;
-            }
-
+            #area-impressao { display: grid !important; grid-template-columns: repeat(4, 1fr) !important; gap: 5mm !important; justify-items: center !important; align-items: start !important; width: 100% !important; }
+            .cartao-qr { border: 1px dashed #000 !important; padding: 4mm !important; margin: 0 !important; page-break-inside: avoid !important; background: white !important; border-radius: 0 !important; box-shadow: none !important; transform: none !important; width: 44mm !important; height: 53mm !important; display: flex !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; box-sizing: border-box !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
             .cartao-qr h3 { display: block !important; color: #000 !important; font-size: 11px !important; margin: 0 0 4px 0 !important; text-align: center !important; line-height: 1.2 !important; word-wrap: break-word !important; max-width: 100% !important; text-shadow: none !important; }
             .cartao-qr img, .cartao-qr canvas { display: block !important; max-width: 32mm !important; height: auto !important; }
         }
@@ -477,7 +306,7 @@
         <h2>Bem-vindo</h2>
         <div id="status-conexao">
             <span class="status-dot" id="dot-conexao"></span>
-            <span id="texto-conexao">Conectando ao servidor...</span>
+            <span id="texto-conexao">Verificando conexão...</span>
         </div>
         <input type="password" id="input-login" placeholder="Digite sua senha" onkeypress="verificarEnterLogin(event)" disabled>
         <button id="btn-entrar" onclick="fazerLogin()" disabled>Acessar Sistema</button>
@@ -588,7 +417,7 @@
         </div>
     </div>
 
-    <!-- SCRIPTS (LÓGICA INTACTA) -->
+    <!-- SCRIPTS -->
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyBWB41DNUr-14oi6N3D_8M6KPFqH3yYesU",
@@ -618,6 +447,15 @@
         let ultimoScanGlobal = 0;
         let ultimosScansAlunos = {};
 
+        // MONITORAR CONEXÃO DE REDE DO FIREBASE
+        database.ref('.info/connected').on('value', function(snap) {
+            const texto = document.getElementById('texto-conexao');
+            if (snap.val() === true) {
+                texto.innerText = "Autenticando no banco de dados...";
+            }
+        });
+
+        // ADICIONADO TRATAMENTO DE ERRO DE PERMISSÕES
         refConfig.on('value', (snapshot) => {
             if (snapshot.exists()) {
                 dbConfig = snapshot.val();
@@ -629,6 +467,7 @@
             const dot = document.getElementById('dot-conexao');
             const texto = document.getElementById('texto-conexao');
             if (dot && texto) {
+                dot.classList.remove('erro');
                 dot.classList.add('online');
                 texto.innerText = "Sistema Online e Pronto";
                 texto.style.color = "#10b981";
@@ -639,6 +478,16 @@
 
             atualizarListasGerenciamento();
             if (document.getElementById('tela-diretor').style.display === 'block') atualizarSelectDiretor();
+        }, (error) => {
+            // SE CAIR AQUI, AS REGRAS DO FIREBASE ESTÃO BLOQUEADAS
+            console.error("Erro do Firebase:", error);
+            const dot = document.getElementById('dot-conexao');
+            const texto = document.getElementById('texto-conexao');
+            dot.classList.remove('online');
+            dot.classList.add('erro');
+            texto.innerText = "Acesso Negado. Verifique as Rules do Firebase.";
+            texto.style.color = "#ef4444";
+            alert("ERRO: O Firebase bloqueou o acesso! Certifique-se de que as Regras do Realtime Database estão definidas como '.read': true e '.write': true.");
         });
 
         function verificarEnterLogin(event) { if (event.key === 'Enter') fazerLogin(); }
@@ -653,14 +502,14 @@
                 return;
             }
 
-            if (senhaDigitada === dbConfig.senha_diretor) {
+            if (dbConfig && senhaDigitada === dbConfig.senha_diretor) {
                 abrirTela("tela-diretor");
                 iniciarModoDiretor();
                 return;
             }
 
             let turmaEncontrada = null;
-            if (dbConfig.turmas) {
+            if (dbConfig && dbConfig.turmas) {
                 for (let turma in dbConfig.turmas) {
                     let senhasDaTurma = dbConfig.turmas[turma].senhas || [];
                     if (senhasDaTurma.includes(senhaDigitada)) { turmaEncontrada = turma; break; }
@@ -983,16 +832,33 @@
             .catch(err => {
                 console.error("Erro ao iniciar a câmera: ", err);
                 const msgDiv = document.getElementById('mensagem');
-                msgDiv.innerHTML = "Erro ao acessar a câmera. Verifique as permissões de vídeo.";
+                // AVISO EXPLICÍTO SOBRE CELULAR E HTTPS
+                msgDiv.innerHTML = "❌ <strong>Erro ao acessar a câmera.</strong><br>Verifique as permissões ou certifique-se de acessar via <strong>HTTPS</strong> no celular.";
                 msgDiv.className = "vermelho";
+                msgDiv.style.display = "block";
             });
         }
 
+        // ADAPTAÇÃO PARA CELULARES ANDROID
         function iniciarCamera() {
+            // Ajusta o quadrado de leitura para não estourar telas pequenas no Android
+            const larguraTela = window.innerWidth;
+            const tamanhoQrBox = larguraTela < 400 ? 200 : 250;
+
             const configCamera = cameraTraseira ? { facingMode: "environment" } : { facingMode: "user" };
-            const configLeitor = { fps: 12, qrbox: { width: 250, height: 250 } };
-            if (html5QrCode) html5QrCode.stop().then(() => initInstancia(configCamera, configLeitor)).catch(e => console.log(e));
-            else initInstancia(configCamera, configLeitor);
+            const configLeitor = { 
+                fps: 12, 
+                qrbox: { width: tamanhoQrBox, height: tamanhoQrBox },
+                aspectRatio: 1.0 // Evita que a câmera fique esticada ou bugada no mobile
+            };
+
+            if (html5QrCode) {
+                html5QrCode.stop().then(() => initInstancia(configCamera, configLeitor)).catch(e => {
+                    initInstancia(configCamera, configLeitor);
+                });
+            } else {
+                initInstancia(configCamera, configLeitor);
+            }
         }
 
         function alternarCamera() { cameraTraseira = !cameraTraseira; iniciarCamera(); }
@@ -1011,6 +877,7 @@
             ultimoLido = qrLido; clearTimeout(tempoEspera); tempoEspera = setTimeout(() => ultimoLido = "", 4000);
 
             const msgDiv = document.getElementById('mensagem');
+            msgDiv.style.display = "block";
 
             if (qrLido === "EDUCADOR") {
                 if (navigator.vibrate) navigator.vibrate([200, 100, 200]); 
