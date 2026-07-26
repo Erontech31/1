@@ -324,7 +324,7 @@
 <audio id="core-audio"></audio>
 
 <script>
-    let playlist = []; // Armazena os arquivos carregados dinamicamente
+    let playlist = []; 
     let peer = null;
     let connections = [];
     let isHost = false;
@@ -379,9 +379,6 @@
         }
     }
 
-    // ==========================================
-    // CAPTURA AUTOMÁTICA DE ARQUIVOS MP3
-    // ==========================================
     function handleFileSelect(event) {
         const files = event.target.files;
         if (files.length === 0) return;
@@ -440,9 +437,11 @@
             
             conn.on('open', () => {
                 if(currentTrackIndex !== -1) {
+                    const track = playlist[currentTrackIndex];
                     conn.send({ 
-                        type: 'sync', 
-                        trackName: playlist[currentTrackIndex].name, 
+                        type: 'load_track', 
+                        fileName: track.name, 
+                        fileBlob: track.file,
                         time: audio.currentTime, 
                         playing: !audio.paused,
                         volume: audio.volume
@@ -485,7 +484,7 @@
     }
 
     // ==========================================
-    // CONTROLES DE ÁUDIO & METADADOS (ID3)
+    // CONTRORES DE ÁUDIO & METADADOS (ID3)
     // ==========================================
     function playTrack(index) {
         if(index < 0 || index >= playlist.length) return;
@@ -504,7 +503,16 @@
         audio.play();
 
         extractCoverArtFromFile(track.file, 'host-cover');
-        broadcast({ type: 'track', trackName: track.name });
+        
+        // Envia a música e o arquivo Blob para os ouvintes conectados
+        broadcast({ 
+            type: 'load_track', 
+            fileName: track.name, 
+            fileBlob: track.file,
+            time: 0,
+            playing: true,
+            volume: audio.volume
+        });
     }
 
     function togglePlay() {
@@ -564,26 +572,27 @@
 
             hostConn.on('data', (data) => {
                 switch(data.type) {
-                    case 'track':
-                    case 'sync':
+                    case 'load_track':
                         document.getElementById('client-player-card').style.display = 'block';
-                        document.getElementById('client-title').innerText = data.trackName;
-                        // O cliente busca o arquivo com o mesmo nome na máquina dele se possuir
-                        audio.src = data.trackName; 
+                        document.getElementById('client-title').innerText = data.fileName;
                         
-                        if(data.type === 'sync') {
-                            audio.currentTime = data.time || 0;
-                            audio.volume = data.volume || 0.5;
-                            if(data.playing) audio.play().catch(e => console.log("Aguardando interação."));
+                        // Cria a URL temporária local com o arquivo binário recebido do Host
+                        const blobUrl = URL.createObjectURL(data.fileBlob);
+                        audio.src = blobUrl;
+                        audio.currentTime = data.time || 0;
+                        audio.volume = data.volume || 0.5;
+                        
+                        if(data.playing) {
+                            audio.play().catch(e => console.log("Aguardando toque no botão de áudio."));
                         }
                         break;
                     case 'play':
-                        if(data.time) audio.currentTime = data.time;
-                        audio.play().catch(e => console.log("Aguardando botão 'Tocar'"));
+                        if(data.time !== undefined) audio.currentTime = data.time;
+                        audio.play().catch(e => console.log("Aguardando interação"));
                         break;
                     case 'pause':
                         audio.pause();
-                        if(data.time) audio.currentTime = data.time;
+                        if(data.time !== undefined) audio.currentTime = data.time;
                         break;
                     case 'time':
                         audio.currentTime = data.time;
