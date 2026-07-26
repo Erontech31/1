@@ -125,31 +125,6 @@
         input::placeholder { color: rgba(255,255,255,0.9); text-shadow: none; }
         input[type="text"] { text-align: center; font-size: 24px; letter-spacing: 5px; outline: none; }
         
-        /* Botão Personalizado para Selecionar Arquivos */
-        .file-upload-btn {
-            display: block;
-            width: 100%;
-            padding: 15px;
-            margin: 10px 0;
-            border-radius: 16px;
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.08));
-            border: 2px dashed rgba(255, 255, 255, 0.6);
-            color: white;
-            font-size: 15px;
-            font-weight: bold;
-            text-align: center;
-            cursor: pointer;
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
-            transition: all 0.3s ease;
-        }
-        .file-upload-btn:hover {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.15));
-            border-color: rgba(255, 255, 255, 0.9);
-            transform: translateY(-2px);
-        }
-
         /* Botão Voltar Menor */
         .back-btn {
             width: auto; padding: 10px 15px; margin: 0 0 20px 0;
@@ -272,15 +247,14 @@
             <div class="status-badge" id="host-status" style="float: right; margin-top: 10px;">Aguardando...</div>
         </div>
 
-        <!-- BOTÃO DE SELECIONAR MÚSICAS AUTOMATICAMENTE -->
-        <label class="file-upload-btn">
-            <i class="fas fa-folder-open"></i> Selecionar Músicas (.mp3)
-            <input type="file" id="music-files" multiple accept=".mp3" style="display: none;" onchange="handleFileSelect(event)">
-        </label>
+        <!-- BOTÃO PARA CARREGAR MÚSICAS DE 0 A 10 AUTOMATICAMENTE -->
+        <button onclick="loadDefaultPlaylist()" style="background: linear-gradient(135deg, rgba(231, 60, 126, 0.6), rgba(35, 166, 213, 0.6));">
+            <i class="fas fa-sync-alt"></i> Carregar Músicas (0.mp3 a 10.mp3)
+        </button>
 
         <!-- Lista de Músicas Carregadas -->
         <ul class="playlist" id="playlist-ui">
-            <li style="justify-content: center; opacity: 0.7; cursor: default;">Nenhuma música selecionada ainda</li>
+            <li style="justify-content: center; opacity: 0.7; cursor: default;">Clique no botão acima para carregar as músicas</li>
         </ul>
 
         <!-- CARD DO PLAYER (HOST) -->
@@ -379,19 +353,25 @@
         }
     }
 
-    function handleFileSelect(event) {
-        const files = event.target.files;
-        if (files.length === 0) return;
-
+    async function loadDefaultPlaylist() {
         playlist = [];
-        for (let i = 0; i < files.length; i++) {
-            const file = files[i];
-            if (file.type === "audio/mpeg" || file.name.toLowerCase().endsWith('.mp3')) {
-                playlist.push({
-                    name: file.name,
-                    file: file,
-                    url: URL.createObjectURL(file)
-                });
+        const listEl = document.getElementById('playlist-ui');
+        listEl.innerHTML = `<li style="justify-content: center; opacity: 0.7; cursor: default;">Carregando músicas (0.mp3 a 10.mp3)...</li>`;
+        
+        for (let i = 0; i <= 10; i++) {
+            const fileName = `${i}.mp3`;
+            try {
+                const response = await fetch(fileName);
+                if (response.ok) {
+                    const blob = await response.blob();
+                    playlist.push({
+                        name: fileName,
+                        file: blob,
+                        url: URL.createObjectURL(blob)
+                    });
+                }
+            } catch (e) {
+                console.log(`Arquivo ${fileName} não encontrado.`);
             }
         }
 
@@ -403,7 +383,7 @@
         listEl.innerHTML = '';
         
         if (playlist.length === 0) {
-            listEl.innerHTML = `<li style="justify-content: center; opacity: 0.7; cursor: default;">Nenhum arquivo MP3 válido encontrado</li>`;
+            listEl.innerHTML = `<li style="justify-content: center; opacity: 0.7; cursor: default;">Nenhum arquivo (0.mp3 a 10.mp3) encontrado na pasta!</li>`;
             return;
         }
 
@@ -484,7 +464,7 @@
     }
 
     // ==========================================
-    // CONTRORES DE ÁUDIO & METADADOS (ID3)
+    // CONTROLES DE ÁUDIO & METADADOS (ID3)
     // ==========================================
     function playTrack(index) {
         if(index < 0 || index >= playlist.length) return;
@@ -576,7 +556,6 @@
                         document.getElementById('client-player-card').style.display = 'block';
                         document.getElementById('client-title').innerText = data.fileName;
                         
-                        // Cria a URL temporária local com o arquivo binário recebido do Host
                         const blobUrl = URL.createObjectURL(data.fileBlob);
                         audio.src = blobUrl;
                         audio.currentTime = data.time || 0;
