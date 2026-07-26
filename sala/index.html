@@ -134,7 +134,7 @@
         .clearfix::after { content: ""; clear: both; display: table; }
 
         /* Lista de Músicas */
-        .playlist { list-style: none; padding: 0; max-height: 250px; overflow-y: auto; margin: 15px 0; }
+        .playlist { list-style: none; padding: 0; max-height: 230px; overflow-y: auto; margin: 15px 0; }
         .playlist::-webkit-scrollbar { width: 6px; }
         .playlist::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.5); border-radius: 10px; }
         .playlist li {
@@ -313,14 +313,15 @@
             <div class="status-badge" id="host-status" style="float: right; margin-top: 10px;">Aguardando...</div>
         </div>
 
-        <!-- BOTÃO PARA CARREGAR MÚSICAS DE 0 A 10 AUTOMATICAMENTE -->
-        <button onclick="loadDefaultPlaylist()" style="background: linear-gradient(135deg, rgba(231, 60, 126, 0.6), rgba(35, 166, 213, 0.6));">
-            <i class="fas fa-sync-alt"></i> Carregar Músicas (0.mp3 a 10.mp3)
+        <!-- SELETOR DE ARQUIVOS LOCAL (SELECIONAR MÚSICAS DO PC) -->
+        <input type="file" id="local-audio-input" multiple accept="audio/*" style="display: none;" onchange="handleFileSelect(event)">
+        <button onclick="document.getElementById('local-audio-input').click()" style="background: linear-gradient(135deg, rgba(231, 60, 126, 0.6), rgba(35, 166, 213, 0.6));">
+            <i class="fas fa-folder-open"></i> Selecionar Músicas do Computador
         </button>
 
         <!-- Lista de Músicas Carregadas -->
         <ul class="playlist" id="playlist-ui">
-            <li style="justify-content: center; opacity: 0.7; cursor: default;">Clique no botão acima para carregar as músicas</li>
+            <li style="justify-content: center; opacity: 0.7; cursor: default;">Nenhuma música selecionada</li>
         </ul>
     </div>
 
@@ -342,7 +343,7 @@
 
 </div>
 
-<!-- POP-UP MODAL DO PLAYER (HOST) - FLutuante na Tela -->
+<!-- POP-UP MODAL DO PLAYER (HOST) - Flutuante na Tela -->
 <div id="player-card" class="glass">
     <button class="close-popup-btn" onclick="closePlayerModal()"><i class="fas fa-times"></i></button>
     <img src="" id="host-cover" class="cover-art" style="display: none;">
@@ -420,26 +421,18 @@
         }
     }
 
-    async function loadDefaultPlaylist() {
+    function handleFileSelect(event) {
+        const files = event.target.files;
+        if (files.length === 0) return;
+
         playlist = [];
-        const listEl = document.getElementById('playlist-ui');
-        listEl.innerHTML = `<li style="justify-content: center; opacity: 0.7; cursor: default;">Carregando músicas (0.mp3 a 10.mp3)...</li>`;
-        
-        for (let i = 0; i <= 10; i++) {
-            const fileName = `${i}.mp3`;
-            try {
-                const response = await fetch(fileName);
-                if (response.ok) {
-                    const blob = await response.blob();
-                    playlist.push({
-                        name: fileName,
-                        file: blob,
-                        url: URL.createObjectURL(blob)
-                    });
-                }
-            } catch (e) {
-                console.log(`Arquivo ${fileName} não encontrado.`);
-            }
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            playlist.push({
+                name: file.name,
+                file: file,
+                url: URL.createObjectURL(file)
+            });
         }
 
         renderPlaylist();
@@ -450,7 +443,7 @@
         listEl.innerHTML = '';
         
         if (playlist.length === 0) {
-            listEl.innerHTML = `<li style="justify-content: center; opacity: 0.7; cursor: default;">Nenhum arquivo (0.mp3 a 10.mp3) encontrado na pasta!</li>`;
+            listEl.innerHTML = `<li style="justify-content: center; opacity: 0.7; cursor: default;">Nenhuma música selecionada</li>`;
             return;
         }
 
