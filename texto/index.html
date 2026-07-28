@@ -795,36 +795,80 @@
             };
         }
 
-        // ==================== ALGORITMO DE DIVISÃO SILÁBICA ====================
+        // ==================== ALGORITMO DE DIVISÃO SILÁBICA (CORRIGIDO) ====================
         function dividirSilabasPT(palavra, separador = "-") {
             let p = palavra.trim();
             if (!p) return "";
             let pontuacaoFim = p.match(/[.,\/#!$%\^&\*;:{}=\-_`~()?«»"'\\!？。，、；：]+$/) || "";
             let pontuacaoInicio = p.match(/^[.,\/#!$%\^&\*;:{}=\-_`~()?«»"'\\!？。，、；：]+/) || "";
             let termo = p.replace(/^[.,\/#!$%\^&\*;:{}=\-_`~()?«»"'\\!？。，、；：]+|[.,\/#!$%\^&\*;:{}=\-_`~()?«»"'\\!？。，、；：]+$/g, "");
-            if (termo.length <= 1) return p;
+            
+            if (termo.length <= 2) return p;
 
-            const vogais = "aeiouáéíóúâêôãõàíúéóáîôûçAEIOUÁÉÍÓÚÂÊÔÃÕÀÍÚÉÓÁÎÔÛÇ";
+            // 'ç' foi removido da lista de vogais
+            const vogais = "aeiouáéíóúâêôãõàíúéóáîôûAEIOUÁÉÍÓÚÂÊÔÃÕÀÍÚÉÓÁÎÔÛ"; 
+            const isVogal = (l) => vogais.includes(l);
+            const isConsoante = (l) => l && !isVogal(l) && /[a-zç]/i.test(l);
+            
             let s = termo.split('');
-            let tipos = s.map(l => vogais.includes(l) ? 'V' : 'C');
             let cortes = new Array(s.length).fill(false);
             
             for (let i = 0; i < s.length - 1; i++) {
-                let c1 = s[i].toLowerCase(), c2 = s[i+1].toLowerCase(), c3 = (i + 2 < s.length) ? s[i+2].toLowerCase() : "";
-                let t1 = tipos[i], t2 = tipos[i+1], t3 = tipos[i+2] || '';
+                let c1 = s[i].toLowerCase();
+                let c2 = s[i+1].toLowerCase();
+                let c3 = (i + 2 < s.length) ? s[i+2].toLowerCase() : "";
                 
-                if ((c1==='r' && c2==='r') || (c1==='s' && c2==='s') || (c1==='s' && c2==='c') || (c1==='s' && c2==='ç') || (c1==='x' && c2==='c')) { cortes[i] = true; continue; }
-                if ((c1==='c' && c2==='h') || (c1==='l' && c2==='h') || (c1==='n' && c2==='h') || (c1==='g' && c2==='u') || (c1==='q' && c2==='u')) { continue; }
-                if (t1 === 'C' && t2 === 'C' && ['r', 'l'].includes(c2)) { continue; }
-                if (t1 === 'V' && t2 === 'C' && t3 === 'V') { cortes[i] = true; continue; }
-                if (t1 === 'V' && t2 === 'C' && t3 === 'C') {
-                    if ((['r', 'l'].includes(c3) && c2 !== c3 && c2 !== 's') || c3 === 'h' || (c2 === 'g' && c3 === 'u') || (c2 === 'q' && c3 === 'u')) { cortes[i] = true; }
+                // 1. Dígrafos que se separam
+                if ((c1==='r' && c2==='r') || (c1==='s' && c2==='s') || 
+                    (c1==='s' && c2==='c') || (c1==='s' && c2==='ç') || 
+                    (c1==='x' && c2==='c') || (c1==='x' && c2==='s') || 
+                    (c1==='c' && c2==='c') || (c1==='c' && c2==='ç')) {
+                    cortes[i] = true;
                     continue;
                 }
-                if (t1 === 'C' && t2 === 'C') { cortes[i] = true; continue; }
-                if (t1 === 'V' && t2 === 'V') {
-                    let ditongos = ["ai","au","ei","eu","oi","ou","ui","ia","ie","io","iu","ua","ue","uo","ão","õe","ao","eo","oa","éu","ói","õi"];
-                    if (!ditongos.includes(c1 + c2)) { cortes[i] = true; }
+                
+                // 2. Dígrafos inseparáveis
+                if ((c1==='c' && c2==='h') || (c1==='l' && c2==='h') || 
+                    (c1==='n' && c2==='h') || (c1==='g' && c2==='u') || 
+                    (c1==='q' && c2==='u')) {
+                    continue;
+                }
+                
+                // 3. Encontros consonantais inseparáveis (Consoante + L ou R)
+                if (isConsoante(c1) && ['r', 'l'].includes(c2) && !['r','s','x','z'].includes(c1)) {
+                    continue;
+                }
+                
+                // 4. Vogal seguida de Consoante + Vogal
+                if (isVogal(c1) && isConsoante(c2) && isVogal(c3)) {
+                    cortes[i] = true;
+                    continue;
+                }
+                
+                // 5. Vogal seguida de Consoante + Consoante
+                if (isVogal(c1) && isConsoante(c2) && isConsoante(c3)) {
+                    if (['h', 'l', 'r'].includes(c3) && !['r', 's', 'x', 'z'].includes(c2)) {
+                        cortes[i] = true; 
+                    } else if ((c2 === 'q' || c2 === 'g') && c3 === 'u') {
+                        cortes[i] = true;
+                    }
+                    continue;
+                }
+                
+                // 6. Consoante seguida de Consoante
+                if (isConsoante(c1) && isConsoante(c2)) {
+                    if (!['h', 'l', 'r'].includes(c2)) {
+                        cortes[i] = true;
+                    }
+                    continue;
+                }
+                
+                // 7. Encontros Vocálicos (Ditongo x Hiato simplificado)
+                if (isVogal(c1) && isVogal(c2)) {
+                    let ditongos = ["ai","au","ei","eu","oi","ou","ui","ia","ie","io","iu","ua","ue","uo","ão","õe","ao","eo","oa","éu","ói","õi", "ãe"];
+                    if (!ditongos.includes(c1 + c2)) {
+                        cortes[i] = true;
+                    }
                 }
             }
             
