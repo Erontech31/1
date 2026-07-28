@@ -532,7 +532,8 @@
             gap: 8px;
             margin-bottom: 20px;
         }
-        .result-area.mode-caed .word-silaba {
+        .result-area.mode-caed .word-silaba,
+        .result-area.mode-caed .word-enumerada {
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -545,17 +546,31 @@
             color: #2d3748;
             box-shadow: 0 2px 4px rgba(0,0,0,0.03);
             margin: 0;
+            position: relative;
+        }
+        .result-area.mode-caed .word-number {
+            position: absolute;
+            top: -10px;
+            right: -6px;
+            background: #e53e3e;
+            color: #FFF;
+            font-size: 10px;
+            font-weight: 900;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
-        /* ===== Modo Formal - Regras da ABNT ===== */
+        /* ===== Modo Formal (ABNT em Células) ===== */
         .result-area.mode-formal {
-            border: 1px solid #cbd5e0;
-            font-family: 'Arial', sans-serif;
-            font-size: 12pt;
-            line-height: 1.5;
-            text-align: justify;
-            color: #000;
             background: #fff;
+            border: 1px solid #000;
+            font-family: 'Arial', sans-serif;
+            font-size: 11pt;
             padding: 40px;
         }
         .result-area.mode-formal .result-title {
@@ -569,41 +584,41 @@
             font-size: 12pt;
         }
         .result-area.mode-formal .paragraph-wrapper {
-            text-indent: 1.25cm;
-            margin-bottom: 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            text-indent: 0;
+            margin-bottom: 16px;
         }
-        .result-area.mode-formal .word-silaba {
-            display: inline;
-            padding: 0;
-            margin: 0;
-            background: none;
-            border: none; 
-            border-radius: 0;
-            font-weight: normal;
-        }
+        .result-area.mode-formal .word-silaba,
         .result-area.mode-formal .word-enumerada {
-            display: inline;
-            position: relative;
-            padding: 0;
-            margin: 0 3px 0 0;
-            background: none;
-            color: #000;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6px 10px;
+            background: #fff;
+            border: 1px solid #718096;
+            border-radius: 4px;
+            font-size: 11pt;
             font-weight: normal;
+            color: #000;
+            margin: 0;
+            position: relative;
         }
         .result-area.mode-formal .word-number {
-            position: static;
-            transform: none;
-            display: inline;
-            font-size: 70%; 
-            color: #444;
-            background: none;
-            border: none;
-            width: auto;
-            height: auto;
-            margin-right: 2px;
-            vertical-align: super;
-            font-weight: normal;
-            box-shadow: none;
+            position: absolute;
+            top: -8px;
+            right: -5px;
+            background: #2d3748;
+            color: #FFF;
+            font-size: 9pt;
+            font-weight: bold;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         /* ==================== IMPRESSÃO OTIMIZADA ==================== */
@@ -626,9 +641,11 @@
                 background: #fff !important;
             }
             .result-area.mode-dynamic { padding: 10px 0 !important; font-size: 12px; line-height: 1.4; }
-            .result-area.mode-caed .word-silaba { border: 1px solid #000 !important; background: #fff !important; }
-            .result-area.mode-formal { padding: 0 !important; font-size: 12pt; line-height: 1.5; }
+            .result-area.mode-caed .word-silaba, .result-area.mode-caed .word-enumerada { border: 1px solid #000 !important; background: #fff !important; }
+            .result-area.mode-formal { padding: 0 !important; font-size: 11pt; }
             .result-area.mode-formal .result-title { font-size: 12pt; margin-bottom: 24pt; }
+            .result-area.mode-formal .word-silaba, .result-area.mode-formal .word-enumerada { border: 1px solid #000 !important; background: #fff !important; color: #000 !important; }
+            .result-area.mode-formal .word-number { background: #000 !important; color: #fff !important; }
             * {
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
@@ -790,27 +807,12 @@
             if (modo === 'dynamic') {
                 container.classList.add('mode-dynamic');
                 botoes[0].classList.add('active');
-                if (aba === 'silabas') {
-                    container.querySelectorAll('.word-silaba').forEach(w => {
-                        w.textContent = w.textContent.replace(/\s*\|\s*/g, '-');
-                    });
-                }
             } else if (modo === 'caed') {
                 container.classList.add('mode-caed');
                 botoes[1].classList.add('active');
-                if (aba === 'silabas') {
-                    container.querySelectorAll('.word-silaba').forEach(w => {
-                        w.textContent = w.textContent.replace(/\s*\|\s*/g, '-');
-                    });
-                }
             } else {
                 container.classList.add('mode-formal');
                 botoes[2].classList.add('active');
-                if (aba === 'silabas') {
-                    container.querySelectorAll('.word-silaba').forEach(w => {
-                        w.textContent = w.textContent.replace(/-/g, ' | ');
-                    });
-                }
             }
         }
 
@@ -850,7 +852,7 @@
             let p = palavra.trim();
             if (!p) return "";
             
-            let pontuacaoFim = p.match(/[.,\/#!$%\^&\*;:{}=\-_`~()?«»"'\\!？$.，、；：]+$/) || "";
+            let pontuacaoFim = p.match(/[.,\/#!$%\^&\*;:{}=\-_`~()?«»"'\\!？$..,;:]+$/) || "";
             let pontuacaoInicio = p.match(/^[.,\/#!$%\^&\*;:{}=\-_`~()?«»"'\\!？。，、；：]+/) || "";
             let termo = p.replace(/^[.,\/#!$%\^&\*;:{}=\-_`~()?«»"'\\!？。，、；：]+|[.,\/#!$%\^&\*;:{}=\-_`~()?«»"'\\!？。，、；：]+$/g, "");
             
@@ -903,7 +905,7 @@
                 // 6. Consoante seguida de Consoante
                 else if (isConsoante(c1) && isConsoante(c2)) {
                     if (c2 === 's' && (isConsoante(c3) || c3 === "")) {
-                        shouldCut = false; // Agrupa 's' finais ou em final de sílaba travada
+                        shouldCut = false;
                     } else if (!['h', 'l', 'r'].includes(c2)) {
                         shouldCut = true;
                     }
@@ -916,7 +918,6 @@
                     }
                 }
 
-                // Validação estrita: O corte só é permitido se a sílaba anterior e a posterior possuírem pelo menos uma vogal
                 if (shouldCut) {
                     let leftPart = s.slice(lastCut + 1, i + 1).join('');
                     let rightPart = s.slice(i + 1).join('');
@@ -959,13 +960,9 @@
                 const title = document.getElementById('title-silabas').value || 'Divisão Silábica';
                 const outTitle = document.getElementById('out-title-silabas');
                 const outText = document.getElementById('out-text-silabas');
-                const container = document.getElementById('result-silabas-container');
 
                 outTitle.textContent = title;
                 outText.innerHTML = '';
-
-                const isFormal = container.classList.contains('mode-formal');
-                const sep = isFormal ? ' | ' : '-';
 
                 const paragraphs = texto.split('\n');
                 paragraphs.forEach((p, idx) => {
@@ -981,12 +978,9 @@
                     words.forEach((w, i) => {
                         const span = document.createElement('span');
                         span.className = 'word-silaba';
-                        span.textContent = dividirSilabasPT(w, sep);
+                        span.textContent = dividirSilabasPT(w, '-');
                         span.style.animationDelay = ((idx * 0.05) + (i * 0.015)) + 's';
                         pDiv.appendChild(span);
-                        if (!container.classList.contains('mode-caed')) {
-                            pDiv.appendChild(document.createTextNode(' '));
-                        }
                     });
                     outText.appendChild(pDiv);
                 });
@@ -1016,7 +1010,6 @@
                 const title = document.getElementById('title-enum').value || 'Texto Enumerado';
                 const outTitle = document.getElementById('out-title-enum');
                 const outText = document.getElementById('out-text-enum');
-                const container = document.getElementById('result-enum-container');
 
                 outTitle.textContent = title;
                 outText.innerHTML = '';
@@ -1041,9 +1034,6 @@
                         span.innerHTML = `<span class="word-number">${counter}</span>${w}`;
                         counter++;
                         pDiv.appendChild(span);
-                        if (!container.classList.contains('mode-caed')) {
-                            pDiv.appendChild(document.createTextNode(' '));
-                        }
                     });
                     outText.appendChild(pDiv);
                 });
