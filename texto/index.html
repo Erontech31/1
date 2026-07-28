@@ -522,13 +522,13 @@
         /* ===== Modo Formal - Regras da ABNT ===== */
         .result-area.mode-formal {
             border: 1px solid #cbd5e0;
-            font-family: 'Arial', sans-serif; /* Fonte padrão ABNT */
-            font-size: 12pt; /* Tamanho 12pt */
-            line-height: 1.5; /* Espaçamento entrelinhas 1.5 */
-            text-align: justify; /* Alinhamento Justificado */
+            font-family: 'Arial', sans-serif;
+            font-size: 12pt;
+            line-height: 1.5;
+            text-align: justify;
             color: #000;
             background: #fff;
-            padding: 40px; /* Margem interna para simular folha A4 */
+            padding: 40px;
         }
         .result-area.mode-formal .result-title {
             color: #000;
@@ -536,11 +536,10 @@
             font-weight: bold;
             text-align: center;
             border-bottom: none;
-            margin-bottom: 24pt; /* Espaçamento antes de iniciar o texto */
+            margin-bottom: 24pt;
             padding-bottom: 0;
-            font-size: 12pt; /* Mesma fonte do texto */
+            font-size: 12pt;
         }
-        /* Recuo de 1,25 cm no parágrafo padrão ABNT */
         .result-area.mode-formal .paragraph-wrapper {
             text-indent: 1.25cm;
             margin-bottom: 0;
@@ -807,7 +806,7 @@
             };
         }
 
-        // ==================== ALGORITMO DE DIVISÃO SILÁBICA (CORRIGIDO E OTIMIZADO) ====================
+        // ==================== ALGORITMO DE DIVISÃO SILÁBICA (CORREÇÃO RIGOROSA DE CONSOANTES SOLITAS) ====================
         function dividirSilabasPT(palavra, separador = "-") {
             let p = palavra.trim();
             if (!p) return "";
@@ -840,15 +839,15 @@
                     (c1==='c' && c2==='c') || (c1==='c' && c2==='ç')) {
                     shouldCut = true;
                 }
-                // 2. Dígrafos inseparáveis (Ignorar separação)
+                // 2. Dígrafos inseparáveis
                 else if ((c1==='c' && c2==='h') || (c1==='l' && c2==='h') || 
                     (c1==='n' && c2==='h') || (c1==='g' && c2==='u') || 
                     (c1==='q' && c2==='u')) {
-                    // mantem false
+                    shouldCut = false;
                 }
                 // 3. Encontros consonantais inseparáveis
                 else if (isConsoante(c1) && ['r', 'l'].includes(c2) && !['r','s','x','z'].includes(c1)) {
-                    // mantem false
+                    shouldCut = false;
                 }
                 // 4. Vogal seguida de Consoante + Vogal
                 else if (isVogal(c1) && isConsoante(c2) && isVogal(c3)) {
@@ -864,16 +863,13 @@
                 }
                 // 6. Consoante seguida de Consoante
                 else if (isConsoante(c1) && isConsoante(c2)) {
-                    // === REGRA DE OURO PARA CORREÇÃO DO "S" NO FINAL E PLURAL ===
-                    // Nunca se separa um 's' se ele vier após uma consoante encerrando a palavra (ex: homem -> homens)
-                    // ou se for parte do final de uma sílaba seguida de consoante (ex: trans-por-te).
                     if (c2 === 's' && (isConsoante(c3) || c3 === "")) {
-                        // Não separa
+                        shouldCut = false; // Agrupa 's' finais ou em final de sílaba travada
                     } else if (!['h', 'l', 'r'].includes(c2)) {
                         shouldCut = true;
                     }
                 }
-                // 7. Encontros Vocálicos (Ditongos simplificados)
+                // 7. Encontros Vocálicos
                 else if (isVogal(c1) && isVogal(c2)) {
                     let ditongos = ["ai","au","ei","eu","oi","ou","ui","ia","ie","io","iu","ua","ue","uo","ão","õe","ao","eo","oa","éu","ói","õi", "ãe"];
                     if (!ditongos.includes(c1 + c2)) {
@@ -881,13 +877,14 @@
                     }
                 }
 
-                // === SEGUNDA REGRA DE OURO: UMA SÍLABA PRECISA TER VOGAL ===
-                // Se fomos instruídos a cortar, verificamos se a parte à esquerda contém pelo menos uma vogal.
+                // Validação estrita: O corte só é permitido se a sílaba anterior e a posterior possuírem pelo menos uma vogal
                 if (shouldCut) {
                     let leftPart = s.slice(lastCut + 1, i + 1).join('');
+                    let rightPart = s.slice(i + 1).join('');
                     let hasVowelLeft = /[aeiouáéíóúâêôãõàíúéóáîôû]/i.test(leftPart);
+                    let hasVowelRight = /[aeiouáéíóúâêôãõàíúéóáîôû]/i.test(rightPart);
                     
-                    if (hasVowelLeft) {
+                    if (hasVowelLeft && hasVowelRight) {
                         cortes[i] = true;
                         lastCut = i;
                     }
