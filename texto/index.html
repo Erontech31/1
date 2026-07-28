@@ -406,9 +406,11 @@
             padding: 8px;
             border-radius: 12px;
             border: 1.5px solid rgba(49,130,206,0.2);
+            flex-wrap: wrap;
         }
         .mode-btn {
             flex: 1;
+            min-width: 120px;
             padding: 12px 10px;
             font-size: clamp(0.8rem, 2.3vw, 0.95rem);
             font-weight: 800;
@@ -519,6 +521,32 @@
             animation: bounceScale 0.5s ease;
         }
 
+        /* ===== Modo CAED (Grade / Células de Palavras) ===== */
+        .result-area.mode-caed {
+            background: #fff;
+            border: 1.5px solid #cbd5e0;
+        }
+        .result-area.mode-caed .paragraph-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        .result-area.mode-caed .word-silaba {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 12px;
+            background: #f7fafc;
+            border: 1.5px solid #cbd5e0;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 700;
+            color: #2d3748;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+            margin: 0;
+        }
+
         /* ===== Modo Formal - Regras da ABNT ===== */
         .result-area.mode-formal {
             border: 1px solid #cbd5e0;
@@ -598,6 +626,7 @@
                 background: #fff !important;
             }
             .result-area.mode-dynamic { padding: 10px 0 !important; font-size: 12px; line-height: 1.4; }
+            .result-area.mode-caed .word-silaba { border: 1px solid #000 !important; background: #fff !important; }
             .result-area.mode-formal { padding: 0 !important; font-size: 12pt; line-height: 1.5; }
             .result-area.mode-formal .result-title { font-size: 12pt; margin-bottom: 24pt; }
             * {
@@ -613,7 +642,7 @@
             .app-btn { min-height: 120px; padding: 18px 15px; }
             .container { border-radius: 18px; }
             .mode-selector { flex-direction: column; gap: 6px; }
-            .mode-btn { padding: 14px 10px; }
+            .mode-btn { padding: 14px 10px; width: 100%; }
             textarea { min-height: 160px; }
             .spinner { width: 60px; height: 60px; border-width: 5px; }
             .result-area.mode-formal { padding: 20px; }
@@ -681,6 +710,7 @@
             <div class="result-area mode-dynamic" id="result-silabas-container" style="display:none;">
                 <div class="mode-selector no-print">
                     <button class="mode-btn active" onclick="alterarModo('silabas', 'dynamic')">🎨 Modo Dinâmico</button>
+                    <button class="mode-btn" onclick="alterarModo('silabas', 'caed')">📦 Modo CAED</button>
                     <button class="mode-btn" onclick="alterarModo('silabas', 'formal')">📄 Modo Formal (ABNT)</button>
                 </div>
                 <div class="result-title" id="out-title-silabas"></div>
@@ -719,6 +749,7 @@
             <div class="result-area mode-dynamic" id="result-enum-container" style="display:none;">
                 <div class="mode-selector no-print">
                     <button class="mode-btn active" onclick="alterarModo('enum', 'dynamic')">🎨 Modo Dinâmico</button>
+                    <button class="mode-btn" onclick="alterarModo('enum', 'caed')">📦 Modo CAED</button>
                     <button class="mode-btn" onclick="alterarModo('enum', 'formal')">📄 Modo Formal (ABNT)</button>
                 </div>
                 <div class="result-title" id="out-title-enum"></div>
@@ -748,14 +779,15 @@
             document.getElementById('home-screen').style.display = 'flex';
         }
 
-        // ==================== ALTERNAR MODOS DINÂMICO/FORMAL ====================
+        // ==================== ALTERNAR MODOS DE EXIBIÇÃO ====================
         function alterarModo(aba, modo) {
             const container = document.getElementById(`result-${aba}-container`);
             const botoes = container.querySelectorAll('.mode-btn');
             botoes.forEach(b => b.classList.remove('active'));
             
+            container.classList.remove('mode-dynamic', 'mode-caed', 'mode-formal');
+
             if (modo === 'dynamic') {
-                container.classList.remove('mode-formal');
                 container.classList.add('mode-dynamic');
                 botoes[0].classList.add('active');
                 if (aba === 'silabas') {
@@ -763,10 +795,17 @@
                         w.textContent = w.textContent.replace(/\s*\|\s*/g, '-');
                     });
                 }
-            } else {
-                container.classList.remove('mode-dynamic');
-                container.classList.add('mode-formal');
+            } else if (modo === 'caed') {
+                container.classList.add('mode-caed');
                 botoes[1].classList.add('active');
+                if (aba === 'silabas') {
+                    container.querySelectorAll('.word-silaba').forEach(w => {
+                        w.textContent = w.textContent.replace(/\s*\|\s*/g, '-');
+                    });
+                }
+            } else {
+                container.classList.add('mode-formal');
+                botoes[2].classList.add('active');
                 if (aba === 'silabas') {
                     container.querySelectorAll('.word-silaba').forEach(w => {
                         w.textContent = w.textContent.replace(/-/g, ' | ');
@@ -811,7 +850,7 @@
             let p = palavra.trim();
             if (!p) return "";
             
-            let pontuacaoFim = p.match(/[.,\/#!$%\^&\*;:{}=\-_`~()?«»"'\\!？。，、；：]+$/) || "";
+            let pontuacaoFim = p.match(/[.,\/#!$%\^&\*;:{}=\-_`~()?«»"'\\!？$.，、；：]+$/) || "";
             let pontuacaoInicio = p.match(/^[.,\/#!$%\^&\*;:{}=\-_`~()?«»"'\\!？。，、；：]+/) || "";
             let termo = p.replace(/^[.,\/#!$%\^&\*;:{}=\-_`~()?«»"'\\!？。，、；：]+|[.,\/#!$%\^&\*;:{}=\-_`~()?«»"'\\!？。，、；：]+$/g, "");
             
@@ -945,7 +984,9 @@
                         span.textContent = dividirSilabasPT(w, sep);
                         span.style.animationDelay = ((idx * 0.05) + (i * 0.015)) + 's';
                         pDiv.appendChild(span);
-                        pDiv.appendChild(document.createTextNode(' '));
+                        if (!container.classList.contains('mode-caed')) {
+                            pDiv.appendChild(document.createTextNode(' '));
+                        }
                     });
                     outText.appendChild(pDiv);
                 });
@@ -975,6 +1016,7 @@
                 const title = document.getElementById('title-enum').value || 'Texto Enumerado';
                 const outTitle = document.getElementById('out-title-enum');
                 const outText = document.getElementById('out-text-enum');
+                const container = document.getElementById('result-enum-container');
 
                 outTitle.textContent = title;
                 outText.innerHTML = '';
@@ -999,7 +1041,9 @@
                         span.innerHTML = `<span class="word-number">${counter}</span>${w}`;
                         counter++;
                         pDiv.appendChild(span);
-                        pDiv.appendChild(document.createTextNode(' '));
+                        if (!container.classList.contains('mode-caed')) {
+                            pDiv.appendChild(document.createTextNode(' '));
+                        }
                     });
                     outText.appendChild(pDiv);
                 });
