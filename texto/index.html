@@ -48,7 +48,7 @@
         .animate-fadeInUp { animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) both; }
         .animate-slideIn { animation: slideInRight 0.5s ease both; }
 
-        /* ==================== TELA INICIAL - VIDRO TOTAL ==================== */
+        /* ==================== TELA INICIAL ==================== */
         .home-screen {
             position: fixed;
             inset: 0;
@@ -127,7 +127,7 @@
             flex-wrap: wrap;
         }
 
-        /* ==================== BOTÕES - EFEITOS DE CLICKE AVANÇADOS ==================== */
+        /* ==================== BOTÕES ==================== */
         .app-btn {
             flex: 1 1 220px;
             min-height: 140px;
@@ -212,7 +212,7 @@
             text-shadow: 0 1px 2px rgba(255,255,255,0.6);
         }
 
-        /* ==================== TELAS DE APLICAÇÃO - VIDRO TAMBÉM! ==================== */
+        /* ==================== TELAS DE APLICAÇÃO ==================== */
         .main-wrapper {
             padding: clamp(15px, 4vw, 30px);
             min-height: 100vh;
@@ -305,7 +305,6 @@
         }
         textarea { min-height: 140px; }
 
-        /* Botões de ação principais */
         button.action-btn { 
             background: linear-gradient(135deg, #3182ce, #2b6cb0);
             color: #fff; 
@@ -455,12 +454,15 @@
             border-bottom: 2px dashed rgba(49,130,206,0.25);
         }
 
-        /* Modo Dinâmico */
+        /* ===== Modo Dinâmico ===== */
         .result-area.mode-dynamic {
             border-style: dashed;
             font-size: clamp(14px, 3.8vw, 17px); 
             line-height: 1.8; 
             text-align: left;
+        }
+        .result-area.mode-dynamic .paragraph-wrapper {
+            margin-bottom: 14px;
         }
         .result-area.mode-dynamic .result-title { color: #2b6cb0; }
         .result-area.mode-dynamic .word-silaba {
@@ -517,29 +519,39 @@
             animation: bounceScale 0.5s ease;
         }
 
-        /* Modo Formal CAEd */
+        /* ===== Modo Formal - Regras da ABNT ===== */
         .result-area.mode-formal {
-            border: 2px dashed #a0aec0;
-            font-family: 'Arial', sans-serif;
-            font-size: clamp(11pt, 3.2vw, 12.5pt); 
-            line-height: 1.6; 
-            text-align: justify;
+            border: 1px solid #cbd5e0;
+            font-family: 'Arial', sans-serif; /* Fonte padrão ABNT */
+            font-size: 12pt; /* Tamanho 12pt */
+            line-height: 1.5; /* Espaçamento entrelinhas 1.5 */
+            text-align: justify; /* Alinhamento Justificado */
             color: #000;
             background: #fff;
+            padding: 40px; /* Margem interna para simular folha A4 */
         }
         .result-area.mode-formal .result-title {
             color: #000;
             text-transform: uppercase;
             font-weight: bold;
-            border-bottom-color: #000;
+            text-align: center;
+            border-bottom: none;
+            margin-bottom: 24pt; /* Espaçamento antes de iniciar o texto */
+            padding-bottom: 0;
+            font-size: 12pt; /* Mesma fonte do texto */
+        }
+        /* Recuo de 1,25 cm no parágrafo padrão ABNT */
+        .result-area.mode-formal .paragraph-wrapper {
+            text-indent: 1.25cm;
+            margin-bottom: 0;
         }
         .result-area.mode-formal .word-silaba {
-            display: inline-block;
-            padding: 2px 6px;
-            margin: 2px;
+            display: inline;
+            padding: 0;
+            margin: 0;
             background: none;
-            border: 1px solid #000; 
-            border-radius: 5px;
+            border: none; 
+            border-radius: 0;
             font-weight: normal;
         }
         .result-area.mode-formal .word-enumerada {
@@ -583,13 +595,12 @@
             .result-area { 
                 margin: 0 !important; 
                 border: none !important; 
-                padding: 10px 0 !important;
                 box-shadow: none !important;
                 background: #fff !important;
             }
-            .result-area.mode-dynamic { font-size: 12px; line-height: 1.4; }
-            .result-area.mode-formal { font-size: 11pt; line-height: 1.4; }
-            .result-area.mode-formal .result-title { font-size: 12pt; }
+            .result-area.mode-dynamic { padding: 10px 0 !important; font-size: 12px; line-height: 1.4; }
+            .result-area.mode-formal { padding: 0 !important; font-size: 12pt; line-height: 1.5; }
+            .result-area.mode-formal .result-title { font-size: 12pt; margin-bottom: 24pt; }
             * {
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
@@ -606,6 +617,7 @@
             .mode-btn { padding: 14px 10px; }
             textarea { min-height: 160px; }
             .spinner { width: 60px; height: 60px; border-width: 5px; }
+            .result-area.mode-formal { padding: 20px; }
         }
         @media (max-width: 400px) {
             .home-buttons { flex-direction: column; gap: 14px; }
@@ -670,7 +682,7 @@
             <div class="result-area mode-dynamic" id="result-silabas-container" style="display:none;">
                 <div class="mode-selector no-print">
                     <button class="mode-btn active" onclick="alterarModo('silabas', 'dynamic')">🎨 Modo Dinâmico</button>
-                    <button class="mode-btn" onclick="alterarModo('silabas', 'formal')">📄 Modo Formal (CAEd)</button>
+                    <button class="mode-btn" onclick="alterarModo('silabas', 'formal')">📄 Modo Formal (ABNT)</button>
                 </div>
                 <div class="result-title" id="out-title-silabas"></div>
                 <div id="out-text-silabas"></div>
@@ -708,7 +720,7 @@
             <div class="result-area mode-dynamic" id="result-enum-container" style="display:none;">
                 <div class="mode-selector no-print">
                     <button class="mode-btn active" onclick="alterarModo('enum', 'dynamic')">🎨 Modo Dinâmico</button>
-                    <button class="mode-btn" onclick="alterarModo('enum', 'formal')">📄 Modo Formal (CAEd)</button>
+                    <button class="mode-btn" onclick="alterarModo('enum', 'formal')">📄 Modo Formal (ABNT)</button>
                 </div>
                 <div class="result-title" id="out-title-enum"></div>
                 <div id="out-text-enum"></div>
@@ -795,79 +807,89 @@
             };
         }
 
-        // ==================== ALGORITMO DE DIVISÃO SILÁBICA (CORRIGIDO) ====================
+        // ==================== ALGORITMO DE DIVISÃO SILÁBICA (CORRIGIDO E OTIMIZADO) ====================
         function dividirSilabasPT(palavra, separador = "-") {
             let p = palavra.trim();
             if (!p) return "";
+            
             let pontuacaoFim = p.match(/[.,\/#!$%\^&\*;:{}=\-_`~()?«»"'\\!？。，、；：]+$/) || "";
             let pontuacaoInicio = p.match(/^[.,\/#!$%\^&\*;:{}=\-_`~()?«»"'\\!？。，、；：]+/) || "";
             let termo = p.replace(/^[.,\/#!$%\^&\*;:{}=\-_`~()?«»"'\\!？。，、；：]+|[.,\/#!$%\^&\*;:{}=\-_`~()?«»"'\\!？。，、；：]+$/g, "");
             
             if (termo.length <= 2) return p;
 
-            // 'ç' foi removido da lista de vogais
             const vogais = "aeiouáéíóúâêôãõàíúéóáîôûAEIOUÁÉÍÓÚÂÊÔÃÕÀÍÚÉÓÁÎÔÛ"; 
             const isVogal = (l) => vogais.includes(l);
             const isConsoante = (l) => l && !isVogal(l) && /[a-zç]/i.test(l);
             
             let s = termo.split('');
             let cortes = new Array(s.length).fill(false);
+            let lastCut = -1;
             
             for (let i = 0; i < s.length - 1; i++) {
                 let c1 = s[i].toLowerCase();
                 let c2 = s[i+1].toLowerCase();
                 let c3 = (i + 2 < s.length) ? s[i+2].toLowerCase() : "";
                 
+                let shouldCut = false;
+
                 // 1. Dígrafos que se separam
                 if ((c1==='r' && c2==='r') || (c1==='s' && c2==='s') || 
                     (c1==='s' && c2==='c') || (c1==='s' && c2==='ç') || 
                     (c1==='x' && c2==='c') || (c1==='x' && c2==='s') || 
                     (c1==='c' && c2==='c') || (c1==='c' && c2==='ç')) {
-                    cortes[i] = true;
-                    continue;
+                    shouldCut = true;
                 }
-                
-                // 2. Dígrafos inseparáveis
-                if ((c1==='c' && c2==='h') || (c1==='l' && c2==='h') || 
+                // 2. Dígrafos inseparáveis (Ignorar separação)
+                else if ((c1==='c' && c2==='h') || (c1==='l' && c2==='h') || 
                     (c1==='n' && c2==='h') || (c1==='g' && c2==='u') || 
                     (c1==='q' && c2==='u')) {
-                    continue;
+                    // mantem false
                 }
-                
-                // 3. Encontros consonantais inseparáveis (Consoante + L ou R)
-                if (isConsoante(c1) && ['r', 'l'].includes(c2) && !['r','s','x','z'].includes(c1)) {
-                    continue;
+                // 3. Encontros consonantais inseparáveis
+                else if (isConsoante(c1) && ['r', 'l'].includes(c2) && !['r','s','x','z'].includes(c1)) {
+                    // mantem false
                 }
-                
                 // 4. Vogal seguida de Consoante + Vogal
-                if (isVogal(c1) && isConsoante(c2) && isVogal(c3)) {
-                    cortes[i] = true;
-                    continue;
+                else if (isVogal(c1) && isConsoante(c2) && isVogal(c3)) {
+                    shouldCut = true;
                 }
-                
                 // 5. Vogal seguida de Consoante + Consoante
-                if (isVogal(c1) && isConsoante(c2) && isConsoante(c3)) {
+                else if (isVogal(c1) && isConsoante(c2) && isConsoante(c3)) {
                     if (['h', 'l', 'r'].includes(c3) && !['r', 's', 'x', 'z'].includes(c2)) {
-                        cortes[i] = true; 
+                        shouldCut = true; 
                     } else if ((c2 === 'q' || c2 === 'g') && c3 === 'u') {
-                        cortes[i] = true;
+                        shouldCut = true;
                     }
-                    continue;
                 }
-                
                 // 6. Consoante seguida de Consoante
-                if (isConsoante(c1) && isConsoante(c2)) {
-                    if (!['h', 'l', 'r'].includes(c2)) {
-                        cortes[i] = true;
+                else if (isConsoante(c1) && isConsoante(c2)) {
+                    // === REGRA DE OURO PARA CORREÇÃO DO "S" NO FINAL E PLURAL ===
+                    // Nunca se separa um 's' se ele vier após uma consoante encerrando a palavra (ex: homem -> homens)
+                    // ou se for parte do final de uma sílaba seguida de consoante (ex: trans-por-te).
+                    if (c2 === 's' && (isConsoante(c3) || c3 === "")) {
+                        // Não separa
+                    } else if (!['h', 'l', 'r'].includes(c2)) {
+                        shouldCut = true;
                     }
-                    continue;
                 }
-                
-                // 7. Encontros Vocálicos (Ditongo x Hiato simplificado)
-                if (isVogal(c1) && isVogal(c2)) {
+                // 7. Encontros Vocálicos (Ditongos simplificados)
+                else if (isVogal(c1) && isVogal(c2)) {
                     let ditongos = ["ai","au","ei","eu","oi","ou","ui","ia","ie","io","iu","ua","ue","uo","ão","õe","ao","eo","oa","éu","ói","õi", "ãe"];
                     if (!ditongos.includes(c1 + c2)) {
+                        shouldCut = true;
+                    }
+                }
+
+                // === SEGUNDA REGRA DE OURO: UMA SÍLABA PRECISA TER VOGAL ===
+                // Se fomos instruídos a cortar, verificamos se a parte à esquerda contém pelo menos uma vogal.
+                if (shouldCut) {
+                    let leftPart = s.slice(lastCut + 1, i + 1).join('');
+                    let hasVowelLeft = /[aeiouáéíóúâêôãõàíúéóáîôû]/i.test(leftPart);
+                    
+                    if (hasVowelLeft) {
                         cortes[i] = true;
+                        lastCut = i;
                     }
                 }
             }
@@ -916,9 +938,8 @@
                         return;
                     }
                     const pDiv = document.createElement('div');
-                    pDiv.style.marginBottom = '14px';
+                    pDiv.className = 'paragraph-wrapper animate-fadeInUp';
                     pDiv.style.animationDelay = (idx * 0.05) + 's';
-                    pDiv.classList.add('animate-fadeInUp');
                     
                     const words = p.trim().split(/\s+/);
                     words.forEach((w, i) => {
@@ -970,9 +991,8 @@
                         return;
                     }
                     const pDiv = document.createElement('div');
-                    pDiv.style.marginBottom = '14px';
+                    pDiv.className = 'paragraph-wrapper animate-fadeInUp';
                     pDiv.style.animationDelay = (idx * 0.05) + 's';
-                    pDiv.classList.add('animate-fadeInUp');
                     
                     const words = p.trim().split(/\s+/);
                     words.forEach((w, i) => {
