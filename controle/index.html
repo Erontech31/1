@@ -319,13 +319,13 @@
             color: #1e293b;
         }
 
-        /* CLASSE ESPECÍFICA PARA O LOGO NO CARTÃO */
+        /* LOGO AUMENTADO E SEM BORDAS */
         .logo-cartao {
-            width: 24px;
-            height: 24px;
+            width: 30px;
+            height: 30px;
             object-fit: cover;
-            border-radius: 50%; /* Se o logo for redondo. Pode remover se for quadrado */
-            border: 1px solid #1e293b; /* Opcional, uma bordinha sutil no logo */
+            border-radius: 50%;
+            border: none;
         }
 
         .cartao-qr-info {
@@ -354,7 +354,6 @@
 
         @media print {
             @page { size: A4 portrait; margin: 10mm; }
-            /* Não usamos .logo-escola para esconder aqui, escondemos o logo geral, mas mantemos o do cartão */
             .fundo-midia, .overlay-fundo, .logo-escola, .topo-barra, .btn-imprimir { display: none !important; }
             body { background: white !important; margin: 0; padding: 0; min-height: auto; color: black !important; }
             .tela { display: none !important; animation: none !important; }
@@ -396,7 +395,7 @@
                 padding-bottom: 4px !important; 
                 margin-bottom: 5px !important;
             }
-            .logo-cartao { width: 16px !important; height: 16px !important; border: 1px solid #000 !important; display: block !important; }
+            .logo-cartao { width: 22px !important; height: 22px !important; border: none !important; display: block !important; }
             .cartao-qr-nome { color: #000 !important; font-size: 13px !important; }
             .cartao-qr-turma { color: #333 !important; font-size: 11px !important; }
             .cartao-qr img, .cartao-qr canvas { max-width: 35mm !important; height: auto !important; display: block !important; }
@@ -812,12 +811,11 @@
 
         divCartao.onclick = function() { baixarCartaoComoPNG(divCartao, nome, turma); };
 
-        // --- MUDANÇA AQUI: Criando o cabeçalho com Logo e Texto ---
         const divHeader = document.createElement('div');
         divHeader.className = 'cartao-qr-header';
 
         const logoImg = document.createElement('img');
-        logoImg.src = 'logo.png'; // Chama o arquivo logo.png que você tem na mesma pasta
+        logoImg.src = 'logo.png'; 
         logoImg.className = 'logo-cartao';
         logoImg.alt = 'Logo Escola';
 
@@ -826,7 +824,6 @@
 
         divHeader.appendChild(logoImg);
         divHeader.appendChild(spanTitulo);
-        // ------------------------------------------------------------
 
         divCartao.appendChild(divHeader);
 
@@ -875,7 +872,7 @@
         html2canvas(elemento, { 
             scale: 4, 
             backgroundColor: "#ffffff", 
-            useCORS: true, // Garante que a imagem do logo seja renderizada
+            useCORS: true, 
             logging: false
         }).then(canvas => {
             elemento.style.borderColor = bordaOriginal; 
