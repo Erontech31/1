@@ -277,7 +277,7 @@
 
         #area-impressao { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
         
-        /* NOVO ESTILO FORMAL DO CARTÃO */
+        /* ESTILO FORMAL DO CARTÃO */
         .cartao-qr {
             display: flex; 
             flex-direction: column; 
@@ -302,7 +302,12 @@
             box-shadow: 0 15px 30px rgba(59, 130, 246, 0.3); 
         }
 
+        /* CABEÇALHO DO CARTÃO COM FLEX PARA ALINHAR LOGO E TEXTO */
         .cartao-qr-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px; /* Espaço entre o logo e o texto */
             font-size: 13px;
             font-weight: 700;
             text-transform: uppercase;
@@ -312,6 +317,15 @@
             margin-bottom: 10px;
             width: 100%;
             color: #1e293b;
+        }
+
+        /* CLASSE ESPECÍFICA PARA O LOGO NO CARTÃO */
+        .logo-cartao {
+            width: 24px;
+            height: 24px;
+            object-fit: cover;
+            border-radius: 50%; /* Se o logo for redondo. Pode remover se for quadrado */
+            border: 1px solid #1e293b; /* Opcional, uma bordinha sutil no logo */
         }
 
         .cartao-qr-info {
@@ -340,6 +354,7 @@
 
         @media print {
             @page { size: A4 portrait; margin: 10mm; }
+            /* Não usamos .logo-escola para esconder aqui, escondemos o logo geral, mas mantemos o do cartão */
             .fundo-midia, .overlay-fundo, .logo-escola, .topo-barra, .btn-imprimir { display: none !important; }
             body { background: white !important; margin: 0; padding: 0; min-height: auto; color: black !important; }
             .tela { display: none !important; animation: none !important; }
@@ -351,7 +366,7 @@
             #tela-gerenciamento .card h3, #tela-gerenciamento .card select, #tela-gerenciamento .card .linha-form, #tela-gerenciamento .card button, #tela-gerenciamento .card ul, #btn-remover-selecionados { display: none !important; }
             #area-acoes-impressao { display: block !important; border: none !important; background: transparent !important; padding: 0 !important; margin: 0 !important; }
 
-            /* AJUSTES DE IMPRESSÃO DO NOVO CARTÃO FORMAL */
+            /* AJUSTES DE IMPRESSÃO DO CARTÃO */
             #area-impressao { display: grid !important; grid-template-columns: repeat(4, 1fr) !important; gap: 5mm !important; justify-items: center !important; align-items: start !important; width: 100% !important; }
             .cartao-qr { 
                 border: 2px solid #000 !important; 
@@ -370,10 +385,21 @@
                 justify-content: space-between !important; 
                 box-sizing: border-box !important; 
             }
-            .cartao-qr-header { color: #000 !important; border-bottom: 2px solid #000 !important; font-size: 10px !important; padding-bottom: 4px !important; margin-bottom: 5px !important;}
+            .cartao-qr-header { 
+                display: flex !important; 
+                align-items: center !important; 
+                justify-content: center !important; 
+                gap: 4px !important;
+                color: #000 !important; 
+                border-bottom: 2px solid #000 !important; 
+                font-size: 10px !important; 
+                padding-bottom: 4px !important; 
+                margin-bottom: 5px !important;
+            }
+            .logo-cartao { width: 16px !important; height: 16px !important; border: 1px solid #000 !important; display: block !important; }
             .cartao-qr-nome { color: #000 !important; font-size: 13px !important; }
             .cartao-qr-turma { color: #333 !important; font-size: 11px !important; }
-            .cartao-qr img, .cartao-qr canvas { display: block !important; max-width: 35mm !important; height: auto !important; }
+            .cartao-qr img, .cartao-qr canvas { max-width: 35mm !important; height: auto !important; display: block !important; }
         }
     </style>
 </head>
@@ -786,9 +812,22 @@
 
         divCartao.onclick = function() { baixarCartaoComoPNG(divCartao, nome, turma); };
 
+        // --- MUDANÇA AQUI: Criando o cabeçalho com Logo e Texto ---
         const divHeader = document.createElement('div');
         divHeader.className = 'cartao-qr-header';
-        divHeader.innerText = 'Cartão de Saída';
+
+        const logoImg = document.createElement('img');
+        logoImg.src = 'logo.png'; // Chama o arquivo logo.png que você tem na mesma pasta
+        logoImg.className = 'logo-cartao';
+        logoImg.alt = 'Logo Escola';
+
+        const spanTitulo = document.createElement('span');
+        spanTitulo.innerText = 'Cartão de Saída';
+
+        divHeader.appendChild(logoImg);
+        divHeader.appendChild(spanTitulo);
+        // ------------------------------------------------------------
+
         divCartao.appendChild(divHeader);
 
         const divImg = document.createElement('div'); 
@@ -836,7 +875,7 @@
         html2canvas(elemento, { 
             scale: 4, 
             backgroundColor: "#ffffff", 
-            useCORS: true,
+            useCORS: true, // Garante que a imagem do logo seja renderizada
             logging: false
         }).then(canvas => {
             elemento.style.borderColor = bordaOriginal; 
