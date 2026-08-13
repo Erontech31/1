@@ -276,16 +276,62 @@
         .vermelho { color: #7f1d1d; background: rgba(239, 68, 68, 0.25); border: 2px solid rgba(239, 68, 68, 0.5); display: block !important; }
 
         #area-impressao { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
+        
+        /* NOVO ESTILO FORMAL DO CARTÃO */
         .cartao-qr {
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            border: 2px dashed rgba(255,255,255,0.8); padding: 20px;
-            background: rgba(255,255,255,0.6); backdrop-filter: blur(6px);
-            border-radius: var(--radius-md); width: 170px; text-align: center;
-            transition: all 0.3s ease; box-shadow: var(--glass-shadow);
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: space-between;
+            border: 3px solid #1e293b;
+            padding: 20px 15px;
+            background: #ffffff;
+            border-radius: 8px; 
+            width: 220px; 
+            height: 300px;
+            text-align: center;
+            transition: all 0.3s ease; 
+            box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+            color: #1e293b;
+            position: relative;
         }
 
-        .cartao-qr:hover { transform: translateY(-8px) scale(1.05); border-color: #3b82f6; border-style: solid; box-shadow: 0 15px 30px rgba(59, 130, 246, 0.3); background: rgba(255,255,255,0.9); }
-        .cartao-qr h3 { margin: 0 0 15px 0; color: var(--text-main); font-size: 15px; font-weight: 700; line-height: 1.3; }
+        .cartao-qr:hover { 
+            transform: translateY(-8px); 
+            border-color: #3b82f6; 
+            box-shadow: 0 15px 30px rgba(59, 130, 246, 0.3); 
+        }
+
+        .cartao-qr-header {
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 2px solid #1e293b;
+            padding-bottom: 8px;
+            margin-bottom: 10px;
+            width: 100%;
+            color: #1e293b;
+        }
+
+        .cartao-qr-info {
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        .cartao-qr-nome {
+            font-size: 16px;
+            font-weight: 700;
+            margin: 0 0 5px 0;
+            line-height: 1.2;
+            word-wrap: break-word;
+        }
+
+        .cartao-qr-turma {
+            font-size: 14px;
+            font-weight: 500;
+            color: #475569;
+        }
 
         @media (max-width: 600px) {
             .topo-barra { padding-left: 20px; flex-direction: column; gap: 15px; align-items: flex-end; }
@@ -305,10 +351,29 @@
             #tela-gerenciamento .card h3, #tela-gerenciamento .card select, #tela-gerenciamento .card .linha-form, #tela-gerenciamento .card button, #tela-gerenciamento .card ul, #btn-remover-selecionados { display: none !important; }
             #area-acoes-impressao { display: block !important; border: none !important; background: transparent !important; padding: 0 !important; margin: 0 !important; }
 
+            /* AJUSTES DE IMPRESSÃO DO NOVO CARTÃO FORMAL */
             #area-impressao { display: grid !important; grid-template-columns: repeat(4, 1fr) !important; gap: 5mm !important; justify-items: center !important; align-items: start !important; width: 100% !important; }
-            .cartao-qr { border: 1px dashed #000 !important; padding: 4mm !important; margin: 0 !important; page-break-inside: avoid !important; background: white !important; border-radius: 0 !important; box-shadow: none !important; transform: none !important; width: 44mm !important; height: 53mm !important; display: flex !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; box-sizing: border-box !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
-            .cartao-qr h3 { display: block !important; color: #000 !important; font-size: 11px !important; margin: 0 0 4px 0 !important; text-align: center !important; line-height: 1.2 !important; word-wrap: break-word !important; max-width: 100% !important; text-shadow: none !important; }
-            .cartao-qr img, .cartao-qr canvas { display: block !important; max-width: 32mm !important; height: auto !important; }
+            .cartao-qr { 
+                border: 2px solid #000 !important; 
+                padding: 4mm !important; 
+                margin: 0 !important; 
+                page-break-inside: avoid !important; 
+                background: white !important; 
+                border-radius: 4px !important; 
+                box-shadow: none !important; 
+                transform: none !important; 
+                width: 48mm !important; 
+                height: 65mm !important; 
+                display: flex !important; 
+                flex-direction: column !important; 
+                align-items: center !important; 
+                justify-content: space-between !important; 
+                box-sizing: border-box !important; 
+            }
+            .cartao-qr-header { color: #000 !important; border-bottom: 2px solid #000 !important; font-size: 10px !important; padding-bottom: 4px !important; margin-bottom: 5px !important;}
+            .cartao-qr-nome { color: #000 !important; font-size: 13px !important; }
+            .cartao-qr-turma { color: #333 !important; font-size: 11px !important; }
+            .cartao-qr img, .cartao-qr canvas { display: block !important; max-width: 35mm !important; height: auto !important; }
         }
     </style>
 </head>
@@ -713,31 +778,73 @@
 
     function adicionarCartaoNaTela(nome, turma) {
         const areaImprimir = document.getElementById('area-impressao');
+        
         const divCartao = document.createElement('div');
         divCartao.className = 'cartao-qr';
         divCartao.style.cursor = 'pointer';
+        divCartao.title = 'Clique para baixar como PNG';
 
         divCartao.onclick = function() { baixarCartaoComoPNG(divCartao, nome, turma); };
 
-        const h3 = document.createElement('h3'); h3.innerText = `${nome}\n(${turma})`; divCartao.appendChild(h3);
-        const divImg = document.createElement('div'); divImg.style.background = "#fff"; divImg.style.padding = "4px"; divImg.style.borderRadius = "8px"; divCartao.appendChild(divImg);
+        const divHeader = document.createElement('div');
+        divHeader.className = 'cartao-qr-header';
+        divHeader.innerText = 'Cartão de Saída';
+        divCartao.appendChild(divHeader);
+
+        const divImg = document.createElement('div'); 
+        divImg.style.background = "#fff"; 
+        divImg.style.padding = "6px"; 
+        divImg.style.border = "1px solid #cbd5e1"; 
+        divImg.style.borderRadius = "8px"; 
+        divCartao.appendChild(divImg);
+        
+        const divInfo = document.createElement('div');
+        divInfo.className = 'cartao-qr-info';
+        
+        const hNome = document.createElement('div');
+        hNome.className = 'cartao-qr-nome';
+        hNome.innerText = nome;
+        
+        const hTurma = document.createElement('div');
+        hTurma.className = 'cartao-qr-turma';
+        hTurma.innerText = `Turma: ${turma}`;
+
+        divInfo.appendChild(hNome);
+        divInfo.appendChild(hTurma);
+        divCartao.appendChild(divInfo);
+
         areaImprimir.appendChild(divCartao);
 
         setTimeout(() => {
             try {
                 new QRCode(divImg, {
-                    text: unescape(encodeURIComponent(nome)), width: 120, height: 120,
-                    colorDark : "#1e293b", colorLight : "#ffffff"
+                    text: unescape(encodeURIComponent(nome)), 
+                    width: 140, 
+                    height: 140,
+                    colorDark : "#000000",
+                    colorLight : "#ffffff",
+                    correctLevel : QRCode.CorrectLevel.H
                 });
             } catch (e) { console.error("Falha ao gerar o QR de " + nome, e); }
         }, 50);
     }
 
     function baixarCartaoComoPNG(elemento, nomeAluno, turmaAluno) {
-        html2canvas(elemento, { scale: 3, backgroundColor: "#ffffff", useCORS: true }).then(canvas => {
+        const bordaOriginal = elemento.style.borderColor;
+        elemento.style.borderColor = "#10b981"; 
+
+        html2canvas(elemento, { 
+            scale: 4, 
+            backgroundColor: "#ffffff", 
+            useCORS: true,
+            logging: false
+        }).then(canvas => {
+            elemento.style.borderColor = bordaOriginal; 
+
             const link = document.createElement('a');
-            link.download = `QR_${nomeAluno.replace(/\s+/g, '_')}_${turmaAluno.replace(/\s+/g, '_')}.png`;
-            link.href = canvas.toDataURL('image/png'); link.click();
+            link.download = `Credencial_Saida_${nomeAluno.replace(/\s+/g, '_')}_${turmaAluno.replace(/\s+/g, '_')}.png`;
+            link.href = canvas.toDataURL('image/png'); 
+            link.click();
         }).catch(err => console.error("Erro ao converter e baixar cartão em PNG", err));
     }
 
