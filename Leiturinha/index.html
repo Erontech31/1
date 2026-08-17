@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel - Gerenciamento de Fluência</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            color: #1a73e8;
+        }
+        .card {
+            background: #ffffff;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        label {
+            display: block;
+            margin-top: 15px;
+            font-weight: 600;
+        }
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+        .btn-submit {
+            margin-top: 15px;
+            padding: 10px 20px;
+            background-color: #1a73e8;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .btn-submit:hover {
+            background-color: #1557b0;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            background: #f8f9fa;
+            margin-top: 8px;
+            padding: 12px;
+            border-left: 4px solid #1a73e8;
+            border-radius: 4px;
+        }
+        .text-body {
+            margin-top: 5px;
+            font-size: 0.9em;
+            color: #555;
+            white-space: pre-wrap;
+        }
+        .actions {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+        }
+        .btn-edit {
+            background-color: #fbbc05;
+            color: #333;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .btn-delete {
+            background-color: #ea4335;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .btn-edit:hover { background-color: #e0a800; }
+        .btn-delete:hover { background-color: #c9302c; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Gerenciamento de Fluência</h1>
+
+        <!-- Seção de Textos -->
+        <div class="card">
+            <h2>Cadastrar/Editar Texto</h2>
+            <form id="form-texto">
+                <label for="titulo">Título do Texto</label>
+                <input type="text" id="titulo" placeholder="Ex: A Raposa e as Uvas" required>
+                
+                <label for="corpo">Corpo do Texto</label>
+                <textarea id="corpo" rows="6" placeholder="Digite o texto completo aqui..." required></textarea>
+                
+                <button type="submit" class="btn-submit" id="btn-salvar-texto">Salvar Texto</button>
+            </form>
+            <h3>Textos Cadastrados</h3>
+            <ul id="lista-textos"></ul>
+        </div>
+
+        <!-- Seção de Palavras -->
+        <div class="card">
+            <h2>Cadastrar/Editar Palavra-chave</h2>
+            <form id="form-palavra">
+                <label for="palavra">Palavra</label>
+                <input type="text" id="palavra" placeholder="Ex: Fluência" required>
+                
+                <button type="submit" class="btn-submit" id="btn-salvar-palavra">Adicionar Palavra</button>
+            </form>
+            <h3>Palavras Cadastradas</h3>
+            <ul id="lista-palavras"></ul>
+        </div>
+
+        <!-- Seção de Alunos -->
+        <div class="card">
+            <h2>Cadastrar/Editar Aluno</h2>
+            <form id="form-aluno">
+                <label for="nome">Nome do Aluno</label>
+                <input type="text" id="nome" placeholder="Ex: João Silva" required>
+                
+                <button type="submit" class="btn-submit" id="btn-salvar-aluno">Adicionar Aluno</button>
+            </form>
+            <h3>Alunos Cadastrados</h3>
+            <ul id="lista-alunos"></ul>
+        </div>
+    </div>
+
+    <!-- Firebase SDK (Modular) via CDN -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        // Credenciais do seu projeto "Leiturinha"
+        const firebaseConfig = {
+            apiKey: "AIzaSyBIpH8AhGAjoPNjel7QFHz85XqHUwdb7_Q",
+            authDomain: "leiturinha-b8d11.firebaseapp.com",
+            projectId: "leiturinha-b8d11",
+            storageBucket: "leiturinha-b8d11.firebasestorage.app",
+            messagingSenderId: "822571000970",
+            appId: "1:822571000970:web:322b80d68a7e60b93af973",
+            measurementId: "G-3TC7HY0LK2"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // --- 1. Lógica para Textos ---
+        const formTexto = document.getElementById('form-texto');
+        const listaTextos = document.getElementById('lista-textos');
+        const btnSalvarTexto = document.getElementById('btn-salvar-texto');
+        let editTextoId = null; 
+        let textosCache = {};   
+
+        formTexto.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const titulo = document.getElementById('titulo').value;
+            const corpo = document.getElementById('corpo').value;
+            
+            try {
+                if (editTextoId) {
+                    await updateDoc(doc(db, "textos", editTextoId), { titulo, corpo });
+                    editTextoId = null;
+                    btnSalvarTexto.innerText = "Salvar Texto";
+                } else {
+                    await addDoc(collection(db, "textos"), { titulo, corpo });
+                }
+                formTexto.reset();
+            } catch (error) {
+                alert("Erro ao salvar texto: " + error.message);
+            }
+        });
+
+        onSnapshot(collection(db, "textos"), (snapshot) => {
+            listaTextos.innerHTML = '';
+            textosCache = {};
+            snapshot.forEach((docSnap) => {
+                const data = docSnap.data();
+                const id = docSnap.id;
+                textosCache[id] = data; 
+
+                listaTextos.innerHTML += `
+                    <li>
+                        <strong>${data.titulo}</strong>
+                        <div class="text-body">${data.corpo}</div>
+                        <div class="actions">
+                            <button class="btn-edit btn-edit-texto" data-id="${id}">Editar</button>
+                            <button class="btn-delete btn-delete-texto" data-id="${id}">Apagar</button>
+                        </div>
+                    </li>`;
+            });
+        });
+
+        listaTextos.addEventListener('click', async (e) => {
+            const id = e.target.dataset.id;
+            if (!id) return;
+
+            if (e.target.classList.contains('btn-delete-texto')) {
+                if (confirm("Tem certeza que deseja apagar este texto?")) {
+                    await deleteDoc(doc(db, "textos", id));
+                }
+            } else if (e.target.classList.contains('btn-edit-texto')) {
+                const data = textosCache[id];
+                document.getElementById('titulo').value = data.titulo;
+                document.getElementById('corpo').value = data.corpo;
+                editTextoId = id;
+                btnSalvarTexto.innerText = "Atualizar Texto";
+                document.getElementById('titulo').focus(); 
+            }
+        });
+
+
+        // --- 2. Lógica para Palavras ---
+        const formPalavra = document.getElementById('form-palavra');
+        const listaPalavras = document.getElementById('lista-palavras');
+        const btnSalvarPalavra = document.getElementById('btn-salvar-palavra');
+        let editPalavraId = null;
+        let palavrasCache = {};
+
+        formPalavra.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const palavra = document.getElementById('palavra').value;
+            
+            try {
+                if (editPalavraId) {
+                    await updateDoc(doc(db, "palavras", editPalavraId), { palavra });
+                    editPalavraId = null;
+                    btnSalvarPalavra.innerText = "Adicionar Palavra";
+                } else {
+                    await addDoc(collection(db, "palavras"), { palavra });
+                }
+                formPalavra.reset();
+            } catch (error) {
+                alert("Erro ao salvar palavra: " + error.message);
+            }
+        });
+
+        onSnapshot(collection(db, "palavras"), (snapshot) => {
+            listaPalavras.innerHTML = '';
+            palavrasCache = {};
+            snapshot.forEach((docSnap) => {
+                const data = docSnap.data();
+                const id = docSnap.id;
+                palavrasCache[id] = data;
+
+                listaPalavras.innerHTML += `
+                    <li>
+                        ${data.palavra}
+                        <div class="actions">
+                            <button class="btn-edit btn-edit-palavra" data-id="${id}">Editar</button>
+                            <button class="btn-delete btn-delete-palavra" data-id="${id}">Apagar</button>
+                        </div>
+                    </li>`;
+            });
+        });
+
+        listaPalavras.addEventListener('click', async (e) => {
+            const id = e.target.dataset.id;
+            if (!id) return;
+
+            if (e.target.classList.contains('btn-delete-palavra')) {
+                if (confirm("Tem certeza que deseja apagar esta palavra?")) {
+                    await deleteDoc(doc(db, "palavras", id));
+                }
+            } else if (e.target.classList.contains('btn-edit-palavra')) {
+                document.getElementById('palavra').value = palavrasCache[id].palavra;
+                editPalavraId = id;
+                btnSalvarPalavra.innerText = "Atualizar Palavra";
+                document.getElementById('palavra').focus();
+            }
+        });
+
+
+        // --- 3. Lógica para Alunos ---
+        const formAluno = document.getElementById('form-aluno');
+        const listaAlunos = document.getElementById('lista-alunos');
+        const btnSalvarAluno = document.getElementById('btn-salvar-aluno');
+        let editAlunoId = null;
+        let alunosCache = {};
+
+        formAluno.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const nome = document.getElementById('nome').value;
+            
+            try {
+                if (editAlunoId) {
+                    await updateDoc(doc(db, "alunos", editAlunoId), { nome });
+                    editAlunoId = null;
+                    btnSalvarAluno.innerText = "Adicionar Aluno";
+                } else {
+                    await addDoc(collection(db, "alunos"), { nome });
+                }
+                formAluno.reset();
+            } catch (error) {
+                alert("Erro ao salvar aluno: " + error.message);
+            }
+        });
+
+        onSnapshot(collection(db, "alunos"), (snapshot) => {
+            listaAlunos.innerHTML = '';
+            alunosCache = {};
+            snapshot.forEach((docSnap) => {
+                const data = docSnap.data();
+                const id = docSnap.id;
+                alunosCache[id] = data;
+
+                listaAlunos.innerHTML += `
+                    <li>
+                        ${data.nome}
+                        <div class="actions">
+                            <button class="btn-edit btn-edit-aluno" data-id="${id}">Editar</button>
+                            <button class="btn-delete btn-delete-aluno" data-id="${id}">Apagar</button>
+                        </div>
+                    </li>`;
+            });
+        });
+
+        listaAlunos.addEventListener('click', async (e) => {
+            const id = e.target.dataset.id;
+            if (!id) return;
+
+            if (e.target.classList.contains('btn-delete-aluno')) {
+                if (confirm("Tem certeza que deseja apagar o registro deste aluno?")) {
+                    await deleteDoc(doc(db, "alunos", id));
+                }
+            } else if (e.target.classList.contains('btn-edit-aluno')) {
+                document.getElementById('nome').value = alunosCache[id].nome;
+                editAlunoId = id;
+                btnSalvarAluno.innerText = "Atualizar Aluno";
+                document.getElementById('nome').focus();
+            }
+        });
+    </script>
+</body>
+</html>
