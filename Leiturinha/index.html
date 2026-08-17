@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel - Gerenciamento de Fluência</title>
+    <title>Leiturinha Mágica - Painel do Professor</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -13,11 +13,10 @@
             padding: 20px;
         }
         .container {
-            max-width: 800px;
+            max-width: 950px;
             margin: 0 auto;
         }
-        h1 {
-            text-align: center;
+        h1, h2, h3 {
             color: #1a73e8;
         }
         .card {
@@ -27,31 +26,12 @@
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
-        /* Tela de Autenticação */
-        #auth-section {
-            max-width: 400px;
-            margin: 50px auto;
-            text-align: center;
-        }
-        #app-section {
-            display: none; /* Escondido até o usuário logar */
-        }
-        .user-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #e8f0fe;
-            padding: 10px 15px;
-            border-radius: 6px;
-            margin-bottom: 20px;
-        }
         label {
             display: block;
             margin-top: 15px;
             font-weight: 600;
-            text-align: left;
         }
-        input[type="email"], input[type="password"], input[type="text"], textarea {
+        input[type="email"], input[type="password"], input[type="text"], textarea, select {
             width: 100%;
             padding: 10px;
             margin-top: 5px;
@@ -70,14 +50,12 @@
             font-size: 16px;
             cursor: pointer;
             transition: background 0.3s;
-            width: 100%;
         }
         .btn-submit:hover {
             background-color: #1557b0;
         }
         .btn-secondary {
             background-color: #5f6368;
-            margin-top: 10px;
         }
         .btn-secondary:hover {
             background-color: #3c4043;
@@ -92,23 +70,17 @@
             font-weight: bold;
         }
         .btn-logout:hover { background-color: #c9302c; }
+        
         ul {
             list-style-type: none;
             padding: 0;
-            text-align: left;
         }
         li {
             background: #f8f9fa;
-            margin-top: 8px;
-            padding: 12px;
+            margin-top: 10px;
+            padding: 15px;
             border-left: 4px solid #1a73e8;
             border-radius: 4px;
-        }
-        .text-body {
-            margin-top: 5px;
-            font-size: 0.9em;
-            color: #555;
-            white-space: pre-wrap;
         }
         .actions {
             margin-top: 10px;
@@ -135,96 +107,180 @@
         }
         .btn-edit:hover { background-color: #e0a800; }
         .btn-delete:hover { background-color: #c9302c; }
-        .cancel-edit {
-            display: none;
-            background-color: #6c757d;
+
+        /* Estilo para perguntas */
+        .pergunta-box {
+            background: #f1f3f4;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
         }
-        .cancel-edit.active {
-            display: block;
+        .opcoes-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 8px;
+        }
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #e8f0fe;
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        #app-section {
+            display: none;
+        }
+        #auth-section {
+            max-width: 450px;
+            margin: 80px auto;
         }
     </style>
 </head>
 <body>
 
-    <!-- TELA DE LOGIN / CADASTRO -->
-    <div id="auth-section" class="container">
-        <div class="card">
-            <h2>Acessar Painel</h2>
+    <div class="container">
+
+        <!-- TELA DE AUTENTICAÇÃO -->
+        <div id="auth-section" class="card">
+            <h2>Leiturinha Mágica - Acesso</h2>
+            <p>Entre com sua conta de professor ou cadastre-se:</p>
             <form id="form-auth">
                 <label for="auth-email">E-mail</label>
-                <input type="email5" id="auth-email" placeholder="seu@email.com" required style="width:100%; padding:10px; margin-top:5px; border:1px solid #ccc; border-radius:4px;">
+                <input type="email" id="auth-email" placeholder="professor@escola.com" required>
                 
                 <label for="auth-senha">Senha</label>
-                <input type="password" id="auth-senha" placeholder="Sua senha" required style="width:100%; padding:10px; margin-top:5px; border:1px solid #ccc; border-radius:4px;">
+                <input type="password" id="auth-senha" placeholder="Sua senha" required>
                 
-                <button type="submit" class="btn-submit" id="btn-login">Entrar</button>
-                <button type="button" class="btn-submit btn-secondary" id="btn-registrar">Criar Conta Nova</button>
+                <div style="display: flex; gap: 10px; margin-top: 15px;">
+                    <button type="submit" class="btn-submit" id="btn-login" style="flex:1;">Entrar</button>
+                    <button type="button" class="btn-submit btn-secondary" id="btn-registrar" style="flex:1;">Criar Conta</button>
+                </div>
             </form>
         </div>
+
+        <!-- PAINEL PRINCIPAL -->
+        <div id="app-section">
+            <div class="top-bar">
+                <span>Professor(a): <strong id="user-email-display"></strong></span>
+                <button class="btn-logout" id="btn-sair">Sair</button>
+            </div>
+
+            <h1>Painel de Gerenciamento</h1>
+
+            <!-- 1. GERENCIAMENTO DE ALUNOS (Array no documento /users/{uid}) -->
+            <div class="card">
+                <h2>Gerenciar Alunos (Lista)</h2>
+                <form id="form-aluno">
+                    <label for="nome-aluno">Nome do Aluno</label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" id="nome-aluno" placeholder="Ex: Ana Souza" required style="margin-top:0;">
+                        <button type="submit" class="btn-submit" id="btn-salvar-aluno" style="margin-top:0;">Adicionar</button>
+                    </div>
+                </form>
+                <h3 style="margin-top: 20px;">Alunos Cadastrados</h3>
+                <ul id="lista-alunos"></ul>
+            </div>
+
+            <!-- 2. GERENCIAMENTO DE TEXTOS (Coleção histTextos) -->
+            <div class="card">
+                <h2 id="titulo-form-texto">Cadastrar Novo Texto (histTextos)</h2>
+                <form id="form-texto">
+                    <label for="titulo-texto">Título do Texto</label>
+                    <input type="text" id="titulo-texto" placeholder="Ex: O Gato de Botas" required>
+                    
+                    <label for="corpo-texto">Corpo do Texto</label>
+                    <textarea id="corpo-texto" rows="5" placeholder="Cole o texto completo aqui..." required></textarea>
+
+                    <h3>3 Questões de Compreensão</h3>
+
+                    <!-- Pergunta 1 -->
+                    <div class="pergunta-box">
+                        <label>Questão 1</label>
+                        <input type="text" id="p1-questao" placeholder="Enunciado da pergunta 1" required>
+                        <div class="opcoes-grid">
+                            <input type="text" id="p1-opt0" placeholder="Opção A" required>
+                            <input type="text" id="p1-opt1" placeholder="Opção B" required>
+                            <input type="text" id="p1-opt2" placeholder="Opção C" required>
+                            <input type="text" id="p1-opt3" placeholder="Opção D" required>
+                        </div>
+                        <label>Alternativa Correta:</label>
+                        <select id="p1-correta">
+                            <option value="0">Opção A (0)</option>
+                            <option value="1">Opção B (1)</option>
+                            <option value="2">Opção C (2)</option>
+                            <option value="3">Opção D (3)</option>
+                        </select>
+                    </div>
+
+                    <!-- Pergunta 2 -->
+                    <div class="pergunta-box">
+                        <label>Questão 2</label>
+                        <input type="text" id="p2-questao" placeholder="Enunciado da pergunta 2" required>
+                        <div class="opcoes-grid">
+                            <input type="text" id="p2-opt0" placeholder="Opção A" required>
+                            <input type="text" id="p2-opt1" placeholder="Opção B" required>
+                            <input type="text" id="p2-opt2" placeholder="Opção C" required>
+                            <input type="text" id="p2-opt3" placeholder="Opção D" required>
+                        </div>
+                        <label>Alternativa Correta:</label>
+                        <select id="p2-correta">
+                            <option value="0">Opção A (0)</option>
+                            <option value="1">Opção B (1)</option>
+                            <option value="2">Opção C (2)</option>
+                            <option value="3">Opção D (3)</option>
+                        </select>
+                    </div>
+
+                    <!-- Pergunta 3 -->
+                    <div class="pergunta-box">
+                        <label>Questão 3</label>
+                        <input type="text" id="p3-questao" placeholder="Enunciado da pergunta 3" required>
+                        <div class="opcoes-grid">
+                            <input type="text" id="p3-opt0" placeholder="Opção A" required>
+                            <input type="text" id="p3-opt1" placeholder="Opção B" required>
+                            <input type="text" id="p3-opt2" placeholder="Opção C" required>
+                            <input type="text" id="p3-opt3" placeholder="Opção D" required>
+                        </div>
+                        <label>Alternativa Correta:</label>
+                        <select id="p3-correta">
+                            <option value="0">Opção A (0)</option>
+                            <option value="1">Opção B (1)</option>
+                            <option value="2">Opção C (2)</option>
+                            <option value="3">Opção D (3)</option>
+                        </select>
+                    </div>
+
+                    <div style="display: flex; gap: 10px; margin-top: 15px;">
+                        <button type="submit" class="btn-submit" id="btn-salvar-texto">Salvar Texto</button>
+                        <button type="button" class="btn-submit btn-secondary" id="btn-cancelar-texto" style="display:none;">Cancelar Edição</button>
+                    </div>
+                </form>
+
+                <h3 style="margin-top: 30px;">Textos Cadastrados</h3>
+                <ul id="lista-textos"></ul>
+            </div>
+
+            <!-- 3. VISUALIZAÇÃO DE RESULTADOS (Coleção listResults) -->
+            <div class="card">
+                <h2>Resultados das Avaliações (listResults)</h2>
+                <p>Histórico de avaliações enviadas pelo aplicativo Android:</p>
+                <ul id="lista-resultados"></ul>
+            </div>
+        </div>
+
     </div>
 
-    <!-- PAINEL PRINCIPAL (SÓ APARECE LOGADO) -->
-    <div id="app-section" class="container">
-        <div class="user-bar">
-            <span>Logado como: <strong id="user-email-display"></strong></span>
-            <button class="btn-logout" id="btn-sair">Sair</button>
-        </div>
-
-        <h1>Gerenciamento de Fluência</h1>
-
-        <!-- Seção de Textos -->
-        <div class="card">
-            <h2>Cadastrar/Editar Texto</h2>
-            <form id="form-texto">
-                <label for="titulo">Título do Texto</label>
-                <input type="text" id="titulo" placeholder="Ex: A Raposa e as Uvas" required>
-                
-                <label for="corpo">Corpo do Texto</label>
-                <textarea id="corpo" rows="6" placeholder="Digite o texto completo aqui..." required></textarea>
-                
-                <button type="submit" class="btn-submit" id="btn-salvar-texto">Salvar Texto</button>
-                <button type="button" class="btn-submit cancel-edit" id="btn-cancelar-texto">Cancelar Edição</button>
-            </form>
-            <h3>Textos Cadastrados</h3>
-            <ul id="lista-textos"></ul>
-        </div>
-
-        <!-- Seção de Palavras -->
-        <div class="card">
-            <h2>Cadastrar/Editar Palavra-chave</h2>
-            <form id="form-palavra">
-                <label for="palavra">Palavra</label>
-                <input type="text" id="palavra" placeholder="Ex: Fluência" required>
-                
-                <button type="submit" class="btn-submit" id="btn-salvar-palavra">Adicionar Palavra</button>
-                <button type="button" class="btn-submit cancel-edit" id="btn-cancelar-palavra">Cancelar</button>
-            </form>
-            <h3>Palavras Cadastradas</h3>
-            <ul id="lista-palavras"></ul>
-        </div>
-
-        <!-- Seção de Alunos -->
-        <div class="card">
-            <h2>Cadastrar/Editar Aluno</h2>
-            <form id="form-aluno">
-                <label for="nome">Nome do Aluno</label>
-                <input type="text" id="nome" placeholder="Ex: João Silva" required>
-                
-                <button type="submit" class="btn-submit" id="btn-salvar-aluno">Adicionar Aluno</button>
-                <button type="button" class="btn-submit cancel-edit" id="btn-cancelar-aluno">Cancelar</button>
-            </form>
-            <h3>Alunos Cadastrados</h3>
-            <ul id="lista-alunos"></ul>
-        </div>
-    </div>
-
-    <!-- Firebase SDK (Modular com Auth e Firestore) -->
+    <!-- Firebase SDK Modular (v9+) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, updateDb, updateDoc, collection, addDoc, setDoc as setDocFs, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-        // Suas credenciais do projeto Leiturinha
+        // Credenciais do projeto Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyBIpH8AhGAjoPNjel7QFHz85XqHUwdb7_Q",
             authDomain: "leiturinha-b8d11.firebaseapp.com",
@@ -242,36 +298,15 @@
         const authSection = document.getElementById('auth-section');
         const appSection = document.getElementById('app-section');
         const userEmailDisplay = document.getElementById('user-email-display');
-        
-        let unsubscribeTextos = null;
-        let unsubscribePalavras = null;
-        let unsubscribeAlunos = null;
 
-        // Monitorar Estado de Autenticação (Login / Logout)
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                // Usuário logado
-                authSection.style.display = 'none';
-                appSection.style.display = 'block';
-                userEmailDisplay.innerText = user.email;
+        let unsubAlunos = null;
+        let unsubTextos = null;
+        let unsubResultados = null;
 
-                // Carregar dados específicos deste usuário (baseado no UID)
-                carregarDadosUsuario(user.uid);
-            } else {
-                // Deslogado
-                authSection.style.display = 'block';
-                appSection.style.display = 'none';
-                
-                // Cancelar escuta dos dados anteriores
-                if (unsubscribeTextos) unsubscribeTextos();
-                if (unsubscribePalavras) unsubscribePalavras();
-                if (unsubscribeAlunos) unsubscribeAlunos();
-            }
-        });
-
-        // Ações de Login e Cadastro
+        // Gerenciamento de Autenticação
         const formAuth = document.getElementById('form-auth');
         const btnRegistrar = document.getElementById('btn-registrar');
+        const btnSair = document.getElementById('btn-sair');
 
         formAuth.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -287,51 +322,187 @@
         btnRegistrar.addEventListener('click', async () => {
             const email = document.getElementById('auth-email').value.trim();
             const senha = document.getElementById('auth-senha').value.trim();
-            if(!email || !senha) {
-                alert("Preencha e-mail e senha para cadastrar.");
+            if (!email || !senha) {
+                alert("Preencha e-mail e senha.");
                 return;
             }
             try {
                 await createUserWithEmailAndPassword(auth, email, senha);
-                alert("Conta criada com sucesso e login efetuado!");
+                alert("Conta criada com sucesso!");
             } catch (error) {
                 alert("Erro ao criar conta: " + error.message);
             }
         });
 
-        document.getElementById('btn-sair').addEventListener('click', () => {
-            signOut(auth);
+        btnSair.addEventListener('click', () => signOut(auth));
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                authSection.style.display = 'none';
+                appSection.style.display = 'block';
+                userEmailDisplay.innerText = user.email;
+
+                // Inicializar documento do usuário /users/{uid} se não existir
+                const userDocRef = doc(db, "users", user.uid);
+                const docSnap = await getDoc(userDocRef);
+                if (!docSnap.exists()) {
+                    await setDoc(userDocRef, { alunos: [] });
+                }
+
+                carregarPainelProfessor(user.uid);
+            } else {
+                authSection.style.display = 'block';
+                appSection.style.display = 'none';
+
+                if (unsubAlunos) unsubAlunos();
+                if (unsubTextos) unsubTextos();
+                if (unsubResultados) unsubResultados();
+            }
         });
 
-        // Função para carregar os dados isolados na árvore do usuário (`users/{uid}/...`)
-        function carregarDadosUsuario(uid) {
+        function carregarPainelProfessor(uid) {
+            const userDocRef = doc(db, "users", uid);
+
             // ==========================================
-            // 1. TEXTOS
+            // 1. GERENCIAMENTO DE ALUNOS (Array no Doc)
+            // ==========================================
+            const formAluno = document.getElementById('form-aluno');
+            const inputNomeAluno = document.getElementById('nome-aluno');
+            const listaAlunos = document.getElementById('lista-alunos');
+            let alunosCache = [];
+            let editIndex = null;
+
+            formAluno.onsubmit = async (e) => {
+                e.preventDefault();
+                const nome = inputNomeAluno.value.trim();
+                if (!nome) return;
+
+                try {
+                    if (editIndex !== null) {
+                        alunosCache[editIndex] = nome;
+                        editIndex = null;
+                        document.getElementById('btn-salvar-aluno').innerText = "Adicionar";
+                    } else {
+                        if (!alunosCache.includes(nome)) {
+                            alunosCache.push(nome);
+                        }
+                    }
+                    await updateDoc(userDocRef, { alunos: alunosCache });
+                    formAluno.reset();
+                } catch (error) {
+                    alert("Erro ao salvar aluno: " + error.message);
+                }
+            };
+
+            unsubAlunos = onSnapshot(userDocRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    alunosCache = data.alunos || [];
+                    listaAlunos.innerHTML = '';
+
+                    alunosCache.forEach((aluno, index) => {
+                        listaAlunos.innerHTML += `
+                            <li>
+                                👤 ${aluno}
+                                <div class="actions">
+                                    <button class="btn-edit" onclick="window.editarAluno(${index})">Editar</button>
+                                    <button class="btn-delete" onclick="window.apagarAluno(${index})">Remover</button>
+                                </div>
+                            </li>`;
+                    });
+                }
+            });
+
+            window.editarAluno = (index) => {
+                inputNomeAluno.value = alunosCache[index];
+                editIndex = index;
+                document.getElementById('btn-salvar-aluno').innerText = "Atualizar";
+                inputNomeAluno.focus();
+            };
+
+            window.apagarAluno = async (index) => {
+                if (confirm(`Remover "${alunosCache[index]}" da lista?`)) {
+                    alunosCache.splice(index, 1);
+                    await updateDoc(userDocRef, { alunos: alunosCache });
+                }
+            };
+
+            // ==========================================
+            // 2. GERENCIAMENTO DE TEXTOS (histTextos)
             // ==========================================
             const formTexto = document.getElementById('form-texto');
             const listaTextos = document.getElementById('lista-textos');
             const btnSalvarTexto = document.getElementById('btn-salvar-texto');
             const btnCancelarTexto = document.getElementById('btn-cancelar-texto');
-            let editTextoId = null; 
-            let textosCache = {};   
+            const tituloFormTexto = document.getElementById('titulo-form-texto');
+            let editTextoDocId = null;
+            let textosCache = {};
 
             function limparFormTexto() {
                 formTexto.reset();
-                editTextoId = null;
+                editTextoDocId = null;
+                tituloFormTexto.innerText = "Cadastrar Novo Texto (histTextos)";
                 btnSalvarTexto.innerText = "Salvar Texto";
-                btnCancelarTexto.classList.remove('active');
+                btnCancelarTexto.style.display = "none";
             }
             btnCancelarTexto.onclick = limparFormTexto;
 
             formTexto.onsubmit = async (e) => {
                 e.preventDefault();
-                const titulo = document.getElementById('titulo').value.trim();
-                const corpo = document.getElementById('corpo').value.trim();
+                const titulo = document.getElementById('titulo-texto').value.trim();
+                const texto = document.getElementById('corpo-texto').value.trim();
+
+                const perguntas = [
+                    {
+                        questao: document.getElementById('p1-questao').value.trim(),
+                        opcoes: [
+                            document.getElementById('p1-opt0').value.trim(),
+                            document.getElementById('p1-opt1').value.trim(),
+                            document.getElementById('p1-opt2').value.trim(),
+                            document.getElementById('p1-opt3').value.trim()
+                        ],
+                        correta: parseInt(document.getElementById('p1-correta').value)
+                    },
+                    {
+                        questao: document.getElementById('p2-questao').value.trim(),
+                        opcoes: [
+                            document.getElementById('p2-opt0').value.trim(),
+                            document.getElementById('p2-opt1').value.trim(),
+                            document.getElementById('p2-opt2').value.trim(),
+                            document.getElementById('p2-opt3').value.trim()
+                        ],
+                        correta: parseInt(document.getElementById('p2-correta').value)
+                    },
+                    {
+                        questao: document.getElementById('p3-questao').value.trim(),
+                        opcoes: [
+                            document.getElementById('p3-opt0').value.trim(),
+                            document.getElementById('p3-opt1').value.trim(),
+                            document.getElementById('p3-opt2').value.trim(),
+                            document.getElementById('p3-opt3').value.trim()
+                        ],
+                        correta: parseInt(document.getElementById('p3-correta').value)
+                    }
+                ];
+
+                const histTextosRef = collection(db, "users", uid, "histTextos");
+
                 try {
-                    if (editTextoId) {
-                        await updateDoc(doc(db, "users", uid, "textos", editTextoId), { titulo, corpo });
+                    if (editTextoDocId) {
+                        await updateDoc(doc(db, "users", uid, "histTextos", editTextoDocId), {
+                            titulo,
+                            texto,
+                            perguntas
+                        });
                     } else {
-                        await addDoc(collection(db, "users", uid, "textos"), { titulo, corpo });
+                        // Criar documento novo (o ID do documento ou campo id pode ser gerado)
+                        const novoDocRef = doc(histTextosRef);
+                        await setDoc(novoDocRef, {
+                            id: novoDocRef.id,
+                            titulo,
+                            texto,
+                            perguntas
+                        });
                     }
                     limparFormTexto();
                 } catch (error) {
@@ -339,173 +510,84 @@
                 }
             };
 
-            unsubscribeTextos = onSnapshot(collection(db, "users", uid, "textos"), (snapshot) => {
+            unsubTextos = onSnapshot(collection(db, "users", uid, "histTextos"), (snapshot) => {
                 listaTextos.innerHTML = '';
                 textosCache = {};
                 snapshot.forEach((docSnap) => {
                     const data = docSnap.data();
-                    const id = docSnap.id;
-                    textosCache[id] = data; 
+                    const docId = docSnap.id;
+                    textosCache[docId] = data;
+
+                    let perguntasHtml = "";
+                    if (data.perguntas) {
+                        data.perguntas.forEach((p, idx) => {
+                            perguntasHtml += `<div style="font-size:0.85em; margin-top:4px; color:#444;">
+                                <strong>Q${idx+1}:</strong> ${p.questao} | <span style="color:#1a73e8;">Correta: [${p.correta}]</span>
+                            </div>`;
+                        });
+                    }
+
                     listaTextos.innerHTML += `
                         <li>
-                            <strong>${data.titulo}</strong>
-                            <div class="text-body">${data.corpo}</div>
+                            <strong>📖 ${data.titulo}</strong>
+                            <div style="font-size:0.9em; color:#555; margin-top:5px; white-space: pre-wrap;">${data.texto}</div>
+                            <div style="margin-top:8px; background:#fff; padding:8px; border-radius:4px;">${perguntasHtml}</div>
                             <div class="actions">
-                                <button class="btn-edit btn-edit-texto" data-id="${id}">Editar</button>
-                                <button class="btn-delete btn-delete-texto" data-id="${id}">Apagar</button>
+                                <button class="btn-edit" onclick="window.editarTexto('${docId}')">Editar</button>
+                                <button class="btn-delete" onclick="window.apagarTexto('${docId}')">Apagar</button>
                             </div>
                         </li>`;
                 });
             });
 
-            listaTextos.onclick = async (e) => {
-                const id = e.target.dataset.id;
-                if (!id) return;
-                if (e.target.classList.contains('btn-delete-texto')) {
-                    if (confirm("Apagar este texto?")) {
-                        await deleteDoc(doc(db, "users", uid, "textos", id));
+            window.editarTexto = (docId) => {
+                const data = textosCache[docId];
+                document.getElementById('titulo-texto').value = data.titulo;
+                document.getElementById('corpo-texto').value = data.texto;
+
+                if (data.perguntas && data.perguntas.length === 3) {
+                    for (let i = 0; i < 3; i++) {
+                        document.getElementById(`p${i+1}-questao`).value = data.perguntas[i].questao;
+                        document.getElementById(`p${i+1}-opt0`).value = data.perguntas[i].opcoes[0];
+                        document.getElementById(`p${i+1}-opt1`).value = data.perguntas[i].opcoes[1];
+                        document.getElementById(`p${i+1}-opt2`).value = data.perguntas[i].opcoes[2];
+                        document.getElementById(`p${i+1}-opt3`).value = data.perguntas[i].opcoes[3];
+                        document.getElementById(`p${i+1}-correta`).value = data.perguntas[i].correta;
                     }
-                } else if (e.target.classList.contains('btn-edit-texto')) {
-                    const data = textosCache[id];
-                    document.getElementById('titulo').value = data.titulo;
-                    document.getElementById('corpo').value = data.corpo;
-                    editTextoId = id;
-                    btnSalvarTexto.innerText = "Atualizar Texto";
-                    btnCancelarTexto.classList.add('active');
+                }
+
+                editTextoDocId = docId;
+                tituloFormTexto.innerText = "Editar Texto (histTextos)";
+                btnSalvarTexto.innerText = "Atualizar Texto";
+                btnCancelarTexto.style.display = "inline-block";
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            };
+
+            window.apagarTexto = async (docId) => {
+                if (confirm("Deseja apagar este texto?")) {
+                    await deleteDoc(doc(db, "users", uid, "histTextos", docId));
                 }
             };
 
             // ==========================================
-            // 2. PALAVRAS
+            // 3. VISUALIZAÇÃO DE RESULTADOS (listResults)
             // ==========================================
-            const formPalavra = document.getElementById('form-palavra');
-            const listaPalavras = document.getElementById('lista-palavras');
-            const btnSalvarPalavra = document.getElementById('btn-salvar-palavra');
-            const btnCancelarPalavra = document.getElementById('btn-cancelar-palavra');
-            let editPalavraId = null;
-            let palavrasCache = {};
-
-            function limparFormPalavra() {
-                formPalavra.reset();
-                editPalavraId = null;
-                btnSalvarPalavra.innerText = "Adicionar Palavra";
-                btnCancelarPalavra.classList.remove('active');
-            }
-            btnCancelarPalavra.onclick = limparFormPalavra;
-
-            formPalavra.onsubmit = async (e) => {
-                e.preventDefault();
-                const palavra = document.getElementById('palavra').value.trim();
-                try {
-                    if (editPalavraId) {
-                        await updateDoc(doc(db, "users", uid, "palavras", editPalavraId), { palavra });
-                    } else {
-                        await addDoc(collection(db, "users", uid, "palavras"), { palavra });
-                    }
-                    limparFormPalavra();
-                } catch (error) {
-                    alert("Erro ao salvar palavra: " + error.message);
+            const listaResultados = document.getElementById('lista-resultados');
+            unsubResultados = onSnapshot(collection(db, "users", uid, "listResults"), (snapshot) => {
+                listaResultados.innerHTML = '';
+                if (snapshot.empty) {
+                    listaResultados.innerHTML = '<li style="color:#777;">Nenhum resultado registrado pelo APK ainda.</li>';
+                    return;
                 }
-            };
-
-            unsubscribePalavras = onSnapshot(collection(db, "users", uid, "palavras"), (snapshot) => {
-                listaPalavras.innerHTML = '';
-                palavrasCache = {};
                 snapshot.forEach((docSnap) => {
-                    const data = docSnap.data();
-                    const id = docSnap.id;
-                    palavrasCache[id] = data;
-                    listaPalavras.innerHTML += `
+                    const res = docSnap.data();
+                    listaResultados.innerHTML += `
                         <li>
-                            ${data.palavra}
-                            <div class="actions">
-                                <button class="btn-edit btn-edit-palavra" data-id="${id}">Editar</button>
-                                <button class="btn-delete btn-delete-palavra" data-id="${id}">Apagar</button>
-                            </div>
+                            <strong>📊 Aluno:</strong> ${res.aluno || 'Desconhecido'}<br>
+                            <span style="font-size:0.9em; color:#555;">Texto ID: ${res.textoId || 'N/A'} | Desempenho: ${JSON.stringify(res)}</span>
                         </li>`;
                 });
             });
-
-            listaPalavras.onclick = async (e) => {
-                const id = e.target.dataset.id;
-                if (!id) return;
-                if (e.target.classList.contains('btn-delete-palavra')) {
-                    if (confirm("Apagar esta palavra?")) {
-                        await deleteDoc(doc(db, "users", uid, "palavras", id));
-                    }
-                } else if (e.target.classList.contains('btn-edit-palavra')) {
-                    document.getElementById('palavra').value = palavrasCache[id].palavra;
-                    editPalavraId = id;
-                    btnSalvarPalavra.innerText = "Atualizar Palavra";
-                    btnCancelarPalavra.classList.add('active');
-                }
-            };
-
-            // ==========================================
-            // 3. ALUNOS
-            // ==========================================
-            const formAluno = document.getElementById('form-aluno');
-            const listaAlunos = document.getElementById('lista-alunos');
-            const btnSalvarAluno = document.getElementById('btn-salvar-aluno');
-            const btnCancelarAluno = document.getElementById('btn-cancelar-aluno');
-            let editAlunoId = null;
-            let alunosCache = {};
-
-            function limparFormAluno() {
-                formAluno.reset();
-                editAlunoId = null;
-                btnSalvarAluno.innerText = "Adicionar Aluno";
-                btnCancelarAluno.classList.remove('active');
-            }
-            btnCancelarAluno.onclick = limparFormAluno;
-
-            formAluno.onsubmit = async (e) => {
-                e.preventDefault();
-                const nome = document.getElementById('nome').value.trim();
-                try {
-                    if (editAlunoId) {
-                        await updateDoc(doc(db, "users", uid, "alunos", editAlunoId), { nome });
-                    } else {
-                        await addDoc(collection(db, "users", uid, "alunos"), { nome });
-                    }
-                    limparFormAluno();
-                } catch (error) {
-                    alert("Erro ao salvar aluno: " + error.message);
-                }
-            };
-
-            unsubscribeAlunos = onSnapshot(collection(db, "users", uid, "alunos"), (snapshot) => {
-                listaAlunos.innerHTML = '';
-                alunosCache = {};
-                snapshot.forEach((docSnap) => {
-                    const data = docSnap.data();
-                    const id = docSnap.id;
-                    alunosCache[id] = data;
-                    listaAlunos.innerHTML += `
-                        <li>
-                            ${data.nome}
-                            <div class="actions">
-                                <button class="btn-edit btn-edit-aluno" data-id="${id}">Editar</button>
-                                <button class="btn-delete btn-delete-aluno" data-id="${id}">Apagar</button>
-                            </div>
-                        </li>`;
-                });
-            });
-
-            listaAlunos.onclick = async (e) => {
-                const id = e.target.dataset.id;
-                if (!id) return;
-                if (e.target.classList.contains('btn-delete-aluno')) {
-                    if (confirm("Apagar este aluno?")) {
-                        await deleteDoc(doc(db, "users", uid, "alunos", id));
-                    }
-                } else if (e.target.classList.contains('btn-edit-aluno')) {
-                    document.getElementById('nome').value = alunosCache[id].nome;
-                    editAlunoId = id;
-                    btnSalvarAluno.innerText = "Atualizar Aluno";
-                    btnCancelarAluno.classList.add('active');
-                }
-            };
         }
     </script>
 </body>
