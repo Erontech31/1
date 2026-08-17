@@ -27,12 +27,31 @@
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
+        /* Tela de Autenticação */
+        #auth-section {
+            max-width: 400px;
+            margin: 50px auto;
+            text-align: center;
+        }
+        #app-section {
+            display: none; /* Escondido até o usuário logar */
+        }
+        .user-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #e8f0fe;
+            padding: 10px 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
         label {
             display: block;
             margin-top: 15px;
             font-weight: 600;
+            text-align: left;
         }
-        input[type="text"], textarea {
+        input[type="email"], input[type="password"], input[type="text"], textarea {
             width: 100%;
             padding: 10px;
             margin-top: 5px;
@@ -51,13 +70,32 @@
             font-size: 16px;
             cursor: pointer;
             transition: background 0.3s;
+            width: 100%;
         }
         .btn-submit:hover {
             background-color: #1557b0;
         }
+        .btn-secondary {
+            background-color: #5f6368;
+            margin-top: 10px;
+        }
+        .btn-secondary:hover {
+            background-color: #3c4043;
+        }
+        .btn-logout {
+            background-color: #ea4335;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .btn-logout:hover { background-color: #c9302c; }
         ul {
             list-style-type: none;
             padding: 0;
+            text-align: left;
         }
         li {
             background: #f8f9fa;
@@ -97,11 +135,41 @@
         }
         .btn-edit:hover { background-color: #e0a800; }
         .btn-delete:hover { background-color: #c9302c; }
+        .cancel-edit {
+            display: none;
+            background-color: #6c757d;
+        }
+        .cancel-edit.active {
+            display: block;
+        }
     </style>
 </head>
 <body>
 
-    <div class="container">
+    <!-- TELA DE LOGIN / CADASTRO -->
+    <div id="auth-section" class="container">
+        <div class="card">
+            <h2>Acessar Painel</h2>
+            <form id="form-auth">
+                <label for="auth-email">E-mail</label>
+                <input type="email5" id="auth-email" placeholder="seu@email.com" required style="width:100%; padding:10px; margin-top:5px; border:1px solid #ccc; border-radius:4px;">
+                
+                <label for="auth-senha">Senha</label>
+                <input type="password" id="auth-senha" placeholder="Sua senha" required style="width:100%; padding:10px; margin-top:5px; border:1px solid #ccc; border-radius:4px;">
+                
+                <button type="submit" class="btn-submit" id="btn-login">Entrar</button>
+                <button type="button" class="btn-submit btn-secondary" id="btn-registrar">Criar Conta Nova</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- PAINEL PRINCIPAL (SÓ APARECE LOGADO) -->
+    <div id="app-section" class="container">
+        <div class="user-bar">
+            <span>Logado como: <strong id="user-email-display"></strong></span>
+            <button class="btn-logout" id="btn-sair">Sair</button>
+        </div>
+
         <h1>Gerenciamento de Fluência</h1>
 
         <!-- Seção de Textos -->
@@ -115,6 +183,7 @@
                 <textarea id="corpo" rows="6" placeholder="Digite o texto completo aqui..." required></textarea>
                 
                 <button type="submit" class="btn-submit" id="btn-salvar-texto">Salvar Texto</button>
+                <button type="button" class="btn-submit cancel-edit" id="btn-cancelar-texto">Cancelar Edição</button>
             </form>
             <h3>Textos Cadastrados</h3>
             <ul id="lista-textos"></ul>
@@ -128,6 +197,7 @@
                 <input type="text" id="palavra" placeholder="Ex: Fluência" required>
                 
                 <button type="submit" class="btn-submit" id="btn-salvar-palavra">Adicionar Palavra</button>
+                <button type="button" class="btn-submit cancel-edit" id="btn-cancelar-palavra">Cancelar</button>
             </form>
             <h3>Palavras Cadastradas</h3>
             <ul id="lista-palavras"></ul>
@@ -141,18 +211,20 @@
                 <input type="text" id="nome" placeholder="Ex: João Silva" required>
                 
                 <button type="submit" class="btn-submit" id="btn-salvar-aluno">Adicionar Aluno</button>
+                <button type="button" class="btn-submit cancel-edit" id="btn-cancelar-aluno">Cancelar</button>
             </form>
             <h3>Alunos Cadastrados</h3>
             <ul id="lista-alunos"></ul>
         </div>
     </div>
 
-    <!-- Firebase SDK (Modular) via CDN -->
+    <!-- Firebase SDK (Modular com Auth e Firestore) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-        // Credenciais do seu projeto "Leiturinha"
+        // Suas credenciais do projeto Leiturinha
         const firebaseConfig = {
             apiKey: "AIzaSyBIpH8AhGAjoPNjel7QFHz85XqHUwdb7_Q",
             authDomain: "leiturinha-b8d11.firebaseapp.com",
@@ -164,193 +236,277 @@
         };
 
         const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // --- 1. Lógica para Textos ---
-        const formTexto = document.getElementById('form-texto');
-        const listaTextos = document.getElementById('lista-textos');
-        const btnSalvarTexto = document.getElementById('btn-salvar-texto');
-        let editTextoId = null; 
-        let textosCache = {};   
+        const authSection = document.getElementById('auth-section');
+        const appSection = document.getElementById('app-section');
+        const userEmailDisplay = document.getElementById('user-email-display');
+        
+        let unsubscribeTextos = null;
+        let unsubscribePalavras = null;
+        let unsubscribeAlunos = null;
 
-        formTexto.addEventListener('submit', async (e) => {
+        // Monitorar Estado de Autenticação (Login / Logout)
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // Usuário logado
+                authSection.style.display = 'none';
+                appSection.style.display = 'block';
+                userEmailDisplay.innerText = user.email;
+
+                // Carregar dados específicos deste usuário (baseado no UID)
+                carregarDadosUsuario(user.uid);
+            } else {
+                // Deslogado
+                authSection.style.display = 'block';
+                appSection.style.display = 'none';
+                
+                // Cancelar escuta dos dados anteriores
+                if (unsubscribeTextos) unsubscribeTextos();
+                if (unsubscribePalavras) unsubscribePalavras();
+                if (unsubscribeAlunos) unsubscribeAlunos();
+            }
+        });
+
+        // Ações de Login e Cadastro
+        const formAuth = document.getElementById('form-auth');
+        const btnRegistrar = document.getElementById('btn-registrar');
+
+        formAuth.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const titulo = document.getElementById('titulo').value;
-            const corpo = document.getElementById('corpo').value;
-            
+            const email = document.getElementById('auth-email').value.trim();
+            const senha = document.getElementById('auth-senha').value.trim();
             try {
-                if (editTextoId) {
-                    await updateDoc(doc(db, "textos", editTextoId), { titulo, corpo });
-                    editTextoId = null;
-                    btnSalvarTexto.innerText = "Salvar Texto";
-                } else {
-                    await addDoc(collection(db, "textos"), { titulo, corpo });
-                }
+                await signInWithEmailAndPassword(auth, email, senha);
+            } catch (error) {
+                alert("Erro ao entrar: " + error.message);
+            }
+        });
+
+        btnRegistrar.addEventListener('click', async () => {
+            const email = document.getElementById('auth-email').value.trim();
+            const senha = document.getElementById('auth-senha').value.trim();
+            if(!email || !senha) {
+                alert("Preencha e-mail e senha para cadastrar.");
+                return;
+            }
+            try {
+                await createUserWithEmailAndPassword(auth, email, senha);
+                alert("Conta criada com sucesso e login efetuado!");
+            } catch (error) {
+                alert("Erro ao criar conta: " + error.message);
+            }
+        });
+
+        document.getElementById('btn-sair').addEventListener('click', () => {
+            signOut(auth);
+        });
+
+        // Função para carregar os dados isolados na árvore do usuário (`users/{uid}/...`)
+        function carregarDadosUsuario(uid) {
+            // ==========================================
+            // 1. TEXTOS
+            // ==========================================
+            const formTexto = document.getElementById('form-texto');
+            const listaTextos = document.getElementById('lista-textos');
+            const btnSalvarTexto = document.getElementById('btn-salvar-texto');
+            const btnCancelarTexto = document.getElementById('btn-cancelar-texto');
+            let editTextoId = null; 
+            let textosCache = {};   
+
+            function limparFormTexto() {
                 formTexto.reset();
-            } catch (error) {
-                alert("Erro ao salvar texto: " + error.message);
+                editTextoId = null;
+                btnSalvarTexto.innerText = "Salvar Texto";
+                btnCancelarTexto.classList.remove('active');
             }
-        });
+            btnCancelarTexto.onclick = limparFormTexto;
 
-        onSnapshot(collection(db, "textos"), (snapshot) => {
-            listaTextos.innerHTML = '';
-            textosCache = {};
-            snapshot.forEach((docSnap) => {
-                const data = docSnap.data();
-                const id = docSnap.id;
-                textosCache[id] = data; 
+            formTexto.onsubmit = async (e) => {
+                e.preventDefault();
+                const titulo = document.getElementById('titulo').value.trim();
+                const corpo = document.getElementById('corpo').value.trim();
+                try {
+                    if (editTextoId) {
+                        await updateDoc(doc(db, "users", uid, "textos", editTextoId), { titulo, corpo });
+                    } else {
+                        await addDoc(collection(db, "users", uid, "textos"), { titulo, corpo });
+                    }
+                    limparFormTexto();
+                } catch (error) {
+                    alert("Erro ao salvar texto: " + error.message);
+                }
+            };
 
-                listaTextos.innerHTML += `
-                    <li>
-                        <strong>${data.titulo}</strong>
-                        <div class="text-body">${data.corpo}</div>
-                        <div class="actions">
-                            <button class="btn-edit btn-edit-texto" data-id="${id}">Editar</button>
-                            <button class="btn-delete btn-delete-texto" data-id="${id}">Apagar</button>
-                        </div>
-                    </li>`;
+            unsubscribeTextos = onSnapshot(collection(db, "users", uid, "textos"), (snapshot) => {
+                listaTextos.innerHTML = '';
+                textosCache = {};
+                snapshot.forEach((docSnap) => {
+                    const data = docSnap.data();
+                    const id = docSnap.id;
+                    textosCache[id] = data; 
+                    listaTextos.innerHTML += `
+                        <li>
+                            <strong>${data.titulo}</strong>
+                            <div class="text-body">${data.corpo}</div>
+                            <div class="actions">
+                                <button class="btn-edit btn-edit-texto" data-id="${id}">Editar</button>
+                                <button class="btn-delete btn-delete-texto" data-id="${id}">Apagar</button>
+                            </div>
+                        </li>`;
+                });
             });
-        });
 
-        listaTextos.addEventListener('click', async (e) => {
-            const id = e.target.dataset.id;
-            if (!id) return;
-
-            if (e.target.classList.contains('btn-delete-texto')) {
-                if (confirm("Tem certeza que deseja apagar este texto?")) {
-                    await deleteDoc(doc(db, "textos", id));
+            listaTextos.onclick = async (e) => {
+                const id = e.target.dataset.id;
+                if (!id) return;
+                if (e.target.classList.contains('btn-delete-texto')) {
+                    if (confirm("Apagar este texto?")) {
+                        await deleteDoc(doc(db, "users", uid, "textos", id));
+                    }
+                } else if (e.target.classList.contains('btn-edit-texto')) {
+                    const data = textosCache[id];
+                    document.getElementById('titulo').value = data.titulo;
+                    document.getElementById('corpo').value = data.corpo;
+                    editTextoId = id;
+                    btnSalvarTexto.innerText = "Atualizar Texto";
+                    btnCancelarTexto.classList.add('active');
                 }
-            } else if (e.target.classList.contains('btn-edit-texto')) {
-                const data = textosCache[id];
-                document.getElementById('titulo').value = data.titulo;
-                document.getElementById('corpo').value = data.corpo;
-                editTextoId = id;
-                btnSalvarTexto.innerText = "Atualizar Texto";
-                document.getElementById('titulo').focus(); 
-            }
-        });
+            };
 
+            // ==========================================
+            // 2. PALAVRAS
+            // ==========================================
+            const formPalavra = document.getElementById('form-palavra');
+            const listaPalavras = document.getElementById('lista-palavras');
+            const btnSalvarPalavra = document.getElementById('btn-salvar-palavra');
+            const btnCancelarPalavra = document.getElementById('btn-cancelar-palavra');
+            let editPalavraId = null;
+            let palavrasCache = {};
 
-        // --- 2. Lógica para Palavras ---
-        const formPalavra = document.getElementById('form-palavra');
-        const listaPalavras = document.getElementById('lista-palavras');
-        const btnSalvarPalavra = document.getElementById('btn-salvar-palavra');
-        let editPalavraId = null;
-        let palavrasCache = {};
-
-        formPalavra.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const palavra = document.getElementById('palavra').value;
-            
-            try {
-                if (editPalavraId) {
-                    await updateDoc(doc(db, "palavras", editPalavraId), { palavra });
-                    editPalavraId = null;
-                    btnSalvarPalavra.innerText = "Adicionar Palavra";
-                } else {
-                    await addDoc(collection(db, "palavras"), { palavra });
-                }
+            function limparFormPalavra() {
                 formPalavra.reset();
-            } catch (error) {
-                alert("Erro ao salvar palavra: " + error.message);
+                editPalavraId = null;
+                btnSalvarPalavra.innerText = "Adicionar Palavra";
+                btnCancelarPalavra.classList.remove('active');
             }
-        });
+            btnCancelarPalavra.onclick = limparFormPalavra;
 
-        onSnapshot(collection(db, "palavras"), (snapshot) => {
-            listaPalavras.innerHTML = '';
-            palavrasCache = {};
-            snapshot.forEach((docSnap) => {
-                const data = docSnap.data();
-                const id = docSnap.id;
-                palavrasCache[id] = data;
+            formPalavra.onsubmit = async (e) => {
+                e.preventDefault();
+                const palavra = document.getElementById('palavra').value.trim();
+                try {
+                    if (editPalavraId) {
+                        await updateDoc(doc(db, "users", uid, "palavras", editPalavraId), { palavra });
+                    } else {
+                        await addDoc(collection(db, "users", uid, "palavras"), { palavra });
+                    }
+                    limparFormPalavra();
+                } catch (error) {
+                    alert("Erro ao salvar palavra: " + error.message);
+                }
+            };
 
-                listaPalavras.innerHTML += `
-                    <li>
-                        ${data.palavra}
-                        <div class="actions">
-                            <button class="btn-edit btn-edit-palavra" data-id="${id}">Editar</button>
-                            <button class="btn-delete btn-delete-palavra" data-id="${id}">Apagar</button>
-                        </div>
-                    </li>`;
+            unsubscribePalavras = onSnapshot(collection(db, "users", uid, "palavras"), (snapshot) => {
+                listaPalavras.innerHTML = '';
+                palavrasCache = {};
+                snapshot.forEach((docSnap) => {
+                    const data = docSnap.data();
+                    const id = docSnap.id;
+                    palavrasCache[id] = data;
+                    listaPalavras.innerHTML += `
+                        <li>
+                            ${data.palavra}
+                            <div class="actions">
+                                <button class="btn-edit btn-edit-palavra" data-id="${id}">Editar</button>
+                                <button class="btn-delete btn-delete-palavra" data-id="${id}">Apagar</button>
+                            </div>
+                        </li>`;
+                });
             });
-        });
 
-        listaPalavras.addEventListener('click', async (e) => {
-            const id = e.target.dataset.id;
-            if (!id) return;
-
-            if (e.target.classList.contains('btn-delete-palavra')) {
-                if (confirm("Tem certeza que deseja apagar esta palavra?")) {
-                    await deleteDoc(doc(db, "palavras", id));
+            listaPalavras.onclick = async (e) => {
+                const id = e.target.dataset.id;
+                if (!id) return;
+                if (e.target.classList.contains('btn-delete-palavra')) {
+                    if (confirm("Apagar esta palavra?")) {
+                        await deleteDoc(doc(db, "users", uid, "palavras", id));
+                    }
+                } else if (e.target.classList.contains('btn-edit-palavra')) {
+                    document.getElementById('palavra').value = palavrasCache[id].palavra;
+                    editPalavraId = id;
+                    btnSalvarPalavra.innerText = "Atualizar Palavra";
+                    btnCancelarPalavra.classList.add('active');
                 }
-            } else if (e.target.classList.contains('btn-edit-palavra')) {
-                document.getElementById('palavra').value = palavrasCache[id].palavra;
-                editPalavraId = id;
-                btnSalvarPalavra.innerText = "Atualizar Palavra";
-                document.getElementById('palavra').focus();
-            }
-        });
+            };
 
+            // ==========================================
+            // 3. ALUNOS
+            // ==========================================
+            const formAluno = document.getElementById('form-aluno');
+            const listaAlunos = document.getElementById('lista-alunos');
+            const btnSalvarAluno = document.getElementById('btn-salvar-aluno');
+            const btnCancelarAluno = document.getElementById('btn-cancelar-aluno');
+            let editAlunoId = null;
+            let alunosCache = {};
 
-        // --- 3. Lógica para Alunos ---
-        const formAluno = document.getElementById('form-aluno');
-        const listaAlunos = document.getElementById('lista-alunos');
-        const btnSalvarAluno = document.getElementById('btn-salvar-aluno');
-        let editAlunoId = null;
-        let alunosCache = {};
-
-        formAluno.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const nome = document.getElementById('nome').value;
-            
-            try {
-                if (editAlunoId) {
-                    await updateDoc(doc(db, "alunos", editAlunoId), { nome });
-                    editAlunoId = null;
-                    btnSalvarAluno.innerText = "Adicionar Aluno";
-                } else {
-                    await addDoc(collection(db, "alunos"), { nome });
-                }
+            function limparFormAluno() {
                 formAluno.reset();
-            } catch (error) {
-                alert("Erro ao salvar aluno: " + error.message);
+                editAlunoId = null;
+                btnSalvarAluno.innerText = "Adicionar Aluno";
+                btnCancelarAluno.classList.remove('active');
             }
-        });
+            btnCancelarAluno.onclick = limparFormAluno;
 
-        onSnapshot(collection(db, "alunos"), (snapshot) => {
-            listaAlunos.innerHTML = '';
-            alunosCache = {};
-            snapshot.forEach((docSnap) => {
-                const data = docSnap.data();
-                const id = docSnap.id;
-                alunosCache[id] = data;
-
-                listaAlunos.innerHTML += `
-                    <li>
-                        ${data.nome}
-                        <div class="actions">
-                            <button class="btn-edit btn-edit-aluno" data-id="${id}">Editar</button>
-                            <button class="btn-delete btn-delete-aluno" data-id="${id}">Apagar</button>
-                        </div>
-                    </li>`;
-            });
-        });
-
-        listaAlunos.addEventListener('click', async (e) => {
-            const id = e.target.dataset.id;
-            if (!id) return;
-
-            if (e.target.classList.contains('btn-delete-aluno')) {
-                if (confirm("Tem certeza que deseja apagar o registro deste aluno?")) {
-                    await deleteDoc(doc(db, "alunos", id));
+            formAluno.onsubmit = async (e) => {
+                e.preventDefault();
+                const nome = document.getElementById('nome').value.trim();
+                try {
+                    if (editAlunoId) {
+                        await updateDoc(doc(db, "users", uid, "alunos", editAlunoId), { nome });
+                    } else {
+                        await addDoc(collection(db, "users", uid, "alunos"), { nome });
+                    }
+                    limparFormAluno();
+                } catch (error) {
+                    alert("Erro ao salvar aluno: " + error.message);
                 }
-            } else if (e.target.classList.contains('btn-edit-aluno')) {
-                document.getElementById('nome').value = alunosCache[id].nome;
-                editAlunoId = id;
-                btnSalvarAluno.innerText = "Atualizar Aluno";
-                document.getElementById('nome').focus();
-            }
-        });
+            };
+
+            unsubscribeAlunos = onSnapshot(collection(db, "users", uid, "alunos"), (snapshot) => {
+                listaAlunos.innerHTML = '';
+                alunosCache = {};
+                snapshot.forEach((docSnap) => {
+                    const data = docSnap.data();
+                    const id = docSnap.id;
+                    alunosCache[id] = data;
+                    listaAlunos.innerHTML += `
+                        <li>
+                            ${data.nome}
+                            <div class="actions">
+                                <button class="btn-edit btn-edit-aluno" data-id="${id}">Editar</button>
+                                <button class="btn-delete btn-delete-aluno" data-id="${id}">Apagar</button>
+                            </div>
+                        </li>`;
+                });
+            });
+
+            listaAlunos.onclick = async (e) => {
+                const id = e.target.dataset.id;
+                if (!id) return;
+                if (e.target.classList.contains('btn-delete-aluno')) {
+                    if (confirm("Apagar este aluno?")) {
+                        await deleteDoc(doc(db, "users", uid, "alunos", id));
+                    }
+                } else if (e.target.classList.contains('btn-edit-aluno')) {
+                    document.getElementById('nome').value = alunosCache[id].nome;
+                    editAlunoId = id;
+                    btnSalvarAluno.innerText = "Atualizar Aluno";
+                    btnCancelarAluno.classList.add('active');
+                }
+            };
+        }
     </script>
 </body>
 </html>
