@@ -373,11 +373,21 @@
         };
         function renderTextos(l) {
             document.getElementById('textos-list').innerHTML = l.map(t => `
-                <div onclick="editTexto('${t.id}', '${t.titulo.replace(/'/g,"")}', '${t.texto.replace(/'/g,"")}', '${encodeURIComponent(JSON.stringify(t.perguntas))}')" class="p-4 bg-gray-50 rounded-2xl border hover:border-green-400 cursor-pointer">
-                    <span class="font-black text-xs block truncate">${t.titulo}</span>
+                <div class="flex items-center gap-2 group">
+                    <div onclick="editTexto('${t.id}', '${t.titulo.replace(/'/g,"")}', '${t.texto.replace(/'/g,"").replace(/\n/g,"\\n")}', '${encodeURIComponent(JSON.stringify(t.perguntas))}')" class="flex-1 p-4 bg-gray-50 rounded-2xl border group-hover:border-green-400 cursor-pointer transition">
+                        <span class="font-black text-xs block truncate">${t.titulo}</span>
+                    </div>
+                    <button onclick="deleteTexto('${t.id}')" class="text-red-200 hover:text-red-500 p-2 opacity-0 group-hover:opacity-100 transition"><i class="fas fa-trash-alt text-xs"></i></button>
                 </div>
             `).join('');
         }
+
+        window.deleteTexto = async (id) => {
+            if(confirm("Deseja excluir esta história permanentemente?")) {
+                await deleteDoc(doc(db, "users", activeUID, "histTextos", id));
+                alert("✓ História removida!");
+            }
+        };
         window.clearTextoForm = () => {
             currentEditingTextoId = null; document.getElementById('txt-titulo').value = ""; document.getElementById('txt-corpo').value = "";
             [0,1,2].forEach(i => { document.getElementById(`q-${i}-text`).value = ""; [0,1,2,3].forEach(j => document.getElementById(`q-${i}-opt-${j}`).value = "") });
@@ -403,11 +413,21 @@
         };
         function renderPalavras(l) {
             document.getElementById('palavras-list').innerHTML = l.map(p => `
-                <div onclick="editPal('${p.id}', '${p.titulo}', '${encodeURIComponent(JSON.stringify(p.palavras))}')" class="p-4 bg-purple-50 rounded-2xl border hover:border-purple-400 cursor-pointer">
-                    <span class="font-black text-xs block truncate">${p.titulo}</span>
+                <div class="flex items-center gap-2 group">
+                    <div onclick="editPal('${p.id}', '${p.titulo}', '${encodeURIComponent(JSON.stringify(p.palavras))}')" class="flex-1 p-4 bg-purple-50 rounded-2xl border group-hover:border-purple-400 cursor-pointer transition">
+                        <span class="font-black text-xs block truncate">${p.titulo}</span>
+                    </div>
+                    <button onclick="deleteListaP('${p.id}')" class="text-red-200 hover:text-red-500 p-2 opacity-0 group-hover:opacity-100 transition"><i class="fas fa-trash-alt text-xs"></i></button>
                 </div>
             `).join('');
         }
+
+        window.deleteListaP = async (id) => {
+            if(confirm("Deseja excluir esta lista de palavras permanentemente?")) {
+                await deleteDoc(doc(db, "users", activeUID, "bibPalavras", id));
+                alert("✓ Lista removida!");
+            }
+        };
         window.editPal = (id, tit, list) => {
             currentEditingPalId = id; document.getElementById('pal-titulo').value = tit;
             document.getElementById('pal-conteudo').value = JSON.parse(decodeURIComponent(list)).join(", ");
