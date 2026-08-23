@@ -3,536 +3,216 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema Escolar - Controle de Saídas</title>
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
-
+    <title>Gerenciador Escolar Pro v4.1</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root {
-            --text-main: #1e293b;
-            --text-muted: #475569;
-            --white: #ffffff;
-            --glass-bg: rgba(255, 255, 255, 0.45);
-            --glass-bg-hover: rgba(255, 255, 255, 0.6);
-            --glass-border: rgba(255, 255, 255, 0.6);
-            --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
-            --primary: rgba(59, 130, 246, 0.85);
-            --primary-hover: rgba(37, 99, 235, 1);
-            --success: rgba(16, 185, 129, 0.85);
-            --success-hover: rgba(5, 150, 105, 1);
-            --danger: rgba(239, 68, 68, 0.85);
-            --danger-hover: rgba(220, 38, 38, 1);
-            --teal: rgba(20, 184, 166, 0.85);
-            --grad-adm: linear-gradient(135deg, rgba(71, 85, 105, 0.85) 0%, rgba(30, 41, 59, 0.85) 100%);
-            --grad-dir: linear-gradient(135deg, rgba(15, 118, 110, 0.85) 0%, rgba(17, 94, 89, 0.85) 100%);
-            --grad-prof: linear-gradient(135deg, rgba(5, 150, 105, 0.85) 0%, rgba(4, 120, 87, 0.85) 100%);
-            --radius-md: 16px;
-            --radius-lg: 24px;
-        }
-
-        * { box-sizing: border-box; }
-
-        body {
-            font-family: 'Poppins', sans-serif;
-            text-align: center;
-            padding: 20px;
-            background: transparent;
-            margin: 0;
-            color: var(--text-main);
-            -webkit-font-smoothing: antialiased;
-            min-height: 100vh;
-            position: relative;
-            overflow-x: hidden;
-        }
-
-        .fundo-midia {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            object-fit: cover; z-index: -2; pointer-events: none;
-        }
-
-        .overlay-fundo {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: linear-gradient(45deg, rgba(15, 23, 42, 0.15), rgba(56, 189, 248, 0.15));
-            background-size: 200% 200%; animation: moveGradient 10s ease infinite;
-            z-index: -1; pointer-events: none;
-            backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px);
-        }
-
-        @keyframes moveGradient {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        .logo-escola {
-            width: 95px; height: 95px;
-            border-radius: 50%; object-fit: cover; border: 3px solid rgba(255, 255, 255, 0.8);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 1000;
-            background-color: var(--white); animation: float 4s ease-in-out infinite;
-            margin: 0 auto 15px auto; display: block;
-        }
-
-        @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-8px); box-shadow: 0 8px 20px rgba(0,0,0,0.3); }
-            100% { transform: translateY(0px); }
-        }
-
-        h1, h2, h3 { margin-top: 0; font-weight: 600; color: var(--text-main); text-shadow: 0 1px 2px rgba(255,255,255,0.5); }
-
-        .glass-panel {
-            background: rgba(255, 255, 255, 0.35); backdrop-filter: blur(6px) saturate(120%);
-            -webkit-backdrop-filter: blur(6px) saturate(120%);
-            border: 1px solid var(--glass-border); box-shadow: var(--glass-shadow);
-        }
-
-        button {
-            padding: 14px 22px; font-size: 15px; font-weight: 600; font-family: 'Poppins', sans-serif;
-            color: var(--white); border: 1px solid rgba(255,255,255,0.3); border-radius: var(--radius-md);
-            cursor: pointer; background: var(--primary); backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(4px); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); display: inline-flex;
-            align-items: center; justify-content: center; gap: 8px; text-shadow: 0 1px 2px rgba(0,0,0,0.2);
-        }
-
-        button:hover {
-            background: var(--primary-hover); transform: translateY(-4px) scale(1.02);
-            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4); border-color: rgba(255,255,255,0.6);
-        }
-
-        button:active { transform: translateY(2px) scale(0.98); }
-        button:disabled { background: rgba(203, 213, 225, 0.7); cursor: not-allowed; transform: none; box-shadow: none; color: #64748b; border: none; }
-
-        input, select {
-            padding: 15px 18px; border-radius: var(--radius-md); border: 1.5px solid rgba(255, 255, 255, 0.5);
-            font-size: 14px; font-family: 'Poppins', sans-serif; margin-bottom: 12px;
-            background: rgba(255, 255, 255, 0.4); backdrop-filter: blur(6px);
-            -webkit-backdrop-filter: blur(6px); color: var(--text-main); transition: all 0.3s ease;
-            width: 100%; box-shadow: inset 0 2px 4px rgba(0,0,0,0.03);
-        }
-
-        input:focus, select:focus {
-            outline: none; border-color: rgba(59, 130, 246, 0.8); background: rgba(255, 255, 255, 0.7);
-            box-shadow: 0 0 15px rgba(59, 130, 246, 0.2), inset 0 2px 4px rgba(0,0,0,0.02); transform: translateY(-2px);
-        }
-
-        .topo-barra {
-            display: flex; justify-content: space-between; align-items: center; color: var(--white);
-            padding: 18px 26px; border-radius: var(--radius-lg); margin-bottom: 30px;
-            max-width: 750px; margin-left: auto; margin-right: auto; backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
-
-        .topo-barra h2 { margin: 0; color: var(--white); font-size: 20px; font-weight: 600; letter-spacing: 0.5px; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
-        .btn-sair { background: rgba(255, 255, 255, 0.15); padding: 10px 18px; font-size: 14px; }
-        .btn-sair:hover { background: var(--danger-hover); box-shadow: 0 6px 15px rgba(239, 68, 68, 0.4); }
-
-        .tela { display: none; max-width: 750px; margin: 0 auto; animation: slideFadeUpScale 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-
-        @keyframes slideFadeUpScale {
-            0% { opacity: 0; transform: translateY(40px) scale(0.95); }
-            100% { opacity: 1; transform: translateY(0) scale(1); }
-        }
-
-        /* TELA DE LOGIN - SEM FORMATO DE CARD */
-        #tela-login {
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            width: 100%; min-height: 100vh; margin: 0;
-            padding: 20px; position: relative;
-        }
-
-        #tela-login h2 {
-            margin-bottom: 5px; font-size: 28px; font-weight: 700; color: #ffffff;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
-        }
-
-        #tela-login input {
-            text-align: center; font-size: 16px; letter-spacing: 2px; border-width: 2px;
-            padding: 16px; margin-top: 15px; font-weight: 600;
-            width: 100%; max-width: 320px; background: rgba(255, 255, 255, 0.85);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-
-        #tela-login input:focus { background: #ffffff; }
-
-        #tela-login input::placeholder {
-            font-size: 14px; letter-spacing: normal; color: #64748b;
-        }
-
-        #tela-login button {
-            width: 100%; max-width: 320px; font-size: 16px; padding: 16px;
-            background: linear-gradient(135deg, rgba(16,185,129,0.95) 0%, rgba(5,150,105,0.95) 100%);
-            margin-top: 15px; box-shadow: 0 8px 25px rgba(0,0,0,0.3);
-        }
-
-        #status-conexao {
-            font-size: 14px; color: #f8fafc; font-weight: 600; display: flex;
-            align-items: center; justify-content: center; gap: 8px; margin-top: 5px;
-            text-shadow: 0 1px 4px rgba(0,0,0,0.5);
-        }
-
-        .status-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background-color: var(--text-muted); transition: all 0.5s ease; }
-        .status-dot.online { background-color: #34d399; box-shadow: 0 0 12px #34d399, 0 0 20px #34d399; animation: pulse 2s infinite; }
-        .status-dot.erro { background-color: #ef4444; box-shadow: 0 0 12px #ef4444; }
-
-        @keyframes pulse {
-            0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.3); opacity: 0.7; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-
-        .card { padding: 30px; border-radius: var(--radius-lg); margin-bottom: 30px; text-align: left; transition: transform 0.4s ease, box-shadow 0.4s ease; }
-        .card:hover { transform: translateY(-5px); box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15); }
-        .card h3 { font-size: 18px; color: #1e293b; margin-bottom: 22px; display: flex; align-items: center; gap: 10px; }
-        .linha-form { display: flex; gap: 15px; margin-bottom: 10px; flex-wrap: wrap; }
-        .linha-form input { flex: 1; min-width: 160px; margin: 0; }
-        .linha-form button { margin: 0; white-space: nowrap; }
-
-        .lista-itens { list-style: none; padding: 0; margin: 20px 0 0 0; max-height: 280px; overflow-y: auto; }
-        .lista-itens::-webkit-scrollbar { width: 8px; }
-        .lista-itens::-webkit-scrollbar-track { background: rgba(255,255,255,0.2); border-radius: 10px; }
-        .lista-itens::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.6); border-radius: 10px; }
-
-        .lista-itens li {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 14px 20px; margin-bottom: 10px; border-radius: var(--radius-md);
-            background: var(--glass-bg); border: 1px solid var(--glass-border);
-            font-size: 15px; color: var(--text-main); font-weight: 500;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            animation: slideInRight 0.5s ease backwards;
-        }
-
-        .lista-itens li:nth-child(1), #lista-prof-alunos li:nth-child(1) { animation-delay: 0.1s; }
-        .lista-itens li:nth-child(2), #lista-prof-alunos li:nth-child(2) { animation-delay: 0.2s; }
-        .lista-itens li:nth-child(3), #lista-prof-alunos li:nth-child(3) { animation-delay: 0.3s; }
-        .lista-itens li:nth-child(4), #lista-prof-alunos li:nth-child(4) { animation-delay: 0.4s; }
-        .lista-itens li:nth-child(5), #lista-prof-alunos li:nth-child(5) { animation-delay: 0.5s; }
-        .lista-itens li:nth-child(n+6), #lista-prof-alunos li:nth-child(n+6) { animation-delay: 0.6s; }
-
-        @keyframes slideInRight { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
-
-        .lista-itens li:hover { transform: scale(1.02) translateX(5px); background: var(--glass-bg-hover); box-shadow: 0 5px 15px rgba(0,0,0,0.08); }
-        .btn-remover { background: rgba(239, 68, 68, 0.15); color: #dc2626; font-size: 13px; padding: 8px 14px; border-radius: 8px; border: 1px solid rgba(239, 68, 68, 0.3); }
-        .btn-remover:hover { background: var(--danger-hover); color: var(--white); border-color: transparent; }
-
-        .table-container { border-radius: var(--radius-lg); overflow: hidden; border: 1px solid var(--glass-border); box-shadow: var(--glass-shadow); background: var(--glass-bg); backdrop-filter: blur(6px); }
-        table { width: 100%; border-collapse: collapse; font-size: 15px; text-align: left; }
-        th, td { padding: 18px; border-bottom: 1px solid rgba(255,255,255,0.4); }
-        th { background: rgba(255,255,255,0.5); color: var(--text-main); font-weight: 700; text-transform: uppercase; font-size: 13px; letter-spacing: 1px; }
-        tr:last-child td { border-bottom: none; }
-        tr { transition: background 0.3s ease; }
-        tr:hover td { background: rgba(255,255,255,0.6); }
-
-        .badge { padding: 6px 14px; border-radius: 20px; font-weight: 700; font-size: 13px; display: inline-block; text-align: center; min-width: 60px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
-        .badge-ok { background-color: rgba(16, 185, 129, 0.2); color: #047857; border: 1px solid rgba(16, 185, 129, 0.4); }
-        .badge-cheio { background-color: rgba(239, 68, 68, 0.2); color: #b91c1c; border: 1px solid rgba(239, 68, 68, 0.4); animation: shake 0.5s ease-in-out; }
-
-        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
-
-        #leitor-container { padding: 20px; border-radius: var(--radius-lg); margin-bottom: 30px; transition: all 0.4s ease; }
-        #reader { width: 100%; border-radius: var(--radius-md); overflow: hidden; border: 2px solid rgba(255,255,255,0.5) !important; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
-        #reader video { object-fit: cover; border-radius: calc(var(--radius-md) - 2px); }
-        #reader img { display: none !important; }
-
-        .btn-camera { width: 100%; margin-top: 20px; background: rgba(71, 85, 105, 0.85); font-size: 16px; }
-
-        .painel-alunos h3 { justify-content: center; border-bottom: 2px solid rgba(255,255,255,0.4); padding-bottom: 18px; margin-bottom: 20px; }
-
-        #lista-prof-alunos { display: grid; grid-template-columns: 1fr; gap: 15px; padding: 0; margin: 0; list-style: none; }
-
-        #lista-prof-alunos li {
-            background: var(--glass-bg); padding: 20px; border-radius: var(--radius-md);
-            border: 1px solid var(--glass-border); font-size: 16px; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05); display: flex; flex-direction: column; gap: 10px;
-            animation: slideInRight 0.5s ease backwards;
-        }
-
-        #lista-prof-alunos li:hover { transform: translateY(-3px) scale(1.01); box-shadow: 0 8px 20px rgba(0,0,0,0.1); background: var(--glass-bg-hover); }
-
-        .aluno-header { display: flex; justify-content: space-between; align-items: center; width: 100%; }
-        .aluno-nome { font-weight: 700; color: var(--text-main); font-size: 17px; }
-        .aluno-horas { font-size: 13px; color: var(--text-main); background: rgba(255,255,255,0.6); padding: 8px 12px; border-radius: 8px; display: inline-block; width: fit-content; border: 1px solid rgba(255,255,255,0.4); box-shadow: inset 0 1px 2px rgba(255,255,255,0.8); }
-
-        .limite-atingido { border-color: rgba(239, 68, 68, 0.5) !important; background: rgba(254, 226, 226, 0.4) !important; }
-
-        #mensagem {
-            font-size: 16px; font-weight: 600; margin: 25px 0; padding: 20px 24px;
-            border-radius: var(--radius-md); display: none; line-height: 1.6;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15); animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
-        }
-
-        @keyframes popIn { 0% { opacity: 0; transform: scale(0.8) translateY(20px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
-
-        .verde { color: #064e3b; background: rgba(16, 185, 129, 0.25); border: 2px solid rgba(16, 185, 129, 0.5); display: block !important; }
-        .vermelho { color: #7f1d1d; background: rgba(239, 68, 68, 0.25); border: 2px solid rgba(239, 68, 68, 0.5); display: block !important; }
-
-        #area-impressao { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
-        
-        /* ESTILO FORMAL DO CARTÃO */
-        .cartao-qr {
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: space-between;
-            border: 3px solid #1e293b;
-            padding: 20px 15px;
-            background: #ffffff;
-            border-radius: 8px; 
-            width: 220px; 
-            height: 300px;
-            text-align: center;
-            transition: all 0.3s ease; 
-            box-shadow: 0 6px 15px rgba(0,0,0,0.15);
-            color: #1e293b;
-            position: relative;
-        }
-
-        .cartao-qr:hover { 
-            transform: translateY(-8px); 
-            border-color: #3b82f6; 
-            box-shadow: 0 15px 30px rgba(59, 130, 246, 0.3); 
-        }
-
-        /* CABEÇALHO DO CARTÃO COM FLEX PARA ALINHAR LOGO E TEXTO */
-        .cartao-qr-header {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px; /* Espaço entre o logo e o texto */
-            font-size: 13px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            border-bottom: 2px solid #1e293b;
-            padding-bottom: 8px;
-            margin-bottom: 10px;
-            width: 100%;
-            color: #1e293b;
-        }
-
-        /* CLASSE ESPECÍFICA PARA O LOGO NO CARTÃO */
-        .logo-cartao {
-            width: 24px;
-            height: 24px;
-            object-fit: cover;
-            border-radius: 50%; /* Se o logo for redondo. Pode remover se for quadrado */
-            border: 1px solid #1e293b; /* Opcional, uma bordinha sutil no logo */
-        }
-
-        .cartao-qr-info {
-            width: 100%;
-            margin-top: 15px;
-        }
-
-        .cartao-qr-nome {
-            font-size: 16px;
-            font-weight: 700;
-            margin: 0 0 5px 0;
-            line-height: 1.2;
-            word-wrap: break-word;
-        }
-
-        .cartao-qr-turma {
-            font-size: 14px;
-            font-weight: 500;
-            color: #475569;
-        }
-
-        @media (max-width: 600px) {
-            .topo-barra { padding-left: 20px; flex-direction: column; gap: 15px; align-items: flex-end; }
-            .topo-barra h2 { width: 100%; text-align: right; }
-        }
-
-        @media print {
-            @page { size: A4 portrait; margin: 10mm; }
-            /* Não usamos .logo-escola para esconder aqui, escondemos o logo geral, mas mantemos o do cartão */
-            .fundo-midia, .overlay-fundo, .logo-escola, .topo-barra, .btn-imprimir { display: none !important; }
-            body { background: white !important; margin: 0; padding: 0; min-height: auto; color: black !important; }
-            .tela { display: none !important; animation: none !important; }
-
-            #tela-gerenciamento { display: block !important; max-width: 100% !important; margin: 0 !important; padding: 0 !important; background: white !important; border: none !important; box-shadow: none !important; }
-            #tela-gerenciamento > .card:nth-child(2), #tela-gerenciamento > .card:nth-child(3) { display: none !important; }
-
-            .card, .glass-panel { border: none !important; box-shadow: none !important; background: transparent !important; padding: 0 !important; margin: 0 !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
-            #tela-gerenciamento .card h3, #tela-gerenciamento .card select, #tela-gerenciamento .card .linha-form, #tela-gerenciamento .card button, #tela-gerenciamento .card ul, #btn-remover-selecionados { display: none !important; }
-            #area-acoes-impressao { display: block !important; border: none !important; background: transparent !important; padding: 0 !important; margin: 0 !important; }
-
-            /* AJUSTES DE IMPRESSÃO DO CARTÃO */
-            #area-impressao { display: grid !important; grid-template-columns: repeat(4, 1fr) !important; gap: 5mm !important; justify-items: center !important; align-items: start !important; width: 100% !important; }
-            .cartao-qr { 
-                border: 2px solid #000 !important; 
-                padding: 4mm !important; 
-                margin: 0 !important; 
-                page-break-inside: avoid !important; 
-                background: white !important; 
-                border-radius: 4px !important; 
-                box-shadow: none !important; 
-                transform: none !important; 
-                width: 48mm !important; 
-                height: 65mm !important; 
-                display: flex !important; 
-                flex-direction: column !important; 
-                align-items: center !important; 
-                justify-content: space-between !important; 
-                box-sizing: border-box !important; 
-            }
-            .cartao-qr-header { 
-                display: flex !important; 
-                align-items: center !important; 
-                justify-content: center !important; 
-                gap: 4px !important;
-                color: #000 !important; 
-                border-bottom: 2px solid #000 !important; 
-                font-size: 10px !important; 
-                padding-bottom: 4px !important; 
-                margin-bottom: 5px !important;
-            }
-            .logo-cartao { width: 16px !important; height: 16px !important; border: 1px solid #000 !important; display: block !important; }
-            .cartao-qr-nome { color: #000 !important; font-size: 13px !important; }
-            .cartao-qr-turma { color: #333 !important; font-size: 11px !important; }
-            .cartao-qr img, .cartao-qr canvas { max-width: 35mm !important; height: auto !important; display: block !important; }
-        }
+        :root { --primary: #2563eb; --sidebar: #0f172a; --bg: #f8fafc; }
+        body { background: var(--bg); font-family: 'Inter', sans-serif; margin: 0; }
+        .sidebar { width: 260px; height: 100vh; background: var(--sidebar); color: white; position: fixed; z-index: 1000; }
+        .main { margin-left: 260px; padding: 30px; transition: 0.3s; }
+        .sidebar-header { padding: 25px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .menu-item { padding: 15px 25px; cursor: pointer; color: #94a3b8; display: flex; align-items: center; gap: 12px; transition: 0.2s; }
+        .menu-item:hover, .menu-item.active { background: #1e293b; color: white; }
+        .card { border: none; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        #login-screen { position: fixed; top:0; left:0; width:100%; height:100%; background: var(--sidebar); display: flex; align-items: center; justify-content: center; z-index: 2000; }
+        @media print { .no-print { display: none; } .main { margin-left: 0; padding: 0; } #area-impressao { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; } }
+        .edit-btn { color: var(--primary); cursor: pointer; margin-left: 8px; font-size: 0.8rem; }
+        .logo-preview { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; background: #eee; }
+        .section-title { font-weight: 700; color: #334155; margin-bottom: 20px; border-left: 4px solid var(--primary); padding-left: 15px; }
     </style>
 </head>
 <body>
 
-<!-- VIDEO BACKGROUND -->
-<video autoplay muted loop playsinline class="fundo-midia" id="video-fundo">
-    <source src="video.mp4" type="video/mp4">
-</video>
-
-<div class="overlay-fundo"></div>
-
-<!-- TELA LOGIN -->
-<div id="tela-login" class="tela">
-    <img src="logo.png" alt="Logo da Escola" class="logo-escola">
-    <h2>Bem-vindo</h2>
-    <div id="status-conexao">
-        <span class="status-dot" id="dot-conexao"></span>
-        <span id="texto-conexao">Verificando conexão...</span>
-    </div>
-
-    <input type="password" id="input-login" placeholder="Digite o código" onkeypress="verificarEnterLogin(event)" disabled>
-    <button id="btn-entrar" onclick="fazerLogin()" disabled>Acessar Sistema</button>
-
-    <div style="margin-top: 40px; font-size: 13px; color: rgba(255,255,255,0.9); line-height: 1.5; text-align: center; font-weight: 500; text-shadow: 0 1px 3px rgba(0,0,0,0.5);">
-        Desenvolvido por <strong>Eronildo Tavares</strong> &copy; 2026.<br>Plataforma de uso gratuito para apoio à gestão escolar.
+<!-- LOGIN MASTER -->
+<div id="login-screen">
+    <div class="card p-4" style="width: 350px;">
+        <h4 class="text-center mb-4">Master Admin</h4>
+        <input type="password" id="master-code" class="form-control mb-3" placeholder="Senha Master">
+        <button class="btn btn-primary w-100" onclick="checkMaster()">Entrar no Painel</button>
+        <div id="login-err" class="text-danger small mt-2 text-center" style="display:none;">Acesso Negado!</div>
     </div>
 </div>
 
-<!-- TELA ADMIN -->
-<div id="tela-gerenciamento" class="tela">
-    <div class="topo-barra" style="background: var(--grad-adm);">
-        <h2>⚙️ Painel de Administração</h2>
-        <button class="btn-sair" onclick="fazerLogout()">Sair</button>
+<div id="admin-panel" style="display:none;">
+    <div class="sidebar no-print">
+        <div class="sidebar-header"><h5>ESCOLA PRO v4.1</h5></div>
+        <div class="menu-item active" onclick="switchTab('dashboard', this)"><i class="fas fa-chart-pie"></i> Dashboard</div>
+        <div class="menu-item" onclick="switchTab('monitor', this)"><i class="fas fa-desktop"></i> Monitoramento</div>
+        <hr class="mx-3 opacity-25">
+        <div class="menu-item" onclick="switchTab('professores', this)"><i class="fas fa-user-tie"></i> Professores</div>
+        <div class="menu-item" onclick="switchTab('estrutura', this)"><i class="fas fa-sitemap"></i> Estrutura Escolar</div>
+        <hr class="mx-3 opacity-25">
+        <div class="menu-item" onclick="switchTab('migrar', this)"><i class="fas fa-file-import"></i> Migrar Dados</div>
+        <div class="menu-item text-danger mt-5" onclick="location.reload()"><i class="fas fa-power-off"></i> Sair</div>
     </div>
 
-    <div class="card glass-panel">
-        <h3>🔑 Senha Mestra (Acesso do Diretor)</h3>
-        <div class="linha-form">
-            <input type="text" id="input-senha-diretor" placeholder="Definir nova senha">
-            <button onclick="salvarSenhaDiretor()" style="background: var(--success);">Atualizar</button>
-        </div>
-        <small style="color: var(--text-main); font-weight: 500;">A senha atual está protegida. Digite uma nova para substituir.</small>
-    </div>
-
-    <div class="card glass-panel">
-        <h3>📚 Passo 1: Criar Turma e Senha</h3>
-        <div class="linha-form">
-            <input type="text" id="input-nova-turma" placeholder="Nome (Ex: 1 ANO)">
-            <input type="text" id="input-senha-turma" placeholder="Senha da turma">
-            <button onclick="criarTurmaESenha()">Criar</button>
-        </div>
-        <ul class="lista-itens" id="lista-adm-turmas"></ul>
-    </div>
-
-    <div class="card glass-panel">
-        <h3>👤 Passo 2: Alunos e QR Codes</h3>
-        <select id="select-turma-aluno" onchange="carregarAlunosDaTurma()"></select>
-        <div class="linha-form">
-            <input type="text" id="input-novo-aluno" placeholder="Nome Completo" style="text-transform: uppercase;" onkeypress="if(event.key === 'Enter') cadastrarAlunoEGerarQR()">
-            <button onclick="cadastrarAlunoEGerarQR()">Adicionar</button>
+    <div class="main">
+        <!-- DASHBOARD -->
+        <div id="tab-dashboard" class="tab-content">
+            <h3 class="section-title">Dashboard</h3>
+            <div class="row g-4">
+                <div class="col-md-4"><div class="card p-4 text-center"><span>Escolas Cadastradas</span><h2 id="dash-escolas">0</h2></div></div>
+                <div class="col-md-4"><div class="card p-4 text-center"><span>Total de Alunos</span><h2 id="dash-alunos">0</h2></div></div>
+                <div class="col-md-4"><div class="card p-4 text-center"><span>Saídas Hoje</span><h2 id="dash-saidas">0</h2></div></div>
+            </div>
         </div>
 
-        <button onclick="gerarImpressaoColetiva()" style="width:100%; background: linear-gradient(135deg, rgba(139,92,246,0.9) 0%, rgba(109,40,217,0.9) 100%); margin: 15px 0 25px 0;">
-            🖨️ Gerar QR Codes de Toda a Turma
-        </button>
+        <!-- MONITORAMENTO -->
+        <div id="tab-monitor" class="tab-content" style="display:none;">
+            <h3 class="section-title">Monitoramento Real-Time</h3>
+            <div id="monitor-grid" class="row g-3"></div>
+        </div>
 
-        <ul class="lista-itens" id="lista-adm-alunos"></ul>
+        <!-- PROFESSORES -->
+        <div id="tab-professores" class="tab-content" style="display:none;">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="section-title">Gestão de Professores</h3>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-sm btn-outline-dark" onclick="openModalPass()">Senhas Master</button>
+                    <button class="btn btn-primary" onclick="openModalProf()"><i class="fas fa-plus me-2"></i>Novo Professor</button>
+                </div>
+            </div>
+            <div class="card p-4">
+                <table class="table align-middle">
+                    <thead><tr><th>E-mail / ID</th><th>Escola > Turmas Autorizadas</th><th class="text-end">Ações</th></tr></thead>
+                    <tbody id="list-professores"></tbody>
+                </table>
+            </div>
+        </div>
 
-        <button id="btn-remover-selecionados" onclick="removerAlunosSelecionados()" style="width:100%; background: var(--danger); margin-top: 20px; display: none;">
-            🗑️ Remover Alunos Selecionados
-        </button>
+        <!-- ESTRUTURA ESCOLAR -->
+        <div id="tab-estrutura" class="tab-content" style="display:none;">
+            <h3 class="section-title">Estrutura Escolar</h3>
 
-        <div id="area-acoes-impressao" class="glass-panel" style="display:none; margin-top:30px; padding: 25px; border-radius: var(--radius-md);">
-            <button class="btn-imprimir" onclick="window.print()" style="background: var(--teal); width: 100%; margin-bottom: 25px; padding: 18px; font-size: 17px;">🖨️ Imprimir Cartões Gerados</button>
-            <div id="area-impressao"></div>
+            <div id="lvl-escolas">
+                <div class="d-flex justify-content-between mb-3">
+                    <h5><i class="fas fa-school me-2"></i>Escolas</h5>
+                    <button class="btn btn-sm btn-primary" onclick="openModalEscola()"><i class="fas fa-plus me-1"></i>Nova Escola</button>
+                </div>
+                <div class="row" id="admin-list-escolas"></div>
+            </div>
+
+            <div id="lvl-turmas" style="display:none;">
+                <div class="d-flex align-items-center mb-3">
+                    <button class="btn btn-sm btn-link p-0 me-3" onclick="backToEscolas()"><i class="fas fa-arrow-left"></i></button>
+                    <h5 id="turma-title" class="mb-0">Turmas</h5>
+                    <button class="btn btn-sm btn-primary ms-auto" onclick="openModalTurma()"><i class="fas fa-plus me-1"></i>Nova Turma</button>
+                </div>
+                <div class="card p-3"><table class="table align-middle"><thead><tr><th>Turma</th><th>PIN</th><th class="text-end">Ações</th></tr></thead><tbody id="admin-list-turmas"></tbody></table></div>
+            </div>
+
+            <div id="lvl-alunos" style="display:none;">
+                <div class="d-flex align-items-center mb-3">
+                    <button class="btn btn-sm btn-link p-0 me-3" onclick="backToTurmas()"><i class="fas fa-arrow-left"></i></button>
+                    <h5 id="aluno-title" class="mb-0">Alunos</h5>
+                    <div class="ms-auto d-flex gap-2">
+                        <button class="btn btn-sm btn-success" onclick="openModalAluno()"><i class="fas fa-plus me-1"></i>Adicionar</button>
+                        <button class="btn btn-sm btn-dark" onclick="imprimirTurma()"><i class="fas fa-print me-1"></i>Imprimir QRs</button>
+                    </div>
+                </div>
+                <div class="card p-3"><table class="table align-middle"><thead><tr><th>Nome</th><th>Saídas</th><th class="text-end">Ações</th></tr></thead><tbody id="admin-list-alunos"></tbody></table></div>
+            </div>
+        </div>
+
+        <!-- MIGRAR -->
+        <div id="tab-migrar" class="tab-content" style="display:none;">
+            <h3 class="section-title">Migrar Dados Antigos</h3>
+            <p class="text-muted">Encontramos dados no formato antigo. Mova-os para a estrutura hierárquica.</p>
+            <div id="list-legado" class="row"></div>
         </div>
     </div>
 </div>
 
-<!-- TELA DIRETOR -->
-<div id="tela-diretor" class="tela">
-    <div class="topo-barra" style="background: var(--grad-dir);">
-        <h2>📊 Painel da Diretoria</h2>
-        <button class="btn-sair" onclick="fazerLogout()">Sair</button>
-    </div>
+<!-- MODAIS -->
 
-    <div class="card glass-panel" style="padding: 25px;">
-        <label style="display:block; font-weight:700; color:var(--text-main); margin-bottom:12px; text-align:left;">Monitoramento em Tempo Real:</label>
-        <select id="select-diretor-turma" onchange="diretorMudarTurma()" style="margin-bottom:0; font-weight:600;"></select>
-    </div>
-
-    <div class="table-container">
-        <table>
-            <thead>
-            <tr>
-                <th>Aluno</th>
-                <th style="text-align:center;">Status</th>
-                <th>1ª Saída</th>
-                <th>2ª Saída</th>
-            </tr>
-            </thead>
-            <tbody id="tabela-diretor-corpo"></tbody>
-        </table>
-    </div>
-    <button style="margin-top:30px; background: var(--danger); width:100%; font-size: 16px; padding: 18px;" onclick="zerarTurmaDiretor()">
-        🔄 Resetar Contagens desta Turma
-    </button>
-</div>
-
-<!-- TELA PROFESSOR -->
-<div id="tela-professor" class="tela">
-    <div class="topo-barra" style="background: var(--grad-prof);">
-        <h2 id="titulo-turma-prof">🏫 Turma</h2>
-        <button class="btn-sair" onclick="fazerLogout()">Sair</button>
-    </div>
-
-    <div id="leitor-container" class="glass-panel">
-        <button id="btn-iniciar-camera" class="btn-camera" onclick="iniciarCamera()" style="background: var(--primary); margin-top: 0; margin-bottom: 10px;">Ler QR Code</button>
-        <div id="reader" style="display: none;"></div>
-        <button id="btn-inverter-camera" class="btn-camera" onclick="alternarCamera()" style="display: none;">🔄 Inverter Câmera</button>
-        <button id="btn-parar-camera" class="btn-camera" onclick="pararCamera()" style="background: var(--danger); margin-top: 10px; display: none;">⏹ Fechar Câmera</button>
-    </div>
-
-    <div id="mensagem"></div>
-
-    <div class="card painel-alunos glass-panel">
-        <h3>Controle de Saídas (Limite: 2)</h3>
-        <ul id="lista-prof-alunos"></ul>
+<!-- PROFESSOR -->
+<div class="modal fade" id="modal-prof" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header"><h5>Configurar Professor</h5></div>
+            <div class="modal-body">
+                <input type="hidden" id="prof-uid">
+                <div class="mb-3"><label class="form-label">Escola</label><select id="prof-sel-esc" class="form-select" onchange="loadTurmasCheckboxes()"></select></div>
+                <div class="mb-3"><label class="form-label">E-mail</label><input type="email" id="prof-email" class="form-control"></div>
+                <div id="prof-pass-box" class="mb-3"><label class="form-label">Senha</label><input type="password" id="prof-pass" class="form-control"></div>
+                <div class="mb-3">
+                    <label class="form-label">Turmas Autorizadas</label>
+                    <div id="prof-turmas-checks" class="p-3 border rounded bg-light" style="max-height: 200px; overflow-y: auto;">Selecione uma escola primeiro.</div>
+                </div>
+            </div>
+            <div class="modal-footer"><button class="btn btn-primary" onclick="saveProfessor()">Salvar Professor</button></div>
+        </div>
     </div>
 </div>
 
-<!-- SCRIPTS -->
+<!-- ESCOLA -->
+<div class="modal fade" id="modal-escola" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
+    <div class="modal-header"><h5>Configurar Escola</h5></div>
+    <div class="modal-body">
+        <input type="hidden" id="esc-id">
+        <input type="text" id="esc-nome" class="form-control mb-3" placeholder="Nome da Escola">
+        <input type="text" id="esc-logo" class="form-control" placeholder="URL do Logo">
+    </div>
+    <div class="modal-footer"><button class="btn btn-primary" onclick="saveEscola()">Salvar</button></div>
+</div></div></div>
+
+<!-- TURMA -->
+<div class="modal fade" id="modal-turma" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
+    <div class="modal-header"><h5>Configurar Turma</h5></div>
+    <div class="modal-body">
+        <input type="hidden" id="tur-id">
+        <input type="text" id="tur-nome" class="form-control mb-3" placeholder="Nome da Turma (Ex: 9º Ano A)">
+        <input type="text" id="tur-code" class="form-control" placeholder="PIN de Acesso (Ex: 9A)">
+    </div>
+    <div class="modal-footer"><button class="btn btn-primary" onclick="saveTurma()">Salvar</button></div>
+</div></div></div>
+
+<!-- ALUNO -->
+<div class="modal fade" id="modal-aluno" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
+    <div class="modal-header"><h5>Configurar Aluno</h5></div>
+    <div class="modal-body">
+        <input type="hidden" id="alu-old-nome">
+        <input type="text" id="alu-nome" class="form-control mb-3" placeholder="Nome do Aluno">
+        <div id="alu-mass-box">
+            <label class="form-label small">Ou cadastre em massa (um por linha)</label>
+            <textarea id="alu-massa" class="form-control" rows="5" placeholder="João Silva\nMaria Souza..."></textarea>
+        </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-success" onclick="saveAlunos()">Salvar</button></div>
+</div></div></div>
+
+<!-- CONFIG PASS -->
+<div class="modal fade" id="modal-config-pass" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
+    <div class="modal-header"><h5>Senhas de Segurança</h5></div>
+    <div class="modal-body">
+        <div class="mb-3"><label>Senha Master Admin</label><input type="text" id="cfg-pass-admin" class="form-control"></div>
+        <div class="mb-3"><label>Senha do Diretor (Educador Global)</label><input type="text" id="cfg-pass-dir" class="form-control"></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-primary" onclick="savePasswords()">Atualizar</button></div>
+</div></div></div>
+
+<!-- MIGRAR MODAL -->
+<div class="modal fade" id="modal-mig" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
+    <div class="modal-header"><h5>Migrar para Nova Estrutura</h5></div>
+    <div class="modal-body">
+        <p>Mover <strong id="mig-name"></strong> para:</p>
+        <select id="mig-esc-sel" class="form-select mb-3"></select>
+        <input type="email" id="mig-email" class="form-control mb-2" placeholder="E-mail do Professor">
+        <input type="password" id="mig-pass" class="form-control mb-2" placeholder="Senha do Professor">
+        <input type="text" id="mig-code" class="form-control" placeholder="PIN da Turma">
+    </div>
+    <div class="modal-footer"><button class="btn btn-primary" onclick="execMig()">Migrar Agora</button></div>
+</div></div></div>
+
+<div id="area-impressao" style="display:none;"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
 <script>
     const firebaseConfig = {
         apiKey: "AIzaSyBWB41DNUr-14oi6N3D_8M6KPFqH3yYesU",
@@ -540,599 +220,249 @@
         databaseURL: "https://controle-de-saida-54745-default-rtdb.firebaseio.com",
         projectId: "controle-de-saida-54745",
         storageBucket: "controle-de-saida-54745.firebasestorage.app",
-        messagingSenderId: "933472401696",
         appId: "1:933472401696:web:a84d400cd2905c6201ff45"
     };
-
     firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
+    const db = firebase.database();
+    const fAuth = firebase.auth();
 
-    let dbConfig = null;
-    let dbAlunos = {};
-    let refConfig = database.ref('config');
-    let refAlunosAtuais = null;
-    let refAlunosAdm = null;
-    let turmaAtual = null;
+    let masterData = { schools: {}, users_map: {}, admin: { config: {} } };
+    let legadoData = { salas: {} };
+    let currEsc = null, currTur = null;
 
-    let html5QrCode = null;
-    let cameraTraseira = true;
-    let ultimoLido = "";
-    let tempoEspera;
+    function checkMaster() {
+        const pin = document.getElementById('master-code').value;
+        db.ref('admin/config/senha_admin').once('value', s => {
+            if(pin === (s.val() || "311201")) {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('admin-panel').style.display = 'block';
+                startSync();
+            } else document.getElementById('login-err').style.display = 'block';
+        });
+    }
 
-    let ultimoScanGlobal = 0;
-    let ultimosScansAlunos = {};
+    function startSync() {
+        db.ref().on('value', snap => {
+            const data = snap.val() || {};
+            masterData.schools = data.schools || {};
+            masterData.users_map = data.users_map || {};
+            masterData.admin = data.admin || { config: {} };
+            renderAll();
+        });
+        db.ref('salas').on('value', s => { legadoData.salas = s.val() || {}; renderLegado(); });
+    }
 
-    database.ref('.info/connected').on('value', function(snap) {
-        const texto = document.getElementById('texto-conexao');
-        if (snap.val() === true) {
-            texto.innerText = "Autenticando no banco de dados...";
+    function switchTab(id, el) {
+        document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
+        document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
+        document.getElementById('tab-'+id).style.display = 'block';
+        if(el) el.classList.add('active');
+    }
+
+    function renderAll() {
+        renderDash();
+        renderMonitor();
+        renderProfessores();
+        renderEstruturaEscolas();
+        if(currEsc) renderEstruturaTurmas();
+        if(currTur) renderEstruturaAlunos();
+    }
+
+    function renderDash() {
+        let escCount = Object.keys(masterData.schools).length;
+        let aluCount = 0, saiCount = 0;
+        for(let e in masterData.schools) {
+            const turs = masterData.schools[e].turmas || {};
+            for(let t in turs) {
+                const alus = turs[t].alunos || {};
+                for(let a in alus) { aluCount++; saiCount += (alus[a].contador || 0); }
+            }
         }
-    });
+        document.getElementById('dash-escolas').innerText = escCount;
+        document.getElementById('dash-alunos').innerText = aluCount;
+        document.getElementById('dash-saidas').innerText = saiCount;
+    }
 
-    refConfig.on('value', (snapshot) => {
-        if (snapshot.exists()) {
-            dbConfig = snapshot.val();
+    function renderMonitor() {
+        const grid = document.getElementById('monitor-grid');
+        let html = '';
+        for(let e in masterData.schools) {
+            const turs = masterData.schools[e].turmas || {};
+            for(let t in turs) {
+                const alus = turs[t].alunos || {};
+                const list = Object.keys(alus).sort().map(a => `<tr><td>${a}</td><td class="text-end text-primary fw-bold">${alus[a].contador}/2</td></tr>`).join('');
+                html += `<div class="col-md-4"><div class="card p-3 h-100"><h6>${t.replace('tur_','')} (${masterData.schools[e].nome})</h6><table class="table table-sm x-small mb-0"><tbody>${list || '<tr><td>Vazia</td></tr>'}</tbody></table></div></div>`;
+            }
+        }
+        grid.innerHTML = html;
+    }
+
+    // PROFESSORES
+    function openModalProf(uid) {
+        const sel = document.getElementById('prof-sel-esc');
+        sel.innerHTML = '<option value="">Selecione a Escola...</option>' + Object.keys(masterData.schools).map(id => `<option value="${id}">${masterData.schools[id].nome}</option>`).join('');
+
+        if(uid) {
+            const map = masterData.users_map[uid];
+            document.getElementById('prof-uid').value = uid;
+            document.getElementById('prof-sel-esc').value = map.schoolId;
+            document.getElementById('prof-email').value = map.email || "";
+            document.getElementById('prof-pass-box').style.display = 'none';
+            loadTurmasCheckboxes(map.turmas);
         } else {
-            dbConfig = { senha_diretor: "diretor123", turmas: {} };
-            refConfig.set(dbConfig);
+            document.getElementById('prof-uid').value = "";
+            document.getElementById('prof-email').value = "";
+            document.getElementById('prof-pass').value = "";
+            document.getElementById('prof-pass-box').style.display = 'block';
+            document.getElementById('prof-turmas-checks').innerHTML = 'Selecione uma escola primeiro.';
         }
+        new bootstrap.Modal(document.getElementById('modal-prof')).show();
+    }
 
-        const dot = document.getElementById('dot-conexao');
-        const texto = document.getElementById('texto-conexao');
-        if (dot && texto) {
-            dot.classList.remove('erro');
-            dot.classList.add('online');
-            texto.innerText = "Sistema Online e Pronto";
-            texto.style.color = "#34d399";
-        }
+    function loadTurmasCheckboxes(selected = {}) {
+        const escId = document.getElementById('prof-sel-esc').value;
+        const box = document.getElementById('prof-turmas-checks');
+        if(!escId) return box.innerHTML = '';
+        const turs = masterData.schools[escId].turmas || {};
+        const html = Object.keys(turs).map(id => `
+            <div class="form-check">
+                <input class="form-check-input turma-chk" type="checkbox" value="${id}" id="chk-${id}" ${selected[id] ? 'checked' : ''}>
+                <label class="form-check-label" for="chk-${id}">${id.replace('tur_','')}</label>
+            </div>
+        `).join('');
+        box.innerHTML = html || 'Nenhuma turma nesta escola.';
+    }
 
-        if (document.getElementById('input-login')) document.getElementById('input-login').disabled = false;
-        if (document.getElementById('btn-entrar')) document.getElementById('btn-entrar').disabled = false;
+    async function saveProfessor() {
+        const email = document.getElementById('prof-email').value, pass = document.getElementById('prof-pass').value;
+        const escId = document.getElementById('prof-sel-esc').value;
+        const chks = document.querySelectorAll('.turma-chk:checked');
+        const turmas = {}; chks.forEach(c => turmas[c.value] = true);
+        if(!email || !escId) return alert("Preencha e-mail e escola!");
 
-        atualizarListasGerenciamento();
-        if (document.getElementById('tela-diretor').style.display === 'block') atualizarSelectDiretor();
-    }, (error) => {
-        console.error("Erro do Firebase:", error);
-        const dot = document.getElementById('dot-conexao');
-        const texto = document.getElementById('texto-conexao');
-        dot.classList.remove('online');
-        dot.classList.add('erro');
-        texto.innerText = "Acesso Negado. Verifique as Rules do Firebase.";
-        texto.style.color = "#ef4444";
-        alert("ERRO: O Firebase bloqueou o acesso! Certifique-se de que as Regras do Realtime Database estão definidas como '.read': true e '.write': true.");
-    });
-
-    function verificarEnterLogin(event) { if (event.key === 'Enter') fazerLogin(); }
-
-    function fazerLogin() {
-        const senhaDigitada = document.getElementById("input-login").value.trim();
-        if (!senhaDigitada) return;
-
-        if (senhaDigitada === "311201") {
-            abrirTela("tela-gerenciamento");
-            atualizarListasGerenciamento();
-            return;
-        }
-
-        if (dbConfig && senhaDigitada === dbConfig.senha_diretor) {
-            abrirTela("tela-diretor");
-            iniciarModoDiretor();
-            return;
-        }
-
-        let turmaEncontrada = null;
-        if (dbConfig && dbConfig.turmas) {
-            for (let turma in dbConfig.turmas) {
-                let senhasDaTurma = dbConfig.turmas[turma].senhas || [];
-                if (senhasDaTurma.includes(senhaDigitada)) { turmaEncontrada = turma; break; }
+        try {
+            let uid = document.getElementById('prof-uid').value;
+            if(!uid) {
+                try { const s = await fAuth.createUserWithEmailAndPassword(email, pass); uid = s.user.uid; }
+                catch(e) { if(e.code==='auth/email-already-in-use'){ const s = await fAuth.signInWithEmailAndPassword(email,pass); uid=s.user.uid; } else throw e; }
             }
-        }
-
-        if (turmaEncontrada) {
-            abrirTela("tela-professor");
-            iniciarModoProfessor(turmaEncontrada);
-        } else {
-            alert("Senha incorreta ou não cadastrada!");
-        }
-        document.getElementById("input-login").value = "";
+            await db.ref(`users_map/${uid}`).set({ schoolId: escId, turmas: turmas, email: email });
+            bootstrap.Modal.getInstance(document.getElementById('modal-prof')).hide();
+        } catch(e) { alert("Erro: " + e.message); }
     }
 
-    function abrirTela(idTela) {
-        document.querySelectorAll('.tela').forEach(t => {
-            t.style.display = "none";
-            t.style.animation = "none";
+    function renderProfessores() {
+        const list = document.getElementById('list-professores');
+        list.innerHTML = Object.keys(masterData.users_map).map(uid => {
+            const map = masterData.users_map[uid];
+            const tNames = Object.keys(map.turmas || {}).map(t => t.replace('tur_','')).join(', ');
+            return `<tr><td><strong>${map.email || '---'}</strong><br><small class="text-muted">${uid.slice(0,6)}...</small></td><td><span class="badge bg-light text-dark">${masterData.schools[map.schoolId]?.nome || '?'} > ${tNames || 'Nenhuma'}</span></td><td class="text-end"><button class="btn btn-sm btn-outline-primary me-1" onclick="openModalProf('${uid}')"><i class="fas fa-edit"></i></button><button class="btn btn-sm btn-outline-danger" onclick="deleteProf('${uid}')"><i class="fas fa-trash"></i></button></td></tr>`;
+        }).join('') || '<tr><td colspan="3" class="text-center p-4">Nenhum professor cadastrado.</td></tr>';
+    }
+    function deleteProf(uid) { if(confirm("Remover professor?")) db.ref(`users_map/${uid}`).remove(); }
+
+    // ESTRUTURA
+    function openModalEscola(id) {
+        if(id) { document.getElementById('esc-id').value = id; document.getElementById('esc-nome').value = masterData.schools[id].nome; document.getElementById('esc-logo').value = masterData.schools[id].info?.logoUrl || ""; }
+        else { document.getElementById('esc-id').value = ""; document.getElementById('esc-nome').value = ""; document.getElementById('esc-logo').value = ""; }
+        new bootstrap.Modal(document.getElementById('modal-escola')).show();
+    }
+    function saveEscola() {
+        const id = document.getElementById('esc-id').value || 'esc_' + Date.now();
+        const n = document.getElementById('esc-nome').value, l = document.getElementById('esc-logo').value;
+        if(!n) return;
+        db.ref(`schools/${id}/nome`).set(n);
+        db.ref(`schools/${id}/info`).update({id, nome:n, logoUrl:l}).then(() => bootstrap.Modal.getInstance(document.getElementById('modal-escola')).hide());
+    }
+    function renderEstruturaEscolas() {
+        const l = document.getElementById('admin-list-escolas');
+        l.innerHTML = Object.keys(masterData.schools).map(id => `<div class="col-md-6 mb-3"><div class="card p-3 d-flex flex-row align-items-center gap-3"><img src="${masterData.schools[id].info?.logoUrl || ''}" class="logo-preview" onerror="this.src='https://placehold.co/40x40?text=?'"><div><h6>${masterData.schools[id].nome} <i class="fas fa-pen edit-btn" onclick="openModalEscola('${id}')"></i></h6></div><div class="ms-auto"><button class="btn btn-sm btn-primary" onclick="selectEscola('${id}')">Ver Turmas</button><button class="btn btn-sm btn-outline-danger ms-1" onclick="deleteEscola('${id}')"><i class="fas fa-trash"></i></button></div></div></div>`).join('');
+    }
+    function deleteEscola(id) { if(confirm("Apagar escola?")) db.ref(`schools/${id}`).remove(); }
+    function selectEscola(id) { currEsc = id; document.getElementById('lvl-escolas').style.display='none'; document.getElementById('lvl-turmas').style.display='block'; document.getElementById('turma-title').innerText = "Turmas: " + masterData.schools[id].nome; renderEstruturaTurmas(); }
+    function backToEscolas() { currEsc = null; document.getElementById('lvl-turmas').style.display='none'; document.getElementById('lvl-escolas').style.display='block'; }
+
+    function openModalTurma(id) {
+        if(id) { document.getElementById('tur-id').value = id; document.getElementById('tur-nome').value = id.replace('tur_',''); document.getElementById('tur-code').value = masterData.schools[currEsc].turmas[id].config?.codigo || ""; }
+        else { document.getElementById('tur-id').value = ""; document.getElementById('tur-nome').value = ""; document.getElementById('tur-code').value = ""; }
+        new bootstrap.Modal(document.getElementById('modal-turma')).show();
+    }
+    function saveTurma() {
+        const n = document.getElementById('tur-nome').value, c = document.getElementById('tur-code').value;
+        if(!n || !c) return alert("Preencha nome e PIN!");
+        const tId = document.getElementById('tur-id').value || 'tur_' + n.replace(/\s+/g,'_');
+        db.ref(`schools/${currEsc}/turmas/${tId}/config/codigo`).set(c).then(() => bootstrap.Modal.getInstance(document.getElementById('modal-turma')).hide());
+    }
+    function renderEstruturaTurmas() {
+        const turs = masterData.schools[currEsc]?.turmas || {};
+        document.getElementById('list-turmas').innerHTML = Object.keys(turs).map(id => `<tr><td><strong>${id.replace('tur_','')}</strong> <i class="fas fa-pen edit-btn" onclick="openModalTurma('${id}')"></i></td><td><code>${turs[id].config?.codigo}</code></td><td class="text-end"><button class="btn btn-sm btn-primary" onclick="selectTurma('${id}')">Alunos</button><button class="btn btn-sm btn-outline-danger ms-1" onclick="deleteTurma('${id}')"><i class="fas fa-trash"></i></button></td></tr>`).join('');
+    }
+    function deleteTurma(id) { if(confirm("Excluir turma?")) db.ref(`schools/${currEsc}/turmas/${id}`).remove(); }
+    function selectTurma(id) { currTur = id; document.getElementById('lvl-turmas').style.display='none'; document.getElementById('lvl-alunos').style.display='block'; document.getElementById('aluno-title').innerText = "Alunos: " + id.replace('tur_',''); renderEstruturaAlunos(); }
+    function backToTurmas() { currTur = null; document.getElementById('lvl-alunos').style.display='none'; document.getElementById('lvl-turmas').style.display='block'; }
+
+    function openModalAluno(n) {
+        if(n) { document.getElementById('alu-old-nome').value = n; document.getElementById('alu-nome').value = n; document.getElementById('alu-mass-box').style.display='none'; }
+        else { document.getElementById('alu-old-nome').value = ""; document.getElementById('alu-nome').value = ""; document.getElementById('alu-mass-box').style.display='block'; }
+        new bootstrap.Modal(document.getElementById('modal-aluno')).show();
+    }
+    async function saveAlunos() {
+        const old = document.getElementById('alu-old-nome').value, single = document.getElementById('alu-nome').value.trim().toUpperCase(), mass = document.getElementById('alu-massa').value;
+        const ref = db.ref(`schools/${currEsc}/turmas/${currTur}/alunos`);
+        if(old) { const s = await ref.child(old).get(); await ref.child(single).set(s.val()); if(old!==single) await ref.child(old).remove(); }
+        else { const nomes = mass ? mass.split('\n').map(n => n.trim().toUpperCase()).filter(n => n) : [single]; nomes.forEach(n => ref.child(n).set({ contador:0, hora1:"", hora2:"", previsao:"", ultimoTimestamp:0, limite:2 })); }
+        bootstrap.Modal.getInstance(document.getElementById('modal-aluno')).hide();
+    }
+    function renderEstruturaAlunos() {
+        const alus = masterData.schools[currEsc]?.turmas[currTur]?.alunos || {};
+        document.getElementById('list-alunos').innerHTML = Object.keys(alus).sort().map(n => `<tr><td><strong>${n}</strong> <i class="fas fa-pen edit-btn" onclick="openModalAluno('${n}')"></i></td><td>${alus[n].contador}/2</td><td class="text-end"><button class="btn btn-sm btn-outline-danger" onclick="deleteAluno('${n}')"><i class="fas fa-trash"></i></button></td></tr>`).join('');
+    }
+    function deleteAluno(n) { if(confirm("Remover aluno?")) db.ref(`schools/${currEsc}/turmas/${currTur}/alunos/${n}`).remove(); }
+
+    function renderLegado() {
+        const list = document.getElementById('list-legado');
+        list.innerHTML = Object.keys(legadoData.salas).map(t => `<div class="col-md-4 mb-2"><div class="card p-2 d-flex flex-row justify-content-between align-items-center"><span>${t}</span><button class="btn btn-sm btn-warning" onclick="openMig('${t}')">Migrar</button></div></div>`).join('');
+    }
+    function openMig(t) {
+        document.getElementById('mig-name').innerText = t;
+        const sel = document.getElementById('mig-esc-sel');
+        sel.innerHTML = Object.keys(masterData.schools).map(id => `<option value="${id}">${masterData[id].nome}</option>`).join('');
+        new bootstrap.Modal(document.getElementById('modal-mig')).show();
+    }
+    async function execMig() {
+        const old = document.getElementById('mig-name').innerText, esc = document.getElementById('mig-esc-sel').value;
+        const email = document.getElementById('mig-email').value, pass = document.getElementById('mig-pass').value, code = document.getElementById('mig-code').value;
+        try {
+            let uid = null;
+            try { const s = await fAuth.createUserWithEmailAndPassword(email, pass); uid = s.user.uid; }
+            catch(e) { if(e.code==='auth/email-already-in-use'){ const s = await fAuth.signInWithEmailAndPassword(email,pass); uid=s.user.uid; } else throw e; }
+            const alus = legadoData.salas[old].alunos || {};
+            const tId = 'tur_' + old.replace(/\s+/g,'_');
+            await db.ref(`schools/${esc}/turmas/${tId}`).set({ config: { email, codigo: code }, alunos: alus });
+            await db.ref(`users_map/${uid}`).set({ schoolId: esc, turmas: {[tId]: true}, email: email });
+            await db.ref(`salas/${old}`).remove();
+            bootstrap.Modal.getInstance(document.getElementById('modal-mig')).hide();
+            alert("Sucesso!");
+        } catch(e) { alert(e.message); }
+    }
+
+    function savePasswords() {
+        const a = document.getElementById('cfg-pass-admin').value, d = document.getElementById('cfg-pass-dir').value;
+        db.ref('admin/config').update({ senha_admin: a, senha_diretor: d }).then(() => { alert("OK"); bootstrap.Modal.getInstance(document.getElementById('modal-config-pass')).hide(); });
+    }
+
+    function imprimirTurma() {
+        const area = document.getElementById('area-impressao');
+        area.innerHTML = '';
+        const alus = masterData.schools[currEsc].turmas[currTur].alunos || {};
+        Object.keys(alus).sort().forEach(n => {
+            const div = document.createElement('div');
+            div.className = 'qr-card';
+            div.innerHTML = `<div id="qri-${n.replace(/\s+/g,'')}"></div><small><strong>${n}</strong></small>`;
+            area.appendChild(div);
+            new QRCode(document.getElementById('qri-'+n.replace(/\s+/g,'')), { text: n, width: 130, height: 130 });
         });
-
-        const telaAtiva = document.getElementById(idTela);
-
-        if (idTela === "tela-login") {
-            telaAtiva.style.display = "flex";
-        } else {
-            telaAtiva.style.display = "block";
-        }
-
-        setTimeout(() => { telaAtiva.style.animation = ""; }, 10);
-
-        if (idTela !== "tela-professor") {
-            pararCamera();
-        }
-    }
-
-    function fazerLogout() {
-        document.getElementById("input-login").value = "";
-        if (refAlunosAtuais) refAlunosAtuais.off();
-        if (refAlunosAdm) refAlunosAdm.off();
-        pararCamera();
-        abrirTela("tela-login");
-    }
-
-    function atualizarListasGerenciamento() {
-        const selectAlunos = document.getElementById('select-turma-aluno');
-        if (!selectAlunos) return;
-        const valorAtualAlunos = selectAlunos.value;
-        selectAlunos.innerHTML = '';
-
-        const listaTurmas = dbConfig && dbConfig.turmas ? Object.keys(dbConfig.turmas) : [];
-        listaTurmas.forEach(t => selectAlunos.add(new Option(t, t)));
-        if(valorAtualAlunos && listaTurmas.includes(valorAtualAlunos)) selectAlunos.value = valorAtualAlunos;
-
-        carregarListaTurmasAdm();
-        carregarAlunosDaTurma();
-    }
-
-    function salvarSenhaDiretor() {
-        const novaSenha = document.getElementById('input-senha-diretor').value.trim();
-        if(novaSenha.length < 4) { alert("A senha deve ter pelo menos 4 caracteres."); return; }
-        refConfig.child('senha_diretor').set(novaSenha).then(() => {
-            alert("Senha mestre do Diretor atualizada!");
-            document.getElementById('input-senha-diretor').value = '';
-        });
-    }
-
-    function criarTurmaESenha() {
-        let nome = document.getElementById('input-nova-turma').value.trim().toUpperCase();
-        let senha = document.getElementById('input-senha-turma').value.trim();
-
-        if(!nome || !senha) { alert("Preencha o nome da turma E a senha do professor!"); return; }
-        if(dbConfig.turmas && dbConfig.turmas[nome]) { alert("Esta turma já existe!"); return; }
-
-        refConfig.child('turmas').child(nome).set({ senhas: [senha] }).then(() => {
-            document.getElementById('input-nova-turma').value = "";
-            document.getElementById('input-senha-turma').value = "";
-        });
-    }
-
-    function removerTurma(nome) {
-        if(confirm(`Tem certeza? A turma "${nome}" e TODOS os seus alunos serão excluídos permanentemente.`)) {
-            refConfig.child('turmas').child(nome).remove();
-            database.ref('salas').child(nome).remove();
-            document.getElementById('area-acoes-impressao').style.display = "none";
-        }
-    }
-
-    function carregarListaTurmasAdm() {
-        const ul = document.getElementById('lista-adm-turmas');
-        if(!ul) return;
-        ul.innerHTML = '';
-
-        if(dbConfig && dbConfig.turmas) {
-            Object.keys(dbConfig.turmas).forEach(t => {
-                let senhaDestaTurma = dbConfig.turmas[t].senhas ? dbConfig.turmas[t].senhas[0] : "Sem senha";
-                const li = document.createElement('li');
-                const span = document.createElement('span');
-                span.innerHTML = `<strong>${t}</strong> <small style="color:inherit; margin-left:8px; opacity:0.8;">(Senha: ${senhaDestaTurma})</small>`;
-
-                const btn = document.createElement('button');
-                btn.className = 'btn-remover'; btn.innerText = 'Apagar';
-                btn.onclick = function() { removerTurma(t); };
-
-                li.appendChild(span); li.appendChild(btn); ul.appendChild(li);
-            });
-        }
-    }
-
-    function carregarAlunosDaTurma() {
-        const turma = document.getElementById('select-turma-aluno').value;
-        const ul = document.getElementById('lista-adm-alunos');
-        if(!ul) return;
-
-        ul.innerHTML = '';
-        const btnRemoverSel = document.getElementById('btn-remover-selecionados');
-        if (btnRemoverSel) btnRemoverSel.style.display = 'none';
-
-        if(!turma) {
-            ul.innerHTML = '<li style="justify-content:center; border:none; background:transparent; box-shadow:none;">Nenhuma turma selecionada.</li>';
-            return;
-        }
-
-        if(refAlunosAdm) refAlunosAdm.off();
-        refAlunosAdm = database.ref('salas').child(turma).child('alunos');
-
-        refAlunosAdm.on('value', (snapshot) => {
-            ul.innerHTML = '';
-            if (btnRemoverSel) btnRemoverSel.style.display = 'none';
-            const alunos = snapshot.val() || {};
-            const chavesAlunos = Object.keys(alunos);
-
-            if(chavesAlunos.length === 0) {
-                ul.innerHTML = '<li style="justify-content:center; border:none; background:transparent; box-shadow:none;">Nenhum aluno cadastrado.</li>';
-            } else {
-                chavesAlunos.sort().forEach(nome => {
-                    const li = document.createElement('li');
-                    const label = document.createElement('label');
-                    label.style.cssText = "display:flex; align-items:center; gap:12px; cursor:pointer; flex:1; margin:0;";
-
-                    const chk = document.createElement('input');
-                    chk.type = 'checkbox'; chk.className = 'chk-aluno'; chk.value = nome;
-                    chk.style.cssText = "width:20px !important; min-width:20px !important; height:20px !important; margin:0 !important; cursor:pointer;";
-                    chk.onchange = verificarSelecaoAlunos;
-
-                    const spanNome = document.createElement('span'); spanNome.innerText = nome;
-                    label.appendChild(chk); label.appendChild(spanNome);
-
-                    const btnExcluir = document.createElement('button');
-                    btnExcluir.className = 'btn-remover'; btnExcluir.innerText = 'Excluir';
-                    btnExcluir.onclick = function() { removerAluno(turma, nome); };
-
-                    li.appendChild(label); li.appendChild(btnExcluir); ul.appendChild(li);
-                });
-            }
-        });
-    }
-
-    function verificarSelecaoAlunos() {
-        const selecionados = document.querySelectorAll('.chk-aluno:checked').length;
-        document.getElementById('btn-remover-selecionados').style.display = selecionados > 0 ? 'block' : 'none';
-    }
-
-    function removerAlunosSelecionados() {
-        const turma = document.getElementById('select-turma-aluno').value;
-        const checkboxes = document.querySelectorAll('.chk-aluno:checked');
-        if(checkboxes.length === 0 || !turma) return;
-        if(confirm(`Tem certeza que deseja excluir os ${checkboxes.length} aluno(s) selecionado(s)?`)) {
-            checkboxes.forEach(chk => database.ref('salas').child(turma).child('alunos').child(chk.value).remove());
-            document.getElementById('area-acoes-impressao').style.display = "none";
-        }
-    }
-
-    function removerAluno(turma, nome) {
-        if(confirm(`Remover aluno "${nome}"?`)) {
-            database.ref('salas').child(turma).child('alunos').child(nome).remove();
-            document.getElementById('area-acoes-impressao').style.display = "none";
-        }
-    }
-
-    function adicionarCartaoNaTela(nome, turma) {
-        const areaImprimir = document.getElementById('area-impressao');
-        
-        const divCartao = document.createElement('div');
-        divCartao.className = 'cartao-qr';
-        divCartao.style.cursor = 'pointer';
-        divCartao.title = 'Clique para baixar como PNG';
-
-        divCartao.onclick = function() { baixarCartaoComoPNG(divCartao, nome, turma); };
-
-        // --- MUDANÇA AQUI: Criando o cabeçalho com Logo e Texto ---
-        const divHeader = document.createElement('div');
-        divHeader.className = 'cartao-qr-header';
-
-        const logoImg = document.createElement('img');
-        logoImg.src = 'logo.png'; // Chama o arquivo logo.png que você tem na mesma pasta
-        logoImg.className = 'logo-cartao';
-        logoImg.alt = 'Logo Escola';
-
-        const spanTitulo = document.createElement('span');
-        spanTitulo.innerText = 'Cartão de Saída';
-
-        divHeader.appendChild(logoImg);
-        divHeader.appendChild(spanTitulo);
-        // ------------------------------------------------------------
-
-        divCartao.appendChild(divHeader);
-
-        const divImg = document.createElement('div'); 
-        divImg.style.background = "#fff"; 
-        divImg.style.padding = "6px"; 
-        divImg.style.border = "1px solid #cbd5e1"; 
-        divImg.style.borderRadius = "8px"; 
-        divCartao.appendChild(divImg);
-        
-        const divInfo = document.createElement('div');
-        divInfo.className = 'cartao-qr-info';
-        
-        const hNome = document.createElement('div');
-        hNome.className = 'cartao-qr-nome';
-        hNome.innerText = nome;
-        
-        const hTurma = document.createElement('div');
-        hTurma.className = 'cartao-qr-turma';
-        hTurma.innerText = `Turma: ${turma}`;
-
-        divInfo.appendChild(hNome);
-        divInfo.appendChild(hTurma);
-        divCartao.appendChild(divInfo);
-
-        areaImprimir.appendChild(divCartao);
-
-        setTimeout(() => {
-            try {
-                new QRCode(divImg, {
-                    text: unescape(encodeURIComponent(nome)), 
-                    width: 140, 
-                    height: 140,
-                    colorDark : "#000000",
-                    colorLight : "#ffffff",
-                    correctLevel : QRCode.CorrectLevel.H
-                });
-            } catch (e) { console.error("Falha ao gerar o QR de " + nome, e); }
-        }, 50);
-    }
-
-    function baixarCartaoComoPNG(elemento, nomeAluno, turmaAluno) {
-        const bordaOriginal = elemento.style.borderColor;
-        elemento.style.borderColor = "#10b981"; 
-
-        html2canvas(elemento, { 
-            scale: 4, 
-            backgroundColor: "#ffffff", 
-            useCORS: true, // Garante que a imagem do logo seja renderizada
-            logging: false
-        }).then(canvas => {
-            elemento.style.borderColor = bordaOriginal; 
-
-            const link = document.createElement('a');
-            link.download = `Credencial_Saida_${nomeAluno.replace(/\s+/g, '_')}_${turmaAluno.replace(/\s+/g, '_')}.png`;
-            link.href = canvas.toDataURL('image/png'); 
-            link.click();
-        }).catch(err => console.error("Erro ao converter e baixar cartão em PNG", err));
-    }
-
-    function cadastrarAlunoEGerarQR() {
-        const turma = document.getElementById('select-turma-aluno').value;
-        const nome = document.getElementById('input-novo-aluno').value.trim().toUpperCase();
-
-        if(!turma || !nome) { alert("Selecione uma turma e digite o nome!"); return; }
-
-        database.ref('salas').child(turma).child('alunos').child(nome).set({ limite: 2, contador: 0, hora1: "", hora2: "" }).then(() => {
-            document.getElementById('input-novo-aluno').value = "";
-            document.getElementById('area-acoes-impressao').style.display = "block";
-            document.getElementById('area-impressao').innerHTML = "";
-            adicionarCartaoNaTela(nome, turma);
-        });
-    }
-
-    function gerarImpressaoColetiva() {
-        const turma = document.getElementById('select-turma-aluno').value;
-        if(!turma) return;
-        database.ref('salas').child(turma).child('alunos').once('value').then(snapshot => {
-            const alunos = snapshot.val() || {}; const nomes = Object.keys(alunos).sort();
-            if(nomes.length === 0) { alert("A Turma selecionada está vazia."); return; }
-            document.getElementById('area-acoes-impressao').style.display = "block";
-            document.getElementById('area-impressao').innerHTML = "";
-            nomes.forEach(nome => adicionarCartaoNaTela(nome, turma));
-        });
-    }
-
-    function iniciarModoDiretor() { atualizarSelectDiretor(); }
-
-    function atualizarSelectDiretor() {
-        const selectDiretor = document.getElementById('select-diretor-turma');
-        if (!selectDiretor) return;
-        const valorAtual = selectDiretor.value;
-        selectDiretor.innerHTML = '';
-
-        const listaTurmas = dbConfig && dbConfig.turmas ? Object.keys(dbConfig.turmas) : [];
-
-        if(listaTurmas.length === 0) {
-            selectDiretor.add(new Option("Nenhuma turma disponível", ""));
-        } else {
-            listaTurmas.forEach(t => selectDiretor.add(new Option(t, t)));
-            if (valorAtual && listaTurmas.includes(valorAtual)) {
-                selectDiretor.value = valorAtual;
-            } else {
-                selectDiretor.value = listaTurmas[0];
-            }
-        }
-        diretorMudarTurma();
-    }
-
-    function diretorMudarTurma() {
-        turmaAtual = document.getElementById('select-diretor-turma').value;
-        if(!turmaAtual) {
-            document.getElementById('tabela-diretor-corpo').innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px;">Nenhuma turma selecionada.</td></tr>';
-            return;
-        }
-        if(refAlunosAtuais) refAlunosAtuais.off();
-        refAlunosAtuais = database.ref('salas').child(turmaAtual).child('alunos');
-        refAlunosAtuais.on('value', (snapshot) => { dbAlunos = snapshot.val() || {}; renderizarTabelaDiretor(); });
-    }
-
-    function renderizarTabelaDiretor() {
-        const tbody = document.getElementById('tabela-diretor-corpo');
-        if(!tbody) return; tbody.innerHTML = '';
-        const alunosArr = Object.keys(dbAlunos).sort();
-
-        if(alunosArr.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px;">Sem alunos nesta turma.</td></tr>'; return;
-        }
-
-        alunosArr.forEach(aluno => {
-            const d = dbAlunos[aluno]; const linha = document.createElement('tr');
-            let contagemHTML = d.contador >= d.limite
-                ? `<span class="badge badge-cheio">${d.contador} / ${d.limite}</span>`
-                : `<span class="badge badge-ok">${d.contador} / ${d.limite}</span>`;
-
-            linha.innerHTML = `
-                <td><strong>${aluno}</strong></td><td style="text-align:center;">${contagemHTML}</td>
-                <td style="font-size:14px;">${d.hora1 || '--:--'}</td><td style="font-size:14px;">${d.hora2 || '--:--'}</td>
-            `; tbody.appendChild(linha);
-        });
-    }
-
-    function zerarTurmaDiretor() {
-        if(!turmaAtual) return;
-        if(confirm(`Zerar a contagem de TODOS os alunos da turma ${turmaAtual}?`)) {
-            for (let aluno in dbAlunos) { dbAlunos[aluno].contador = 0; dbAlunos[aluno].hora1 = ""; dbAlunos[aluno].hora2 = ""; }
-            refAlunosAtuais.set(dbAlunos); ultimoScanGlobal = 0; ultimosScansAlunos = {};
-        }
-    }
-
-    function iniciarModoProfessor(turma) {
-        turmaAtual = turma;
-        document.getElementById('titulo-turma-prof').innerText = `🏫 Turma: ${turma}`;
-        document.getElementById('mensagem').style.display = "none";
-
-        document.getElementById('reader').style.display = "none";
-        document.getElementById('btn-inverter-camera').style.display = "none";
-        document.getElementById('btn-parar-camera').style.display = "none";
-        document.getElementById('btn-iniciar-camera').style.display = "block";
-
-        if(refAlunosAtuais) refAlunosAtuais.off();
-        refAlunosAtuais = database.ref('salas').child(turmaAtual).child('alunos');
-        refAlunosAtuais.on('value', (snapshot) => { dbAlunos = snapshot.val() || {}; renderizarListaProfessor(); });
-    }
-
-    function renderizarListaProfessor() {
-        const ul = document.getElementById('lista-prof-alunos');
-        if(!ul) return; ul.innerHTML = '';
-        const alunosArr = Object.keys(dbAlunos).sort((a, b) => a.localeCompare(b, 'pt-BR'));
-
-        if(alunosArr.length === 0) {
-            ul.innerHTML = '<li style="text-align:center; box-shadow:none; background:transparent; border:none;">Turma vazia.</li>'; return;
-        }
-
-        alunosArr.forEach(aluno => {
-            const li = document.createElement('li'); const d = dbAlunos[aluno];
-            let horas = "";
-            if (d.contador === 1) horas = `<span class="aluno-horas">1ª saída: <strong>${d.hora1}</strong></span>`;
-            else if (d.contador === 2) horas = `<span class="aluno-horas">1ª: <strong>${d.hora1}</strong> &nbsp;|&nbsp; 2ª: <strong>${d.hora2}</strong></span>`;
-
-            let badgeClass = d.contador >= d.limite ? 'badge-cheio' : 'badge-ok';
-            li.innerHTML = `<div class="aluno-header"><span class="aluno-nome">${aluno}</span><span class="badge ${badgeClass}">${d.contador}/${d.limite}</span></div>${horas ? `<div>${horas}</div>` : ''}`;
-
-            if (d.contador >= d.limite) li.classList.add('limite-atingido'); ul.appendChild(li);
-        });
-    }
-
-    function pararCamera() {
-        if (html5QrCode) {
-            try {
-                html5QrCode.stop().then(() => {
-                    html5QrCode.clear();
-                    html5QrCode = null;
-                    document.getElementById('reader').style.display = "none";
-                    document.getElementById('btn-inverter-camera').style.display = "none";
-                    document.getElementById('btn-parar-camera').style.display = "none";
-                    document.getElementById('btn-iniciar-camera').style.display = "block";
-                }).catch(e => {
-                    console.log("Erro ao parar a câmera", e);
-                    html5QrCode = null;
-                });
-            } catch(e) {
-                html5QrCode = null;
-            }
-        }
-    }
-
-    function initInstancia(configCamera, configLeitor) {
-        document.getElementById('reader').style.display = "block";
-        document.getElementById('btn-iniciar-camera').style.display = "none";
-        document.getElementById('btn-inverter-camera').style.display = "block";
-        document.getElementById('btn-parar-camera').style.display = "block";
-
-        html5QrCode = new Html5Qrcode("reader");
-        html5QrCode.start(configCamera, configLeitor, (texto) => aoLerQrCode(texto), (err) => {})
-        .catch(err => {
-            console.error("Erro ao iniciar a câmera: ", err);
-            const msgDiv = document.getElementById('mensagem');
-            msgDiv.innerHTML = "❌ <strong>Erro ao acessar a câmera.</strong><br>Verifique as permissões ou certifique-se de acessar via <strong>HTTPS</strong> no celular.";
-            msgDiv.className = "vermelho";
-            msgDiv.style.display = "block";
-            pararCamera();
-        });
-    }
-
-    function iniciarCamera() {
-        const larguraTela = window.innerWidth;
-        const tamanhoQrBox = larguraTela < 400 ? 200 : 250;
-
-        const configCamera = cameraTraseira ? { facingMode: "environment" } : { facingMode: "user" };
-        const configLeitor = {
-            fps: 12,
-            qrbox: { width: tamanhoQrBox, height: tamanhoQrBox },
-            aspectRatio: 1.0
-        };
-
-        if (html5QrCode) {
-            html5QrCode.stop().then(() => {
-                html5QrCode.clear();
-                initInstancia(configCamera, configLeitor);
-            }).catch(e => {
-                html5QrCode = null;
-                initInstancia(configCamera, configLeitor);
-            });
-        } else {
-            initInstancia(configCamera, configLeitor);
-        }
-    }
-
-    function alternarCamera() { cameraTraseira = !cameraTraseira; iniciarCamera(); }
-
-    function formatarTempo(ms) {
-        const m = Math.floor(ms / 60000); const s = Math.floor((ms % 60000) / 1000);
-        return m > 0 ? `${m} minuto(s) e ${s} segundo(s)` : `${s} segundo(s)`;
-    }
-
-    function aoLerQrCode(texto) {
-        let qrDecodificado = texto;
-        try { qrDecodificado = decodeURIComponent(escape(texto)); } catch(e) { console.error("Erro", e); }
-        const qrLido = qrDecodificado.trim().toUpperCase();
-
-        if (qrLido === ultimoLido) return;
-        ultimoLido = qrLido; clearTimeout(tempoEspera); tempoEspera = setTimeout(() => ultimoLido = "", 4000);
-
-        const msgDiv = document.getElementById('mensagem');
-        msgDiv.style.display = "block";
-
-        if (qrLido === "EDUCADOR") {
-            if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
-            if (Object.keys(dbAlunos).length === 0) { msgDiv.innerHTML = "Turma está vazia."; msgDiv.className = "vermelho"; return; }
-            for (let aluno in dbAlunos) { dbAlunos[aluno].contador = 0; dbAlunos[aluno].hora1 = ""; dbAlunos[aluno].hora2 = ""; }
-            refAlunosAtuais.set(dbAlunos); ultimoScanGlobal = 0; ultimosScansAlunos = {};
-            msgDiv.innerHTML = "🔄 <strong>Turma Reiniciada!</strong><br>As contagens e os tempos voltaram a zero."; msgDiv.className = "verde"; return;
-        }
-
-        if (dbAlunos[qrLido]) {
-            const agoraTs = Date.now(); const cincoM = 5 * 60 * 1000; const sessentaM = 60 * 60 * 1000;
-
-            if (ultimosScansAlunos[qrLido] && (agoraTs - ultimosScansAlunos[qrLido]) < sessentaM) {
-                if (navigator.vibrate) navigator.vibrate([150, 100, 150]);
-                msgDiv.innerHTML = `⏳ <strong>${qrLido}</strong><br>Faltam ${formatarTempo(sessentaM - (agoraTs - ultimosScansAlunos[qrLido]))} para você poder sair novamente.`;
-                msgDiv.className = "vermelho"; return;
-            }
-
-            if (ultimoScanGlobal && (agoraTs - ultimoScanGlobal) < cincoM) {
-                if (navigator.vibrate) navigator.vibrate([150, 100, 150]);
-                msgDiv.innerHTML = `⏳ <strong>Aguarde!</strong><br>Faltam ${formatarTempo(cincoM - (agoraTs - ultimoScanGlobal))} devido à saída recente na turma.`;
-                msgDiv.className = "vermelho"; return;
-            }
-
-            if (dbAlunos[qrLido].contador < dbAlunos[qrLido].limite) {
-                dbAlunos[qrLido].contador++;
-                const agora = new Date(); const horaAtual = `${agora.getHours().toString().padStart(2, '0')}:${agora.getMinutes().toString().padStart(2, '0')}`;
-                if (dbAlunos[qrLido].contador === 1) dbAlunos[qrLido].hora1 = horaAtual; else if (dbAlunos[qrLido].contador === 2) dbAlunos[qrLido].hora2 = horaAtual;
-
-                refAlunosAtuais.child(qrLido).set(dbAlunos[qrLido]); ultimoScanGlobal = agoraTs; ultimosScansAlunos[qrLido] = agoraTs;
-                if (navigator.vibrate) navigator.vibrate(100);
-                msgDiv.innerHTML = `✅ <strong>${qrLido}</strong><br>Saída Liberada (${dbAlunos[qrLido].contador}/2)<br>⏰ Horário: ${horaAtual}`; msgDiv.className = "verde";
-            } else {
-                if (navigator.vibrate) navigator.vibrate([150, 100, 150]);
-                msgDiv.innerHTML = `❌ <strong>${qrLido}</strong><br>Saída Negada! Limite atingido.`; msgDiv.className = "vermelho";
-            }
-        } else {
-            if (navigator.vibrate) navigator.vibrate([150, 100, 150]);
-            msgDiv.innerHTML = `⚠️ <strong>Atenção:</strong> "${qrLido}"<br>Não pertence à turma.`; msgDiv.className = "vermelho";
-        }
+        window.print();
     }
 </script>
 </body>
