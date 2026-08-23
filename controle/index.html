@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerenciador Escolar Pro v4.1</title>
+    <title>Gerenciador Escolar Pro v4.2</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -20,6 +20,9 @@
         .edit-btn { color: var(--primary); cursor: pointer; margin-left: 8px; font-size: 0.8rem; }
         .logo-preview { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; background: #eee; }
         .section-title { font-weight: 700; color: #334155; margin-bottom: 20px; border-left: 4px solid var(--primary); padding-left: 15px; }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px; }
+        .monitor-table { font-size: 12px; }
+        .monitor-table td { padding: 4px 8px; }
     </style>
 </head>
 <body>
@@ -36,7 +39,7 @@
 
 <div id="admin-panel" style="display:none;">
     <div class="sidebar no-print">
-        <div class="sidebar-header"><h5>ESCOLA PRO v4.1</h5></div>
+        <div class="sidebar-header"><h5>ESCOLA PRO v4.2</h5></div>
         <div class="menu-item active" onclick="switchTab('dashboard', this)"><i class="fas fa-chart-pie"></i> Dashboard</div>
         <div class="menu-item" onclick="switchTab('monitor', this)"><i class="fas fa-desktop"></i> Monitoramento</div>
         <hr class="mx-3 opacity-25">
@@ -51,16 +54,28 @@
         <!-- DASHBOARD -->
         <div id="tab-dashboard" class="tab-content">
             <h3 class="section-title">Dashboard</h3>
-            <div class="row g-4">
-                <div class="col-md-4"><div class="card p-4 text-center"><span>Escolas Cadastradas</span><h2 id="dash-escolas">0</h2></div></div>
-                <div class="col-md-4"><div class="card p-4 text-center"><span>Total de Alunos</span><h2 id="dash-alunos">0</h2></div></div>
-                <div class="col-md-4"><div class="card p-4 text-center"><span>Saídas Hoje</span><h2 id="dash-saidas">0</h2></div></div>
+            <div class="row g-4 text-center">
+                <div class="col-md-4"><div class="card p-4"><span>Escolas</span><h2 id="dash-escolas">0</h2></div></div>
+                <div class="col-md-4"><div class="card p-4"><span>Total de Alunos</span><h2 id="dash-alunos">0</h2></div></div>
+                <div class="col-md-4"><div class="card p-4 text-primary"><span>Saídas Hoje</span><h2 id="dash-saidas">0</h2></div></div>
             </div>
         </div>
 
-        <!-- MONITORAMENTO -->
+        <!-- MONITORAMENTO DETALHADO -->
         <div id="tab-monitor" class="tab-content" style="display:none;">
-            <h3 class="section-title">Monitoramento Real-Time</h3>
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="section-title">Monitoramento Detalhado</h3>
+                <div class="input-group input-group-sm" style="width: 250px;">
+                    <span class="input-group-text"><i class="fas fa-search"></i></span>
+                    <input type="text" id="monitor-search" class="form-control" placeholder="Buscar aluno ou turma..." onkeyup="renderMonitor()">
+                </div>
+            </div>
+            <div class="mb-3 d-flex gap-3 small text-muted">
+                <span><span class="status-dot bg-success"></span> Em Sala</span>
+                <span><span class="status-dot bg-primary"></span> 1ª Saída</span>
+                <span><span class="status-dot bg-danger"></span> Limite Atingido</span>
+                <span><span class="status-dot bg-warning"></span> Agendado</span>
+            </div>
             <div id="monitor-grid" class="row g-3"></div>
         </div>
 
@@ -75,7 +90,7 @@
             </div>
             <div class="card p-4">
                 <table class="table align-middle">
-                    <thead><tr><th>E-mail / ID</th><th>Escola > Turmas Autorizadas</th><th class="text-end">Ações</th></tr></thead>
+                    <thead><tr><th>E-mail</th><th>Vínculos (Escola > Turmas)</th><th class="text-end">Ações</th></tr></thead>
                     <tbody id="list-professores"></tbody>
                 </table>
             </div>
@@ -86,10 +101,7 @@
             <h3 class="section-title">Estrutura Escolar</h3>
 
             <div id="lvl-escolas">
-                <div class="d-flex justify-content-between mb-3">
-                    <h5><i class="fas fa-school me-2"></i>Escolas</h5>
-                    <button class="btn btn-sm btn-primary" onclick="openModalEscola()"><i class="fas fa-plus me-1"></i>Nova Escola</button>
-                </div>
+                <div class="d-flex justify-content-between mb-3"><h5>Escolas</h5><button class="btn btn-sm btn-primary" onclick="openModalEscola()"><i class="fas fa-plus"></i> Nova Escola</button></div>
                 <div class="row" id="admin-list-escolas"></div>
             </div>
 
@@ -97,7 +109,7 @@
                 <div class="d-flex align-items-center mb-3">
                     <button class="btn btn-sm btn-link p-0 me-3" onclick="backToEscolas()"><i class="fas fa-arrow-left"></i></button>
                     <h5 id="turma-title">Turmas</h5>
-                    <button class="btn btn-sm btn-primary ms-auto" onclick="openModalTurma()"><i class="fas fa-plus me-1"></i>Nova Turma</button>
+                    <button class="btn btn-sm btn-primary ms-auto" onclick="openModalTurma()"><i class="fas fa-plus"></i> Nova Turma</button>
                 </div>
                 <div class="card p-3"><table class="table align-middle"><thead><tr><th>Turma</th><th>PIN</th><th class="text-end">Ações</th></tr></thead><tbody id="list-turmas"></tbody></table></div>
             </div>
@@ -105,10 +117,10 @@
             <div id="lvl-alunos" style="display:none;">
                 <div class="d-flex align-items-center mb-3">
                     <button class="btn btn-sm btn-link p-0 me-3" onclick="backToTurmas()"><i class="fas fa-arrow-left"></i></button>
-                    <h5 id="aluno-title" class="mb-0">Alunos</h5>
+                    <h5 id="aluno-title">Alunos</h5>
                     <div class="ms-auto d-flex gap-2">
-                        <button class="btn btn-sm btn-success" onclick="openModalAluno()"><i class="fas fa-plus me-1"></i>Adicionar</button>
-                        <button class="btn btn-sm btn-dark" onclick="imprimirTurma()"><i class="fas fa-print me-1"></i>Imprimir QRs</button>
+                        <button class="btn btn-sm btn-success" onclick="openModalAluno()"><i class="fas fa-plus"></i> Adicionar</button>
+                        <button class="btn btn-sm btn-dark" onclick="imprimirTurma()"><i class="fas fa-print"></i> Imprimir</button>
                     </div>
                 </div>
                 <div class="card p-3"><table class="table align-middle"><thead><tr><th>Nome</th><th>Saídas</th><th class="text-end">Ações</th></tr></thead><tbody id="list-alunos"></tbody></table></div>
@@ -117,92 +129,62 @@
 
         <!-- MIGRAR -->
         <div id="tab-migrar" class="tab-content" style="display:none;">
-            <h3 class="section-title">Migrar Dados Antigos</h3>
-            <p class="text-muted">Encontramos dados no formato antigo. Mova-os para a estrutura hierárquica.</p>
+            <h3 class="section-title">Migrar Dados</h3>
             <div id="list-legado" class="row"></div>
         </div>
     </div>
 </div>
 
 <!-- MODAIS -->
-
-<!-- PROFESSOR -->
-<div class="modal fade" id="modal-prof" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header"><h5>Configurar Professor</h5></div>
-            <div class="modal-body">
-                <input type="hidden" id="prof-uid">
-                <div class="mb-3"><label class="form-label">Escola</label><select id="prof-sel-esc" class="form-select" onchange="loadTurmasCheckboxes()"></select></div>
-                <div class="mb-3"><label class="form-label">E-mail</label><input type="email" id="prof-email" class="form-control"></div>
-                <div id="prof-pass-box" class="mb-3"><label class="form-label">Senha</label><input type="password" id="prof-pass" class="form-control"></div>
-                <div class="mb-3">
-                    <label class="form-label">Turmas Autorizadas</label>
-                    <div id="prof-turmas-checks" class="p-3 border rounded bg-light" style="max-height: 200px; overflow-y: auto;">Selecione uma escola primeiro.</div>
-                </div>
-            </div>
-            <div class="modal-footer"><button class="btn btn-primary" onclick="saveProfessor()">Salvar Professor</button></div>
-        </div>
+<div class="modal fade" id="modal-prof" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
+    <div class="modal-header"><h5>Configurar Professor</h5></div>
+    <div class="modal-body">
+        <input type="hidden" id="prof-uid">
+        <div class="mb-3"><label>Escola</label><select id="prof-sel-esc" class="form-select" onchange="loadTurmasCheckboxes()"></select></div>
+        <div class="mb-3"><label>E-mail</label><input type="email" id="prof-email" class="form-control"></div>
+        <div id="prof-pass-box" class="mb-3"><label>Senha</label><input type="password" id="prof-pass" class="form-control"></div>
+        <div class="mb-3"><label>Turmas Autorizadas</label><div id="prof-turmas-checks" class="p-3 border rounded bg-light" style="max-height: 200px; overflow-y: auto;"></div></div>
     </div>
-</div>
+    <div class="modal-footer"><button class="btn btn-primary" onclick="saveProfessor()">Salvar</button></div>
+</div></div></div>
 
-<!-- ESCOLA -->
 <div class="modal fade" id="modal-escola" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
-    <div class="modal-header"><h5>Configurar Escola</h5></div>
+    <div class="modal-header"><h5>Escola</h5></div>
     <div class="modal-body">
         <input type="hidden" id="esc-id">
-        <input type="text" id="esc-nome" class="form-control mb-3" placeholder="Nome da Escola">
-        <input type="text" id="esc-logo" class="form-control" placeholder="URL do Logo">
+        <input type="text" id="esc-nome" class="form-control mb-3" placeholder="Nome">
+        <input type="text" id="esc-logo" class="form-control" placeholder="URL Logo">
     </div>
     <div class="modal-footer"><button class="btn btn-primary" onclick="saveEscola()">Salvar</button></div>
 </div></div></div>
 
-<!-- TURMA -->
 <div class="modal fade" id="modal-turma" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
-    <div class="modal-header"><h5>Configurar Turma</h5></div>
+    <div class="modal-header"><h5>Turma</h5></div>
     <div class="modal-body">
         <input type="hidden" id="tur-id">
-        <input type="text" id="tur-nome" class="form-control mb-3" placeholder="Nome da Turma (Ex: 9º Ano A)">
-        <input type="text" id="tur-code" class="form-control" placeholder="PIN de Acesso (Ex: 9A)">
+        <input type="text" id="tur-nome" class="form-control mb-3" placeholder="Nome">
+        <input type="text" id="tur-code" class="form-control" placeholder="PIN">
     </div>
     <div class="modal-footer"><button class="btn btn-primary" onclick="saveTurma()">Salvar</button></div>
 </div></div></div>
 
-<!-- ALUNO -->
 <div class="modal fade" id="modal-aluno" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
-    <div class="modal-header"><h5>Configurar Aluno</h5></div>
+    <div class="modal-header"><h5>Aluno</h5></div>
     <div class="modal-body">
         <input type="hidden" id="alu-old-nome">
-        <input type="text" id="alu-nome" class="form-control mb-3" placeholder="Nome do Aluno">
-        <div id="alu-mass-box">
-            <label class="form-label small">Ou cadastre em massa (um por linha)</label>
-            <textarea id="alu-massa" class="form-control" rows="5" placeholder="João Silva\nMaria Souza..."></textarea>
-        </div>
+        <input type="text" id="alu-nome" class="form-control mb-3" placeholder="Nome">
+        <div id="alu-mass-box"><textarea id="alu-massa" class="form-control" rows="5" placeholder="Ou lista de nomes..."></textarea></div>
     </div>
     <div class="modal-footer"><button class="btn btn-success" onclick="saveAlunos()">Salvar</button></div>
 </div></div></div>
 
-<!-- CONFIG PASS -->
 <div class="modal fade" id="modal-config-pass" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
-    <div class="modal-header"><h5>Senhas de Segurança</h5></div>
+    <div class="modal-header"><h5>Senhas</h5></div>
     <div class="modal-body">
-        <div class="mb-3"><label>Senha Master Admin</label><input type="text" id="cfg-pass-admin" class="form-control"></div>
-        <div class="mb-3"><label>Senha do Diretor (Educador Global)</label><input type="text" id="cfg-pass-dir" class="form-control"></div>
+        <div class="mb-3"><label>Senha Admin</label><input type="text" id="cfg-pass-admin" class="form-control"></div>
+        <div class="mb-3"><label>Senha Diretor</label><input type="text" id="cfg-pass-dir" class="form-control"></div>
     </div>
     <div class="modal-footer"><button class="btn btn-primary" onclick="savePasswords()">Atualizar</button></div>
-</div></div></div>
-
-<!-- MIGRAR MODAL -->
-<div class="modal fade" id="modal-mig" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
-    <div class="modal-header"><h5>Migrar para Nova Estrutura</h5></div>
-    <div class="modal-body">
-        <p>Mover <strong id="mig-name"></strong> para:</p>
-        <select id="mig-esc-sel" class="form-select mb-3"></select>
-        <input type="email" id="mig-email" class="form-control mb-2" placeholder="E-mail do Professor">
-        <input type="password" id="mig-pass" class="form-control mb-2" placeholder="Senha do Professor">
-        <input type="text" id="mig-code" class="form-control" placeholder="PIN da Turma">
-    </div>
-    <div class="modal-footer"><button class="btn btn-primary" onclick="execMig()">Migrar Agora</button></div>
 </div></div></div>
 
 <div id="area-impressao" style="display:none;"></div>
@@ -237,7 +219,7 @@
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('admin-panel').style.display = 'block';
                 startSync();
-            } else document.getElementById('login-err').style.display = 'block';
+            } else alert("Acesso Negado");
         });
     }
 
@@ -248,8 +230,46 @@
             masterData.users_map = data.users_map || {};
             masterData.admin = data.admin || { config: {} };
             renderAll();
+            checkAutomaticReset(); // Verifica a virada do dia
         });
         db.ref('salas').on('value', s => { legadoData.salas = s.val() || {}; renderLegado(); });
+    }
+
+    function checkAutomaticReset() {
+        const today = new Date().toLocaleDateString('pt-BR');
+        const lastReset = masterData.admin.config.lastResetDate;
+
+        if (lastReset && lastReset !== today) {
+            console.log("Virada de dia detectada! Executando reset automático...");
+            execGlobalReset(today);
+        } else if (!lastReset) {
+            // Primeira vez configurando o controle de reset
+            db.ref('admin/config/lastResetDate').set(today);
+        }
+    }
+
+    async function execGlobalReset(dateLabel) {
+        try {
+            const updates = {};
+            for (let e in masterData.schools) {
+                const turs = masterData.schools[e].turmas || {};
+                for (let t in turs) {
+                    const alus = turs[t].alunos || {};
+                    for (let a in alus) {
+                        updates[`schools/${e}/turmas/${t}/alunos/${a}/contador`] = 0;
+                        updates[`schools/${e}/turmas/${t}/alunos/${a}/hora1`] = "";
+                        updates[`schools/${e}/turmas/${t}/alunos/${a}/hora2`] = "";
+                        updates[`schools/${e}/turmas/${t}/alunos/${a}/previsao`] = "";
+                        updates[`schools/${e}/turmas/${t}/alunos/${a}/ultimoTimestamp`] = 0;
+                    }
+                }
+            }
+            if (Object.keys(updates).length > 0) {
+                await db.ref().update(updates);
+            }
+            await db.ref('admin/config/lastResetDate').set(dateLabel);
+            alert("Sistema resetado automaticamente para o novo dia!");
+        } catch (e) { console.error("Falha no reset automático", e); }
     }
 
     function switchTab(id, el) {
@@ -285,23 +305,71 @@
 
     function renderMonitor() {
         const grid = document.getElementById('monitor-grid');
+        const query = document.getElementById('monitor-search').value.toLowerCase();
         let html = '';
         for(let e in masterData.schools) {
             const turs = masterData.schools[e].turmas || {};
             for(let t in turs) {
                 const alus = turs[t].alunos || {};
-                const list = Object.keys(alus).sort().map(a => `<tr><td>${a}</td><td class="text-end text-primary fw-bold">${alus[a].contador}/2</td></tr>`).join('');
-                html += `<div class="col-md-4"><div class="card p-3 h-100"><h6>${t.replace('tur_','')} (${masterData.schools[e].nome})</h6><table class="table table-sm x-small mb-0"><tbody>${list || '<tr><td>Vazia</td></tr>'}</tbody></table></div></div>`;
+                const tNome = t.replace('tur_','');
+                const filteredNames = Object.keys(alus).filter(a => a.toLowerCase().includes(query) || tNome.toLowerCase().includes(query));
+                if(query && filteredNames.length === 0) continue;
+
+                const list = filteredNames.sort().map(a => {
+                    const alu = alus[a];
+                    let dot = 'bg-success';
+                    if(alu.previsao) dot = 'bg-warning';
+                    else if(alu.contador === 1) dot = 'bg-primary';
+                    else if(alu.contador >= 2) dot = 'bg-danger';
+
+                    return `<tr>
+                        <td><span class="status-dot ${dot}"></span> ${a}</td>
+                        <td class="text-center">${alu.hora1 || '--:--'}</td>
+                        <td class="text-center">${alu.hora2 || '--:--'}</td>
+                        <td class="text-end fw-bold">${alu.previsao ? '⏳ '+alu.previsao : alu.contador+'/2'}</td>
+                    </tr>`;
+                }).join('');
+
+                html += `<div class="col-md-6 col-lg-4"><div class="card p-3 h-100 shadow-sm">
+                    <div class="d-flex justify-content-between mb-2 border-bottom pb-2"><strong>${tNome}</strong><small class="text-muted">${masterData.schools[e].nome}</small></div>
+                    <div style="max-height:250px; overflow-y:auto;">
+                        <table class="table table-sm monitor-table mb-0">
+                            <thead><tr class="text-muted x-small"><th>Aluno</th><th>1ª</th><th>2ª</th><th class="text-end">Status</th></tr></thead>
+                            <tbody>${list || '<tr><td colspan="4" class="text-center py-3 text-muted">Nenhum aluno nesta sala.</td></tr>'}</tbody>
+                        </table>
+                    </div>
+                    <div class="mt-auto pt-3 text-center border-top">
+                        <button class="btn btn-sm btn-outline-danger w-100 x-small" onclick="resetTurmaManual('${e}', '${t}')"><i class="fas fa-trash-can me-1"></i> Resetar Turma</button>
+                    </div>
+                </div></div>`;
             }
         }
-        grid.innerHTML = html;
+        grid.innerHTML = html || '<div class="col-12 text-center p-5 text-muted">Nenhum registro encontrado para essa busca.</div>';
+    }
+
+    async function resetTurmaManual(escId, turId) {
+        if (!confirm("Deseja zerar todas as saídas desta turma agora?")) return;
+        try {
+            const alus = masterData.schools[escId]?.turmas[turId]?.alunos || {};
+            const updates = {};
+            for (let a in alus) {
+                updates[`schools/${escId}/turmas/${turId}/alunos/${a}/contador`] = 0;
+                updates[`schools/${escId}/turmas/${turId}/alunos/${a}/hora1`] = "";
+                updates[`schools/${escId}/turmas/${turId}/alunos/${a}/hora2`] = "";
+                updates[`schools/${escId}/turmas/${turId}/alunos/${a}/previsao`] = "";
+                updates[`schools/${escId}/turmas/${turId}/alunos/${a}/ultimoTimestamp`] = 0;
+            }
+            if (Object.keys(updates).length > 0) {
+                await db.ref().update(updates);
+                alert("Turma resetada com sucesso!");
+            }
+        } catch (e) { alert("Erro ao resetar: " + e.message); }
     }
 
     // PROFESSORES
     function openModalProf(uid) {
         const sel = document.getElementById('prof-sel-esc');
         sel.innerHTML = '<option value="">Selecione a Escola...</option>' + Object.keys(masterData.schools).map(id => `<option value="${id}">${masterData.schools[id].nome}</option>`).join('');
-
         if(uid) {
             const map = masterData.users_map[uid];
             document.getElementById('prof-uid').value = uid;
@@ -310,56 +378,44 @@
             document.getElementById('prof-pass-box').style.display = 'none';
             loadTurmasCheckboxes(map.turmas);
         } else {
-            document.getElementById('prof-uid').value = "";
-            document.getElementById('prof-email').value = "";
-            document.getElementById('prof-pass').value = "";
-            document.getElementById('prof-pass-box').style.display = 'block';
-            document.getElementById('prof-turmas-checks').innerHTML = 'Selecione uma escola primeiro.';
+            document.getElementById('prof-uid').value = ""; document.getElementById('prof-email').value = "";
+            document.getElementById('prof-pass').value = ""; document.getElementById('prof-pass-box').style.display = 'block';
+            document.getElementById('prof-turmas-checks').innerHTML = 'Selecione uma escola.';
         }
         new bootstrap.Modal(document.getElementById('modal-prof')).show();
     }
-
     function loadTurmasCheckboxes(selected = {}) {
         const escId = document.getElementById('prof-sel-esc').value;
         const box = document.getElementById('prof-turmas-checks');
         if(!escId) return box.innerHTML = '';
         const turs = masterData.schools[escId].turmas || {};
-        const html = Object.keys(turs).map(id => `
-            <div class="form-check">
-                <input class="form-check-input turma-chk" type="checkbox" value="${id}" id="chk-${id}" ${selected[id] ? 'checked' : ''}>
-                <label class="form-check-label" for="chk-${id}">${id.replace('tur_','')}</label>
-            </div>
-        `).join('');
-        box.innerHTML = html || 'Nenhuma turma nesta escola.';
+        const html = Object.keys(turs).map(id => `<div class="form-check"><input class="form-check-input turma-chk" type="checkbox" value="${id}" id="chk-${id}" ${selected[id] ? 'checked' : ''}><label class="form-check-label" for="chk-${id}">${id.replace('tur_','')}</label></div>`).join('');
+        box.innerHTML = html || 'Nenhuma turma cadastrada.';
     }
-
     async function saveProfessor() {
-        const email = document.getElementById('prof-email').value, pass = document.getElementById('prof-pass').value;
-        const escId = document.getElementById('prof-sel-esc').value;
+        const email = document.getElementById('prof-email').value, pass = document.getElementById('prof-pass').value, escId = document.getElementById('prof-sel-esc').value;
         const chks = document.querySelectorAll('.turma-chk:checked');
         const turmas = {}; chks.forEach(c => turmas[c.value] = true);
-        if(!email || !escId) return alert("Preencha e-mail e escola!");
-
+        if(!email || !escId) return alert("Erro");
         try {
             let uid = document.getElementById('prof-uid').value;
             if(!uid) {
                 try { const s = await fAuth.createUserWithEmailAndPassword(email, pass); uid = s.user.uid; }
                 catch(e) { if(e.code==='auth/email-already-in-use'){ const s = await fAuth.signInWithEmailAndPassword(email,pass); uid=s.user.uid; } else throw e; }
             }
-            await db.ref(`users_map/${uid}`).set({ schoolId: escId, turmas: turmas, email: email });
+            await db.ref(`users_map/${uid}`).set({ schoolId: escId, turmas, email });
             bootstrap.Modal.getInstance(document.getElementById('modal-prof')).hide();
-        } catch(e) { alert("Erro: " + e.message); }
+        } catch(e) { alert(e.message); }
     }
-
     function renderProfessores() {
         const list = document.getElementById('list-professores');
         list.innerHTML = Object.keys(masterData.users_map).map(uid => {
             const map = masterData.users_map[uid];
             const tNames = Object.keys(map.turmas || {}).map(t => t.replace('tur_','')).join(', ');
-            return `<tr><td><strong>${map.email || '---'}</strong><br><small class="text-muted">${uid.slice(0,6)}...</small></td><td><span class="badge bg-light text-dark">${masterData.schools[map.schoolId]?.nome || '?'} > ${tNames || 'Nenhuma'}</span></td><td class="text-end"><button class="btn btn-sm btn-outline-primary me-1" onclick="openModalProf('${uid}')"><i class="fas fa-edit"></i></button><button class="btn btn-sm btn-outline-danger" onclick="deleteProf('${uid}')"><i class="fas fa-trash"></i></button></td></tr>`;
-        }).join('') || '<tr><td colspan="3" class="text-center p-4">Nenhum professor cadastrado.</td></tr>';
+            return `<tr><td><strong>${map.email || '---'}</strong><br><small class="text-muted">${uid.slice(0,6)}</small></td><td><span class="badge bg-light text-dark">${masterData.schools[map.schoolId]?.nome || '?'} > ${tNames || 'Nenhuma'}</span></td><td class="text-end"><button class="btn btn-sm btn-outline-primary me-1" onclick="openModalProf('${uid}')"><i class="fas fa-edit"></i></button><button class="btn btn-sm btn-outline-danger" onclick="deleteProf('${uid}')"><i class="fas fa-trash"></i></button></td></tr>`;
+        }).join('') || '<tr><td colspan="3" class="text-center">Vazio</td></tr>';
     }
-    function deleteProf(uid) { if(confirm("Remover professor?")) db.ref(`users_map/${uid}`).remove(); }
+    function deleteProf(uid) { if(confirm("Excluir professor?")) db.ref(`users_map/${uid}`).remove(); }
 
     // ESTRUTURA
     function openModalEscola(id) {
@@ -370,22 +426,15 @@
     function saveEscola() {
         const id = document.getElementById('esc-id').value || 'esc_' + Date.now();
         const n = document.getElementById('esc-nome').value.trim(), l = document.getElementById('esc-logo').value.trim();
-        if(!n) return alert("Digite o nome da escola!");
-
+        if(!n) return alert("Erro");
         db.ref(`schools/${id}/nome`).set(n);
-        db.ref(`schools/${id}/info`).update({id, nome:n, logoUrl:l}).then(() => {
-            bootstrap.Modal.getInstance(document.getElementById('modal-escola')).hide();
-            // Reset campos
-            document.getElementById('esc-nome').value = '';
-            document.getElementById('esc-logo').value = '';
-            document.getElementById('esc-id').value = '';
-        });
+        db.ref(`schools/${id}/info`).update({id, nome:n, logoUrl:l}).then(() => bootstrap.Modal.getInstance(document.getElementById('modal-escola')).hide());
     }
     function renderEstruturaEscolas() {
         const l = document.getElementById('admin-list-escolas');
-        l.innerHTML = Object.keys(masterData.schools).map(id => `<div class="col-md-6 mb-3"><div class="card p-3 d-flex flex-row align-items-center gap-3"><img src="${masterData.schools[id].info?.logoUrl || ''}" class="logo-preview" onerror="this.src='https://placehold.co/40x40?text=?'"><div><h6>${masterData.schools[id].nome} <i class="fas fa-pen edit-btn" onclick="openModalEscola('${id}')"></i></h6></div><div class="ms-auto"><button class="btn btn-sm btn-primary" onclick="selectEscola('${id}')">Ver Turmas</button><button class="btn btn-sm btn-outline-danger ms-1" onclick="deleteEscola('${id}')"><i class="fas fa-trash"></i></button></div></div></div>`).join('');
+        l.innerHTML = Object.keys(masterData.schools).map(id => `<div class="col-md-6 mb-3"><div class="card p-3 d-flex flex-row align-items-center gap-3"><img src="${masterData.schools[id].info?.logoUrl || ''}" class="logo-preview" onerror="this.src='https://placehold.co/40x40?text=?'"><div><h6>${masterData.schools[id].nome} <i class="fas fa-pen edit-btn" onclick="openModalEscola('${id}')"></i></h6></div><div class="ms-auto"><button class="btn btn-sm btn-primary" onclick="selectEscola('${id}')">Turmas</button><button class="btn btn-sm btn-outline-danger ms-1" onclick="deleteEscola('${id}')"><i class="fas fa-trash"></i></button></div></div></div>`).join('');
     }
-    function deleteEscola(id) { if(confirm("Apagar escola?")) db.ref(`schools/${id}`).remove(); }
+    function deleteEscola(id) { if(confirm("Apagar?")) db.ref(`schools/${id}`).remove(); }
     function selectEscola(id) { currEsc = id; document.getElementById('lvl-escolas').style.display='none'; document.getElementById('lvl-turmas').style.display='block'; document.getElementById('turma-title').innerText = "Turmas: " + masterData.schools[id].nome; renderEstruturaTurmas(); }
     function backToEscolas() { currEsc = null; document.getElementById('lvl-turmas').style.display='none'; document.getElementById('lvl-escolas').style.display='block'; }
 
@@ -395,28 +444,16 @@
         new bootstrap.Modal(document.getElementById('modal-turma')).show();
     }
     function saveTurma() {
-        const n = document.getElementById('tur-nome').value.trim(), c = document.getElementById('tur-code').value.trim();
-        if(!n || !c) return alert("Preencha o Nome e o PIN da Turma!");
-
+        const n = document.getElementById('tur-nome').value, c = document.getElementById('tur-code').value;
+        if(!n || !c) return alert("Erro");
         const tId = document.getElementById('tur-id').value || 'tur_' + n.replace(/\s+/g,'_');
-
-        // Salva e garante que a visualização permaneça na lista de turmas
-        db.ref(`schools/${currEsc}/turmas/${tId}/config`).update({
-            codigo: c,
-            nome: n
-        }).then(() => {
-            bootstrap.Modal.getInstance(document.getElementById('modal-turma')).hide();
-            // Limpar campos
-            document.getElementById('tur-nome').value = '';
-            document.getElementById('tur-code').value = '';
-            document.getElementById('tur-id').value = '';
-        }).catch(e => alert("Erro ao salvar: " + e.message));
+        db.ref(`schools/${currEsc}/turmas/${tId}/config`).update({codigo:c, nome:n}).then(() => bootstrap.Modal.getInstance(document.getElementById('modal-turma')).hide());
     }
     function renderEstruturaTurmas() {
         const turs = masterData.schools[currEsc]?.turmas || {};
         document.getElementById('list-turmas').innerHTML = Object.keys(turs).map(id => `<tr><td><strong>${id.replace('tur_','')}</strong> <i class="fas fa-pen edit-btn" onclick="openModalTurma('${id}')"></i></td><td><code>${turs[id].config?.codigo}</code></td><td class="text-end"><button class="btn btn-sm btn-primary" onclick="selectTurma('${id}')">Alunos</button><button class="btn btn-sm btn-outline-danger ms-1" onclick="deleteTurma('${id}')"><i class="fas fa-trash"></i></button></td></tr>`).join('');
     }
-    function deleteTurma(id) { if(confirm("Excluir turma?")) db.ref(`schools/${currEsc}/turmas/${id}`).remove(); }
+    function deleteTurma(id) { if(confirm("Excluir?")) db.ref(`schools/${currEsc}/turmas/${id}`).remove(); }
     function selectTurma(id) { currTur = id; document.getElementById('lvl-turmas').style.display='none'; document.getElementById('lvl-alunos').style.display='block'; document.getElementById('aluno-title').innerText = "Alunos: " + id.replace('tur_',''); renderEstruturaAlunos(); }
     function backToTurmas() { currTur = null; document.getElementById('lvl-alunos').style.display='none'; document.getElementById('lvl-turmas').style.display='block'; }
 
@@ -436,7 +473,7 @@
         const alus = masterData.schools[currEsc]?.turmas[currTur]?.alunos || {};
         document.getElementById('list-alunos').innerHTML = Object.keys(alus).sort().map(n => `<tr><td><strong>${n}</strong> <i class="fas fa-pen edit-btn" onclick="openModalAluno('${n}')"></i></td><td>${alus[n].contador}/2</td><td class="text-end"><button class="btn btn-sm btn-outline-danger" onclick="deleteAluno('${n}')"><i class="fas fa-trash"></i></button></td></tr>`).join('');
     }
-    function deleteAluno(n) { if(confirm("Remover aluno?")) db.ref(`schools/${currEsc}/turmas/${currTur}/alunos/${n}`).remove(); }
+    function deleteAluno(n) { if(confirm("Remover?")) db.ref(`schools/${currEsc}/turmas/${currTur}/alunos/${n}`).remove(); }
 
     function renderLegado() {
         const list = document.getElementById('list-legado');
@@ -449,8 +486,7 @@
         new bootstrap.Modal(document.getElementById('modal-mig')).show();
     }
     async function execMig() {
-        const old = document.getElementById('mig-name').innerText, esc = document.getElementById('mig-esc-sel').value;
-        const email = document.getElementById('mig-email').value, pass = document.getElementById('mig-pass').value, code = document.getElementById('mig-code').value;
+        const old = document.getElementById('mig-name').innerText, esc = document.getElementById('mig-esc-sel').value, email = document.getElementById('mig-email').value, pass = document.getElementById('mig-pass').value, code = document.getElementById('mig-code').value;
         try {
             let uid = null;
             try { const s = await fAuth.createUserWithEmailAndPassword(email, pass); uid = s.user.uid; }
@@ -461,7 +497,6 @@
             await db.ref(`users_map/${uid}`).set({ schoolId: esc, turmas: {[tId]: true}, email: email });
             await db.ref(`salas/${old}`).remove();
             bootstrap.Modal.getInstance(document.getElementById('modal-mig')).hide();
-            alert("Sucesso!");
         } catch(e) { alert(e.message); }
     }
 
@@ -476,7 +511,7 @@
         const alus = masterData.schools[currEsc].turmas[currTur].alunos || {};
         Object.keys(alus).sort().forEach(n => {
             const div = document.createElement('div');
-            div.className = 'qr-card';
+            div.className = 'cartao-qr';
             div.innerHTML = `<div id="qri-${n.replace(/\s+/g,'')}"></div><small><strong>${n}</strong></small>`;
             area.appendChild(div);
             new QRCode(document.getElementById('qri-'+n.replace(/\s+/g,'')), { text: n, width: 130, height: 130 });
