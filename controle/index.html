@@ -96,10 +96,10 @@
             <div id="lvl-turmas" style="display:none;">
                 <div class="d-flex align-items-center mb-3">
                     <button class="btn btn-sm btn-link p-0 me-3" onclick="backToEscolas()"><i class="fas fa-arrow-left"></i></button>
-                    <h5 id="turma-title" class="mb-0">Turmas</h5>
+                    <h5 id="turma-title">Turmas</h5>
                     <button class="btn btn-sm btn-primary ms-auto" onclick="openModalTurma()"><i class="fas fa-plus me-1"></i>Nova Turma</button>
                 </div>
-                <div class="card p-3"><table class="table align-middle"><thead><tr><th>Turma</th><th>PIN</th><th class="text-end">Ações</th></tr></thead><tbody id="admin-list-turmas"></tbody></table></div>
+                <div class="card p-3"><table class="table align-middle"><thead><tr><th>Turma</th><th>PIN</th><th class="text-end">Ações</th></tr></thead><tbody id="list-turmas"></tbody></table></div>
             </div>
 
             <div id="lvl-alunos" style="display:none;">
@@ -111,7 +111,7 @@
                         <button class="btn btn-sm btn-dark" onclick="imprimirTurma()"><i class="fas fa-print me-1"></i>Imprimir QRs</button>
                     </div>
                 </div>
-                <div class="card p-3"><table class="table align-middle"><thead><tr><th>Nome</th><th>Saídas</th><th class="text-end">Ações</th></tr></thead><tbody id="admin-list-alunos"></tbody></table></div>
+                <div class="card p-3"><table class="table align-middle"><thead><tr><th>Nome</th><th>Saídas</th><th class="text-end">Ações</th></tr></thead><tbody id="list-alunos"></tbody></table></div>
             </div>
         </div>
 
@@ -369,10 +369,17 @@
     }
     function saveEscola() {
         const id = document.getElementById('esc-id').value || 'esc_' + Date.now();
-        const n = document.getElementById('esc-nome').value, l = document.getElementById('esc-logo').value;
-        if(!n) return;
+        const n = document.getElementById('esc-nome').value.trim(), l = document.getElementById('esc-logo').value.trim();
+        if(!n) return alert("Digite o nome da escola!");
+
         db.ref(`schools/${id}/nome`).set(n);
-        db.ref(`schools/${id}/info`).update({id, nome:n, logoUrl:l}).then(() => bootstrap.Modal.getInstance(document.getElementById('modal-escola')).hide());
+        db.ref(`schools/${id}/info`).update({id, nome:n, logoUrl:l}).then(() => {
+            bootstrap.Modal.getInstance(document.getElementById('modal-escola')).hide();
+            // Reset campos
+            document.getElementById('esc-nome').value = '';
+            document.getElementById('esc-logo').value = '';
+            document.getElementById('esc-id').value = '';
+        });
     }
     function renderEstruturaEscolas() {
         const l = document.getElementById('admin-list-escolas');
@@ -388,10 +395,22 @@
         new bootstrap.Modal(document.getElementById('modal-turma')).show();
     }
     function saveTurma() {
-        const n = document.getElementById('tur-nome').value, c = document.getElementById('tur-code').value;
-        if(!n || !c) return alert("Preencha nome e PIN!");
+        const n = document.getElementById('tur-nome').value.trim(), c = document.getElementById('tur-code').value.trim();
+        if(!n || !c) return alert("Preencha o Nome e o PIN da Turma!");
+
         const tId = document.getElementById('tur-id').value || 'tur_' + n.replace(/\s+/g,'_');
-        db.ref(`schools/${currEsc}/turmas/${tId}/config/codigo`).set(c).then(() => bootstrap.Modal.getInstance(document.getElementById('modal-turma')).hide());
+
+        // Salva e garante que a visualização permaneça na lista de turmas
+        db.ref(`schools/${currEsc}/turmas/${tId}/config`).update({
+            codigo: c,
+            nome: n
+        }).then(() => {
+            bootstrap.Modal.getInstance(document.getElementById('modal-turma')).hide();
+            // Limpar campos
+            document.getElementById('tur-nome').value = '';
+            document.getElementById('tur-code').value = '';
+            document.getElementById('tur-id').value = '';
+        }).catch(e => alert("Erro ao salvar: " + e.message));
     }
     function renderEstruturaTurmas() {
         const turs = masterData.schools[currEsc]?.turmas || {};
