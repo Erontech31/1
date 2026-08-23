@@ -425,10 +425,29 @@
     }
     function saveEscola() {
         const id = document.getElementById('esc-id').value || 'esc_' + Date.now();
-        const n = document.getElementById('esc-nome').value.trim(), l = document.getElementById('esc-logo').value.trim();
-        if(!n) return alert("Erro");
+        const n = document.getElementById('esc-nome').value.trim();
+        let l = document.getElementById('esc-logo').value.trim();
+
+        if(!n) return alert("Digite o nome da escola!");
+
+        // Inteligência para converter links do Google Drive em links diretos de imagem
+        if (l.includes('drive.google.com')) {
+            const driveParts = l.split('/d/');
+            if (driveParts.length > 1) {
+                const fileId = driveParts[1].split('/')[0];
+                l = `https://drive.google.com/uc?id=${fileId}`;
+            }
+        }
+
         db.ref(`schools/${id}/nome`).set(n);
-        db.ref(`schools/${id}/info`).update({id, nome:n, logoUrl:l}).then(() => bootstrap.Modal.getInstance(document.getElementById('modal-escola')).hide());
+        db.ref(`schools/${id}/info`).update({id, nome:n, logoUrl:l}).then(() => {
+            bootstrap.Modal.getInstance(document.getElementById('modal-escola')).hide();
+            // Reset campos e feedback
+            document.getElementById('esc-nome').value = '';
+            document.getElementById('esc-logo').value = '';
+            document.getElementById('esc-id').value = '';
+            alert("Escola e Logo salvos com sucesso!");
+        });
     }
     function renderEstruturaEscolas() {
         const l = document.getElementById('admin-list-escolas');
