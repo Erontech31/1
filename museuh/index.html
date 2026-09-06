@@ -156,6 +156,22 @@
         </div>
     </div>
 
+    <!-- Feedback de status do video -->
+    <div id="video-feedback" class="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-30 opacity-0 pointer-events-none transition-all duration-300">
+        <div class="glass-panel px-6 py-4 rounded-2xl border-2 border-gold-400 flex items-center gap-4 shadow-2xl bg-black/90 max-w-md">
+            <div id="video-feedback-icon" class="w-10 h-10 rounded-full bg-gold-500/20 flex items-center justify-center border border-gold-500/50 flex-shrink-0">
+                <i class="fa-solid fa-circle-info text-gold-400 text-lg"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+                <p id="video-feedback-title" class="text-gold-300 font-bold text-sm mb-1">Carregando...</p>
+                <p id="video-feedback-text" class="text-gray-300 text-xs">Preparando a projecao</p>
+            </div>
+            <button id="video-feedback-btn" class="hidden px-4 py-2 rounded-lg bg-gold-500 hover:bg-gold-400 text-black font-bold text-xs transition-all flex-shrink-0">
+                Ativar Som
+            </button>
+        </div>
+    </div>
+
     <div id="welcome-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-xl transition-all duration-300">
         <div class="glass-panel w-full max-w-2xl rounded-3xl p-8 border border-gold-500/40 text-center gold-glow shadow-2xl relative overflow-hidden">
             <h2 class="serif-title text-3xl font-bold text-gold-300 mb-2">MUSEU DA HUMANIDADE</h2>
@@ -1134,15 +1150,47 @@
             if (!isVideoPlaying) document.getElementById('webgl-container').requestPointerLock();
         }
 
+        // Funcao auxiliar para mostrar feedback visual do video
+        function showVideoFeedback(title, text, iconClass = 'fa-circle-info', showBtn = false, btnAction = null) {
+            const feedback = document.getElementById('video-feedback');
+            const titleEl = document.getElementById('video-feedback-title');
+            const textEl = document.getElementById('video-feedback-text');
+            const iconEl = document.querySelector('#video-feedback-icon i');
+            const btn = document.getElementById('video-feedback-btn');
+
+            titleEl.textContent = title;
+            textEl.textContent = text;
+            iconEl.className = `fa-solid ${iconClass} text-gold-400 text-lg`;
+
+            if (showBtn && btnAction) {
+                btn.classList.remove('hidden');
+                btn.onclick = btnAction;
+            } else {
+                btn.classList.add('hidden');
+            }
+
+            feedback.style.opacity = '1';
+            feedback.style.pointerEvents = 'auto';
+        }
+
+        function hideVideoFeedback() {
+            const feedback = document.getElementById('video-feedback');
+            feedback.style.opacity = '0';
+            feedback.style.pointerEvents = 'none';
+        }
+
         function startCinemaSequence(videoSrc) {
             selectedVideoSrc = videoSrc;
             closeModals();
             isVideoPlaying = true;
 
-            // Sai do pointer lock para o usuário poder ver o vídeo tranquilamente
+            // Sai do pointer lock para o usuario poder ver o video tranquilamente
             if (document.pointerLockElement) document.exitPointerLock();
 
-            // Aplica a textura do vídeo na tela imediatamente
+            // Mostra feedback de carregamento
+            showVideoFeedback('Carregando video...', 'Preparando a projecao na tela grande', 'fa-film');
+
+            // Aplica a textura do video na tela imediatamente
             window.theaterScreenMat.map = videoTexture;
             window.theaterScreenMat.color.setHex(0xffffff);
             window.theaterScreenMat.needsUpdate = true;
@@ -1155,25 +1203,49 @@
                 window.projectorLight.intensity = 2;
             }
 
-            // Configura e reproduz o vídeo imediatamente
+            // Configura o video
             videoElement.src = selectedVideoSrc;
             videoElement.muted = false;
             videoElement.volume = 1.0;
             videoElement.load();
 
+            // Tenta reproduzir com som primeiro
             const playPromise = videoElement.play();
 
             if (playPromise !== undefined) {
                 playPromise.then(() => {
-                    console.log('Vídeo reproduzindo com sucesso:', videoSrc);
+                    // Sucesso com som!
+                    console.log('Video reproduzindo com som:', videoSrc);
+                    showVideoFeedback('Reproduzindo!', 'Aproveite a sessao. Pressione ESC para parar.', 'fa-volume-high');
+                    setTimeout(hideVideoFeedback, 3000);
                 }).catch(err => {
                     console.warn('Autoplay com som bloqueado, tentando mudo:', err);
-                    // Se o navegador bloquear com som, tenta mudo como fallback
+                    // Navegador bloqueou som automatico - tenta mudo
                     videoElement.muted = true;
-                    videoElement.play().catch(e => {
-                        console.error('Falha total na reprodução:', e);
-                        alert('Não foi possível reproduzir o vídeo. Verifique se o arquivo existe na pasta: ' + videoSrc);
-                        stopVideo();
+                    videoElement.play().then(() => {
+                        // Funcionou mudo - oferece botao para ativar som
+                        showVideoFeedback(
+                            'Som desativado',
+                            'Clique no botao para ativar o som do video',
+                            'fa-volume-xmark',
+                            true,
+                            () => {
+                                videoElement.muted = false;
+                                videoElement.volume = 1.0;
+                                showVideoFeedback('Som ativado!', 'Aproveite a sessao', 'fa-volume-high');
+                                setTimeout(hideVideoFeedback, 2000);
+                            }
+                        );
+                    }).catch(e => {
+                        // Falhou completamente
+                        console.error('Falha na reproducao:', e);
+                        showVideoFeedback(
+                            'Video nao encontrado',
+                            'Coloque o arquivo ' + videoSrc + ' na mesma pasta do HTML',
+                            'fa-triangle-exclamation'
+                        );
+                        // Nao para o video imediatamente - deixa a tela escura como sala de cinema
+                        // O usuario pode pressionar ESC para voltar
                     });
                 });
             }
@@ -1188,6 +1260,7 @@
             if (window.projectorLight) {
                 window.projectorLight.intensity = 0;
             }
+            hideVideoFeedback();
             document.getElementById('webgl-container').requestPointerLock();
         }
 
