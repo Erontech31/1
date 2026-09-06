@@ -142,7 +142,14 @@
             <h2 class="serif-title text-2xl font-bold text-gold-300 mb-1">SALA DE VÍDEO</h2>
             <p class="text-xs text-gray-400 mb-6">Selecione o vídeo da galeria para assistir do seu assento.</p>
 
-            <div id="video-list-container" class="space-y-3 max-h-60 overflow-y-auto custom-scrollbar mb-6 text-left"></div>
+            <div id="video-list-container" class="space-y-3 max-h-60 overflow-y-auto custom-scrollbar mb-4 text-left"></div>
+
+            <div class="mb-6 pt-4 border-t border-gray-800 flex gap-2">
+                <input type="text" id="external-video-url" placeholder="Cole o link do vídeo (MP4, Drive...)" class="flex-1 px-3 py-2 rounded-xl bg-gray-950 border border-gray-700 text-gray-300 text-sm focus:border-gold-500 focus:outline-none">
+                <button id="play-external-btn" class="px-4 py-2 rounded-xl bg-gold-500 hover:bg-gold-400 text-black font-bold text-sm transition-all shadow-lg shadow-gold-500/20">
+                    <i class="fa-solid fa-play"></i> Tocar
+                </button>
+            </div>
 
             <div class="flex justify-end gap-3">
                 <button id="cancel-video-btn" class="px-5 py-2 rounded-xl bg-gray-800 hover:bg-gray-700 text-gray-300 font-semibold text-sm transition-all">Cancelar</button>
@@ -204,9 +211,21 @@
         ];
 
         const AVAILABLE_VIDEOS = [
-            { id: "video1.mp4", title: "1. A Origem e Evolução da Humanidade", src: "video1.mp4" },
-            { id: "video2.mp4", title: "2. O Grande Êxodo Africano", src: "video2.mp4" },
-            { id: "video3.mp4", title: "3. A Vida na Era Glacial", src: "video3.mp4" }
+            { 
+                id: "video1", 
+                title: "1. A Origem e Evolução da Humanidade", 
+                src: "https://drive.google.com/uc?export=download&id=1Z24nzkK_c_7Vl6AOggHa9f5gZByz_LcW" 
+            },
+            { 
+                id: "video2", 
+                title: "2. O Grande Êxodo Africano", 
+                src: "https://drive.google.com/uc?export=download&id=1EQaHwVyKR6QFkc5FyyefK5dqrntvrF2S" 
+            },
+            { 
+                id: "video3", 
+                title: "3. A Vida na Era Glacial", 
+                src: "https://drive.google.com/uc?export=download&id=17W4zetaUGo75q7-j5eQ-betnhhINtvu8" 
+            }
         ];
 
         let scene, camera, renderer, videoTexture;
@@ -314,16 +333,15 @@
             colliders.push({ minX: x - width/2, maxX: x + width/2, minZ: z - depth/2, maxZ: z + depth/2 });
         }
         
-        // AQUI ESTÁ A FUNÇÃO QUE FALTAVA!
         function checkCollision(pos) {
             for (let i = 0; i < colliders.length; i++) {
                 const c = colliders[i];
                 if (pos.x + player.radius > c.minX && pos.x - player.radius < c.maxX &&
                     pos.z + player.radius > c.minZ && pos.z - player.radius < c.maxZ) {
-                    return true; // Bateu na parede!
+                    return true;
                 }
             }
-            return false; // Caminho livre!
+            return false;
         }
 
         function createFloorTexture() {
@@ -671,6 +689,26 @@
             document.getElementById('close-modal-btn').addEventListener('click', closeModals);
             document.getElementById('cancel-video-btn').addEventListener('click', closeModals);
             document.getElementById('help-btn').addEventListener('click', () => { document.getElementById('welcome-modal').classList.remove('opacity-0', 'pointer-events-none'); if (document.pointerLockElement) document.exitPointerLock(); });
+
+            // Lógica para tocar vídeo via Link (URL)
+            document.getElementById('play-external-btn').addEventListener('click', () => {
+                let url = document.getElementById('external-video-url').value.trim();
+                if (!url) return;
+
+                // Se for um link padrão de compartilhamento do Google Drive, tenta converter para link direto
+                const driveRegex = /(?:drive\.google\.com\/file\/d\/|drive\.google\.com\/open\?id=)([\w-]+)/;
+                const match = url.match(driveRegex);
+                
+                if (match && match[1]) {
+                    url = `https://drive.google.com/uc?export=download&id=${match[1]}`;
+                }
+
+                // Inicia o cinema com a URL fornecida
+                startCinemaSequence(url);
+                
+                // Limpa o input
+                document.getElementById('external-video-url').value = '';
+            });
         }
 
         document.getElementById('audio-guide-btn').addEventListener('click', () => {
