@@ -61,7 +61,8 @@
     <div id="loading-screen">
         <div class="loader mb-4"></div>
         <h2 class="serif-title text-gold-300 text-2xl font-bold tracking-widest">MUSEU DA HUMANIDADE</h2>
-        <p class="text-gray-400 text-sm mt-2 font-light">Construindo arquitetura e organizando galerias...</p>
+        <p id="loading-text" class="text-gray-400 text-sm mt-2 font-light">Construindo arquitetura e organizando galerias...</p>
+        <div id="loading-progress" class="text-gold-400 text-xs mt-3 font-mono hidden">0%</div>
     </div>
 
     <div id="webgl-container"></div>
@@ -233,7 +234,7 @@
         let player = {
             position: new THREE.Vector3(0, 1.7, -50),
             rotation: new THREE.Euler(0, 0, 0, 'YXZ'),
-            speed: 0.14,
+            speed: 0.25,
             radius: 0.7
         };
 
@@ -241,10 +242,8 @@
         let isPointerLocked = false;
         let hoveredObject = null;
         let activeModal = false;
-        let isAnimatingToChair = false;
-        let isSeated = false;
-        
-        let targetChairPos = new THREE.Vector3(0, 1.9, 68);
+        let isVideoPlaying = false;
+
         let selectedVideoSrc = "";
         let videoElement;
         
@@ -253,6 +252,83 @@
         let audioCtx = null;
         let lastFootstepTime = 0;
         let speechSynth = window.speechSynthesis;
+
+        // Pre-carrega todos os videos antes de permitir a entrada no museu
+        function preloadVideosAndStart() {
+            const ls = document.getElementById('loading-screen');
+            const loadingText = document.getElementById('loading-text');
+            const loadingProgress = document.getElementById('loading-progress');
+
+            // Mostra a tela de carregamento
+            ls.style.display = 'flex';
+            ls.style.opacity = '1';
+            loadingText.textContent = 'Carregando videos para reproducao instantanea...';
+            loadingProgress.classList.remove('hidden');
+            loadingProgress.textContent = '0%';
+
+            let loadedCount = 0;
+            const totalVideos = AVAILABLE_VIDEOS.length;
+            let allCompleted = false;
+
+            // Timeout de seguranca: se demorar mais de 15 segundos, continua mesmo assim
+            const safetyTimeout = setTimeout(() => {
+                if (!allCompleted) {
+                    console.warn('Timeout no pre-carregamento dos videos, iniciando mesmo assim...');
+                    finishLoading();
+                }
+            }, 15000);
+
+            function updateProgress() {
+                loadedCount++;
+                const percent = Math.round((loadedCount / totalVideos) * 100);
+                loadingProgress.textContent = percent + '%';
+                loadingText.textContent = `Carregando video ${loadedCount} de ${totalVideos}...`;
+
+                if (loadedCount >= totalVideos) {
+                    allCompleted = true;
+                    clearTimeout(safetyTimeout);
+                    setTimeout(finishLoading, 300);
+                }
+            }
+
+            function finishLoading() {
+                ls.style.opacity = '0';
+                setTimeout(() => {
+                    ls.style.display = 'none';
+                    loadingProgress.classList.add('hidden');
+                    container.requestPointerLock();
+                }, 500);
+            }
+
+            // Cria elementos de video temporarios para forcar o carregamento
+            AVAILABLE_VIDEOS.forEach((videoData) => {
+                const tempVideo = document.createElement('video');
+                tempVideo.preload = 'auto';
+                tempVideo.src = videoData.src;
+                tempVideo.muted = true;
+                tempVideo.playsInline = true;
+
+                let finished = false;
+
+                function handleComplete() {
+                    if (finished) return;
+                    finished = true;
+                    updateProgress();
+                    tempVideo.removeAttribute('src');
+                    tempVideo.load();
+                }
+
+                tempVideo.addEventListener('canplaythrough', handleComplete);
+                tempVideo.addEventListener('loadeddata', handleComplete);
+                tempVideo.addEventListener('error', () => {
+                    console.warn('Nao foi possivel pre-carregar:', videoData.src, '- O arquivo pode nao existir ainda.');
+                    handleComplete(); // Continua mesmo se houver erro
+                });
+
+                // Inicia o carregamento
+                tempVideo.load();
+            });
+        }
 
         function init() {
             scene = new THREE.Scene();
@@ -665,88 +741,39 @@
             carpetBorder2.position.set(0, 0.03, 94);
             scene.add(carpetBorder2);
 
-            // === CADEIRAS DE CINEMA (3 fileiras, 5 poltronas) ===
-            const chairMat = new THREE.MeshStandardMaterial({ color: 0x551111, roughness: 0.7 });
-            const chairArmMat = new THREE.MeshStandardMaterial({ color: 0x1a0a0a, roughness: 0.5 });
-            const chairX = [-7.5, -3.75, 0, 3.75, 7.5];
-            const chairZ = [62, 68, 74];
-
-            chairZ.forEach((z, zIdx) => {
-                chairX.forEach((x, xIdx) => {
-                    const chair = new THREE.Group();
-                    chair.position.set(x, 0, z);
-
-                    // Assento
-                    const seat = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.5, 1.6), chairMat);
-                    seat.position.y = 0.8;
-                    chair.add(seat);
-
-                    // Encosto
-                    const back = new THREE.Mesh(new THREE.BoxGeometry(1.6, 2, 0.35), chairMat);
-                    back.position.set(0, 1.9, -0.6);
-                    chair.add(back);
-
-                    // Encosto superior
-                    const backTop = new THREE.Mesh(new THREE.BoxGeometry(1.7, 0.4, 0.4), chairMat);
-                    backTop.position.set(0, 3, -0.6);
-                    chair.add(backTop);
-
-                    // Braços
-                    const armL = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.8, 1.4), chairArmMat);
-                    armL.position.set(-0.85, 1.2, -0.1);
-                    chair.add(armL);
-                    const armR = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.8, 1.4), chairArmMat);
-                    armR.position.set(0.85, 1.2, -0.1);
-                    chair.add(armR);
-
-                    // Número da poltrona na primeira fileira
-                    if (zIdx === 0) {
-                        const numCanvas = document.createElement('canvas');
-                        numCanvas.width = 64; numCanvas.height = 32;
-                        const nctx = numCanvas.getContext('2d');
-                        nctx.fillStyle = '#0a0a0a'; nctx.fillRect(0, 0, 64, 32);
-                        nctx.fillStyle = '#d4af37'; nctx.font = 'bold 18px Inter';
-                        nctx.textAlign = 'center'; nctx.textBaseline = 'middle';
-                        nctx.fillText(String(xIdx + 1), 32, 16);
-                        const numTex = new THREE.CanvasTexture(numCanvas);
-                        const numPlate = new THREE.Mesh(
-                            new THREE.PlaneGeometry(0.3, 0.15),
-                            new THREE.MeshBasicMaterial({ map: numTex })
-                        );
-                        numPlate.position.set(0, 0.55, 0.75);
-                        chair.add(numPlate);
-                    }
-
-                    scene.add(chair);
-                    addCollider(x, z, 1.8, 1.8);
-                });
-            });
-
-            // === CORREDOR CENTRAL ===
-            const aisleMat = new THREE.MeshStandardMaterial({ color: 0x2a0000, roughness: 0.95 });
-            const aisle = new THREE.Mesh(
-                new THREE.PlaneGeometry(1.5, 40),
-                aisleMat
+            // === ESPAÇO ABERTO DA SALA ===
+            // Decoração central no chão (medalhão dourado)
+            const medalhaoCanvas = document.createElement('canvas');
+            medalhaoCanvas.width = 512; medalhaoCanvas.height = 512;
+            const mctx = medalhaoCanvas.getContext('2d');
+            mctx.fillStyle = 'transparent';
+            mctx.clearRect(0, 0, 512, 512);
+            // Círculo externo
+            mctx.beginPath();
+            mctx.arc(256, 256, 240, 0, Math.PI * 2);
+            mctx.strokeStyle = '#ca8a04';
+            mctx.lineWidth = 8;
+            mctx.stroke();
+            // Círculo interno
+            mctx.beginPath();
+            mctx.arc(256, 256, 200, 0, Math.PI * 2);
+            mctx.strokeStyle = '#d4af37';
+            mctx.lineWidth = 4;
+            mctx.stroke();
+            // Desenho central
+            mctx.fillStyle = '#ca8a04';
+            mctx.font = 'bold 80px Cinzel';
+            mctx.textAlign = 'center';
+            mctx.textBaseline = 'middle';
+            mctx.fillText('M', 256, 256);
+            const medalhaoTex = new THREE.CanvasTexture(medalhaoCanvas);
+            const medalhao = new THREE.Mesh(
+                new THREE.PlaneGeometry(10, 10),
+                new THREE.MeshBasicMaterial({ map: medalhaoTex, transparent: true })
             );
-            aisle.rotation.x = -Math.PI / 2;
-            aisle.position.set(0, 0.025, 75);
-            scene.add(aisle);
-
-            // Luzes de chão do corredor
-            for (let lz = 58; lz <= 92; lz += 4) {
-                [-0.8, 0.8].forEach(lx => {
-                    const floorLight = new THREE.PointLight(0xffaa00, 0.3, 3);
-                    floorLight.position.set(lx, 0.1, lz);
-                    scene.add(floorLight);
-
-                    const floorLightCover = new THREE.Mesh(
-                        new THREE.CylinderGeometry(0.15, 0.15, 0.1, 16),
-                        new THREE.MeshStandardMaterial({ color: 0x333333, metalness: 0.8, roughness: 0.3 })
-                    );
-                    floorLightCover.position.set(lx, 0.05, lz);
-                    scene.add(floorLightCover);
-                });
-            }
+            medalhao.rotation.x = -Math.PI / 2;
+            medalhao.position.set(0, 0.03, 75);
+            scene.add(medalhao);
 
             // === QUIOSQUE DE INTERAÇÃO ===
             const kioskGroup = new THREE.Group();
@@ -1021,38 +1048,44 @@
         function setupInputAndEvents() {
             const container = document.getElementById('webgl-container');
             document.addEventListener('click', initAudio, { once: true });
-            container.addEventListener('click', () => { if (!isPointerLocked && !activeModal && !isSeated && !isAnimatingToChair) container.requestPointerLock(); });
+            container.addEventListener('click', () => { if (!isPointerLocked && !activeModal && !isVideoPlaying) container.requestPointerLock(); });
             document.addEventListener('pointerlockchange', () => isPointerLocked = (document.pointerLockElement === container) );
 
             window.addEventListener('keydown', (e) => {
                 if (keys.hasOwnProperty(e.code)) keys[e.code] = true;
-                if (e.code === 'KeyE' && !activeModal && !isAnimatingToChair) {
-                    if (isSeated) standUp();
-                    else if (hoveredObject) {
+                if (e.code === 'KeyE' && !activeModal) {
+                    if (hoveredObject) {
                         if (hoveredObject.type === 'exhibit') openExhibitModal(hoveredObject.data, hoveredObject.imgSrc);
                         else if (hoveredObject.type === 'cinema_kiosk') openVideoSelector();
                     }
                 }
-                if (e.code === 'Escape') { if (activeModal) closeModals(); if (isSeated) standUp(); }
+                if (e.code === 'Escape') { 
+                    if (activeModal) closeModals(); 
+                    if (isVideoPlaying) stopVideo(); 
+                }
             });
             window.addEventListener('keyup', (e) => { if (keys.hasOwnProperty(e.code)) keys[e.code] = false; });
 
             document.addEventListener('mousemove', (e) => {
-                if (!isPointerLocked || isAnimatingToChair) return;
+                if (!isPointerLocked) return;
                 player.rotation.y -= e.movementX * 0.002;
                 player.rotation.x -= e.movementY * 0.002;
                 player.rotation.x = Math.max(-Math.PI / 2.2, Math.min(Math.PI / 2.2, player.rotation.x));
             });
 
             document.getElementById('minimap-canvas').addEventListener('click', (e) => {
-                e.stopPropagation(); if (activeModal || isSeated || isAnimatingToChair) return;
+                e.stopPropagation(); if (activeModal || isVideoPlaying) return;
                 const rect = e.target.getBoundingClientRect();
                 const roomIdx = Math.floor(((e.clientY - rect.top) / rect.height) * 4);
                 let targetRoom = ROOMS_DATA[roomIdx];
                 if (targetRoom) { player.position.set(0, 1.7, (targetRoom.zStart + targetRoom.zEnd) / 2); player.rotation.set(0, 0, 0); if(!isPointerLocked) container.requestPointerLock(); }
             });
 
-            document.getElementById('start-tour-btn').addEventListener('click', () => { document.getElementById('welcome-modal').classList.add('opacity-0', 'pointer-events-none'); container.requestPointerLock(); initAudio(); });
+            document.getElementById('start-tour-btn').addEventListener('click', () => {
+                document.getElementById('welcome-modal').classList.add('opacity-0', 'pointer-events-none');
+                initAudio();
+                preloadVideosAndStart();
+            });
             document.getElementById('close-modal-btn').addEventListener('click', closeModals);
             document.getElementById('cancel-video-btn').addEventListener('click', closeModals);
             document.getElementById('help-btn').addEventListener('click', () => { document.getElementById('welcome-modal').classList.remove('opacity-0', 'pointer-events-none'); if (document.pointerLockElement) document.exitPointerLock(); });
@@ -1098,88 +1131,68 @@
             activeModal = false; speechSynth.cancel(); 
             document.getElementById('exhibit-modal').classList.add('opacity-0', 'pointer-events-none');
             document.getElementById('video-selector-modal').classList.add('opacity-0', 'pointer-events-none');
-            if (!isSeated && !isAnimatingToChair) document.getElementById('webgl-container').requestPointerLock();
+            if (!isVideoPlaying) document.getElementById('webgl-container').requestPointerLock();
         }
 
         function startCinemaSequence(videoSrc) {
             selectedVideoSrc = videoSrc;
             closeModals();
-            isAnimatingToChair = true;
+            isVideoPlaying = true;
+
+            // Sai do pointer lock para o usuário poder ver o vídeo tranquilamente
+            if (document.pointerLockElement) document.exitPointerLock();
 
             // Aplica a textura do vídeo na tela imediatamente
             window.theaterScreenMat.map = videoTexture;
             window.theaterScreenMat.color.setHex(0xffffff);
             window.theaterScreenMat.needsUpdate = true;
 
-            // Configura o vídeo
+            // Apaga as luzes da sala
+            cinemaLights.forEach(l => l.intensity = 0.05);
+
+            // Liga o projetor
+            if (window.projectorLight) {
+                window.projectorLight.intensity = 2;
+            }
+
+            // Configura e reproduz o vídeo imediatamente
             videoElement.src = selectedVideoSrc;
+            videoElement.muted = false;
+            videoElement.volume = 1.0;
             videoElement.load();
 
-            const startPos = player.position.clone();
-            const startRotY = player.rotation.y;
-            let progress = 0;
-            const duration = 120;
+            const playPromise = videoElement.play();
 
-            function animateWalk() {
-                progress++;
-                const t = progress / duration;
-                player.position.lerpVectors(startPos, targetChairPos, t);
-                player.rotation.y = THREE.MathUtils.lerp(startRotY, Math.PI, t);
-                player.rotation.x = THREE.MathUtils.lerp(player.rotation.x, 0, t);
-                camera.position.copy(player.position);
-                camera.rotation.copy(player.rotation);
-
-                if (progress < duration) {
-                    requestAnimationFrame(animateWalk);
-                } else {
-                    isAnimatingToChair = false;
-                    isSeated = true;
-
-                    // Apaga as luzes da sala
-                    cinemaLights.forEach(l => l.intensity = 0.05);
-
-                    // Liga o projetor
-                    if (window.projectorLight) {
-                        window.projectorLight.intensity = 2;
-                    }
-
-                    // Tenta reproduzir o vídeo
-                    const playPromise = videoElement.play();
-
-                    if (playPromise !== undefined) {
-                        playPromise.then(() => {
-                            console.log('Vídeo reproduzindo:', videoSrc);
-                            // Tenta habilitar o som após o usuário já ter interagido
-                            setTimeout(() => {
-                                videoElement.muted = false;
-                                videoElement.volume = 0.8;
-                            }, 100);
-                        }).catch(err => {
-                            console.warn('Autoplay bloqueado, vídeo carregado mas precisa de interação:', err);
-                            // Mantém mudo e tenta novamente
-                            videoElement.muted = true;
-                            videoElement.play().catch(e => console.warn('Falha na reprodução:', e));
-                        });
-                    }
-                }
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    console.log('Vídeo reproduzindo com sucesso:', videoSrc);
+                }).catch(err => {
+                    console.warn('Autoplay com som bloqueado, tentando mudo:', err);
+                    // Se o navegador bloquear com som, tenta mudo como fallback
+                    videoElement.muted = true;
+                    videoElement.play().catch(e => {
+                        console.error('Falha total na reprodução:', e);
+                        alert('Não foi possível reproduzir o vídeo. Verifique se o arquivo existe na pasta: ' + videoSrc);
+                        stopVideo();
+                    });
+                });
             }
-            animateWalk();
         }
 
-        function standUp() {
-            isSeated = false;
+        function stopVideo() {
+            isVideoPlaying = false;
             videoElement.pause();
+            videoElement.currentTime = 0;
             cinemaLights.forEach(l => l.intensity = baseLightIntensity);
             // Desliga o projetor
             if (window.projectorLight) {
                 window.projectorLight.intensity = 0;
             }
-            player.position.z -= 2;
             document.getElementById('webgl-container').requestPointerLock();
         }
 
         function updateMovement() {
-            if (activeModal || isSeated || isAnimatingToChair || !isPointerLocked) return;
+            if (activeModal || isVideoPlaying || !isPointerLocked) return;
             let moveX = 0, moveZ = 0;
             if (keys.KeyW) moveZ -= 1; if (keys.KeyS) moveZ += 1; if (keys.KeyA) moveX -= 1; if (keys.KeyD) moveX += 1;
             if (moveX !== 0 || moveZ !== 0) {
@@ -1195,7 +1208,7 @@
         }
 
         function checkRaycast() {
-            if (activeModal || isSeated || isAnimatingToChair) return;
+            if (activeModal || isVideoPlaying) return;
             const raycaster = new THREE.Raycaster(); raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
             const intersects = raycaster.intersectObjects(interactableObjects);
             const prompt = document.getElementById('interaction-prompt'), crosshair = document.getElementById('crosshair'), promptText = document.getElementById('prompt-text');
