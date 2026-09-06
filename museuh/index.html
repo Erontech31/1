@@ -254,7 +254,6 @@
         let selectedVideoSrc = "";
         let videoElement;
         
-        // Novas Variáveis: Luzes do Cinema, Áudio Guia e Passos
         let cinemaLights = [];
         const baseLightIntensity = 0.8;
         let audioCtx = null;
@@ -293,7 +292,6 @@
             animate();
         }
 
-        // --- SISTEMA DE SOM PROCEDURAL (PASSOS) ---
         function initAudio() {
             if (!audioCtx) {
                 audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -307,11 +305,9 @@
             if (!audioCtx) return;
             const t = audioCtx.currentTime;
             
-            // Controle de intervalo entre os passos
             if (t - lastFootstepTime < 0.45) return;
             lastFootstepTime = t;
 
-            // Criação de um som sintético que parece com um passo/eco
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
             
@@ -330,7 +326,6 @@
             osc.stop(t + 0.2);
         }
 
-        // --- ARQUITETURA E LUZES ---
         function setupLighting() {
             scene.add(new THREE.AmbientLight(0xffffff, 0.35));
             
@@ -341,11 +336,10 @@
                 if (isCinema) cinemaLights.push(light);
             };
 
-            addCeilingLight(0, -50); // Sala 1
-            addCeilingLight(0, -10); // Sala 2
-            addCeilingLight(0, 30);  // Sala 3
+            addCeilingLight(0, -50); 
+            addCeilingLight(0, -10); 
+            addCeilingLight(0, 30);  
             
-            // Luzes Controláveis da Sala de Cinema
             addCeilingLight(0, 65, true);  
             addCeilingLight(0, 85, true);  
         }
@@ -365,14 +359,13 @@
         }
 
         function createFloorTexture() {
-            // Gera textura de ladrilhos no canvas (para o chão)
             const canvas = document.createElement('canvas');
             canvas.width = 512; canvas.height = 512;
             const ctx = canvas.getContext('2d');
             
-            ctx.fillStyle = '#06060a'; // Cor de base escura
+            ctx.fillStyle = '#06060a';
             ctx.fillRect(0, 0, 512, 512);
-            ctx.strokeStyle = '#111116'; // Linhas do ladrilho
+            ctx.strokeStyle = '#111116';
             ctx.lineWidth = 4;
             ctx.strokeRect(0, 0, 512, 512);
             ctx.strokeRect(256, 256, 512, 512);
@@ -380,7 +373,7 @@
             const tex = new THREE.CanvasTexture(canvas);
             tex.wrapS = THREE.RepeatWrapping;
             tex.wrapT = THREE.RepeatWrapping;
-            tex.repeat.set(15, 30); // Repete a textura pelo salão
+            tex.repeat.set(15, 30);
             return tex;
         }
 
@@ -394,7 +387,6 @@
         }
 
         function buildMuseumArchitecture() {
-            // Chão Refletivo Texturizado
             const floorMat = new THREE.MeshStandardMaterial({ 
                 map: createFloorTexture(), 
                 roughness: 0.25, 
@@ -412,14 +404,11 @@
 
             const h = 8; const t = 1.5;
 
-            // Paredes Externas LATERAIS
             createWall(-15.5, 15, t, 170, h); 
             createWall(15.5, 15, t, 170, h);  
 
-            // Parede Fundo Norte
             createWall(0, -66, 32, t, h);
             
-            // Divisórias
             createWall(-10.5, -32, 10, t, h);
             createWall(10.5, -32, 10, t, h);
 
@@ -429,7 +418,6 @@
             createWall(-10.5, 48, 10, t, h);
             createWall(10.5, 48, 10, t, h);
 
-            // Parede Fundo Sul (Cinema)
             createWall(0, 96, 32, t, h);
         }
 
@@ -447,6 +435,37 @@
             ctx.fillText(title.toUpperCase(), 256, 64);
 
             return canvas;
+        }
+
+        // --- NOVA FUNÇÃO: GERA O NÚMERO DA IMAGEM ---
+        function createPlaceholderTexture(id) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 600; 
+            canvas.height = 400;
+            const ctx = canvas.getContext('2d');
+
+            // Fundo escuro
+            ctx.fillStyle = '#111115'; 
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Borda do número
+            ctx.strokeStyle = '#333333';
+            ctx.lineWidth = 4;
+            ctx.strokeRect(10, 10, canvas.width - 20, canvas.height - 20);
+
+            // Texto (Número da Imagem)
+            ctx.fillStyle = '#666666'; 
+            ctx.font = 'bold 120px Inter, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(id + ".jpg", canvas.width / 2, canvas.height / 2);
+            
+            // Subtexto
+            ctx.fillStyle = '#444444';
+            ctx.font = '30px Inter, sans-serif';
+            ctx.fillText("Imagem não encontrada", canvas.width / 2, canvas.height / 2 + 80);
+
+            return new THREE.CanvasTexture(canvas);
         }
 
         function buildExhibits() {
@@ -467,16 +486,24 @@
                 );
                 group.add(goldBorder);
 
-                const paintMat = new THREE.MeshStandardMaterial({ color: 0x222228, roughness: 0.5 });
+                // Aplica a textura do número baseada no ID da foto provisoriamente
+                const placeholderTex = createPlaceholderTexture(ex.id);
+                const paintMat = new THREE.MeshStandardMaterial({ 
+                    color: 0xffffff, 
+                    roughness: 0.5,
+                    map: placeholderTex 
+                });
+                
                 const canvasMesh = new THREE.Mesh(new THREE.PlaneGeometry(6, 4), paintMat);
                 canvasMesh.position.z = 0.1;
                 group.add(canvasMesh);
 
                 const imgPath = `${ex.id}.jpg`;
+                
+                // Tenta carregar a imagem original. Se conseguir, substitui o número provisório!
                 textureLoader.load(imgPath, (tex) => {
                     tex.encoding = THREE.sRGBEncoding;
                     paintMat.map = tex;
-                    paintMat.color.setHex(0xffffff);
                     paintMat.needsUpdate = true;
                     canvasMesh.userData.imgLoaded = true;
                     canvasMesh.userData.imgSrc = imgPath;
@@ -610,7 +637,6 @@
         function setupInputAndEvents() {
             const container = document.getElementById('webgl-container');
 
-            // Inicia Audio no primeiro clique (Padrão dos navegadores web)
             document.addEventListener('click', initAudio, { once: true });
 
             container.addEventListener('click', () => {
@@ -655,29 +681,25 @@
                 player.rotation.x = Math.max(-Math.PI / 2.2, Math.min(Math.PI / 2.2, player.rotation.x));
             });
 
-            // Lógica de Teletransporte via Minimapa
             const minimap = document.getElementById('minimap-canvas');
             minimap.addEventListener('click', (e) => {
                 e.stopPropagation();
                 if (activeModal || isSeated || isAnimatingToChair) return;
                 
                 const rect = minimap.getBoundingClientRect();
-                const y = e.clientY - rect.top; // Posição do clique em pixels (0 ao topo, H embaixo)
+                const y = e.clientY - rect.top; 
                 
-                // Mapeia o clique Y para uma das 4 salas (Dividindo o canvas em 4 faixas)
                 let roomIdx = Math.floor((y / rect.height) * 4);
                 let targetRoom = ROOMS_DATA[roomIdx];
                 
                 if (targetRoom) {
                     player.position.set(0, 1.7, (targetRoom.zStart + targetRoom.zEnd) / 2);
-                    player.rotation.set(0, 0, 0); // Reseta a visão para a frente
+                    player.rotation.set(0, 0, 0); 
                     
-                    // Foca a tela automaticamente no jogo se ainda não estiver
                     if(!isPointerLocked) container.requestPointerLock();
                 }
             });
 
-            // Controles de interface
             document.getElementById('start-tour-btn').addEventListener('click', () => {
                 document.getElementById('welcome-modal').classList.add('opacity-0', 'pointer-events-none');
                 container.requestPointerLock();
@@ -692,7 +714,6 @@
             });
         }
 
-        // --- SISTEMA DE ÁUDIO GUIA ---
         let currentSpeechData = "";
         
         document.getElementById('audio-guide-btn').addEventListener('click', () => {
@@ -727,13 +748,20 @@
             document.getElementById('modal-room-tag').textContent = data.roomTag;
             document.getElementById('modal-description').textContent = data.description;
             
-            // Configura o áudio guia para o texto atual
             currentSpeechData = data.description;
             document.querySelector('#audio-guide-btn i').className = 'fa-solid fa-volume-high';
             document.getElementById('audio-guide-text').textContent = "Ouvir";
 
             const imgEl = document.getElementById('modal-artwork-img');
-            imgEl.src = imgSrc || `${data.id}.jpg`;
+            
+            // Lógica do Modal para mostrar a imagem caso não tenha carregado
+            if (imgSrc) {
+                imgEl.src = imgSrc;
+            } else {
+                // Gera o provisório em base64 para o modal não ficar em branco
+                const placeholder = createPlaceholderTexture(data.id);
+                imgEl.src = placeholder.image.toDataURL();
+            }
 
             document.getElementById('exhibit-modal').classList.remove('opacity-0', 'pointer-events-none');
         }
@@ -758,7 +786,7 @@
 
         function closeModals() {
             activeModal = false;
-            speechSynth.cancel(); // Para o áudio guia se fechar
+            speechSynth.cancel(); 
             
             document.getElementById('exhibit-modal').classList.add('opacity-0', 'pointer-events-none');
             document.getElementById('video-selector-modal').classList.add('opacity-0', 'pointer-events-none');
@@ -768,7 +796,6 @@
             }
         }
 
-        // --- CINEMA COM LUZES DINÂMICAS ---
         function startCinemaSequence(videoSrc) {
             selectedVideoSrc = videoSrc;
             closeModals();
@@ -778,7 +805,7 @@
             const startRotY = player.rotation.y;
 
             let progress = 0;
-            const duration = 120; // frames (~2 segundos)
+            const duration = 120; 
 
             function animateWalk() {
                 progress++;
@@ -786,7 +813,6 @@
                 
                 player.position.lerpVectors(startPos, targetChairPos, t);
                 
-                // Virar de costas para a tela e encarar a tela ao sentar (Rot Y = Math.PI)
                 player.rotation.y = THREE.MathUtils.lerp(startRotY, Math.PI, t);
                 player.rotation.x = THREE.MathUtils.lerp(player.rotation.x, 0, t);
 
@@ -799,7 +825,6 @@
                     isAnimatingToChair = false;
                     isSeated = true;
                     
-                    // Escurece o ambiente quando sentar
                     cinemaLights.forEach(l => l.intensity = 0.1); 
                     
                     playTheaterVideo(selectedVideoSrc);
@@ -822,10 +847,9 @@
             isSeated = false;
             videoElement.pause();
             
-            // Acende as luzes de volta
             cinemaLights.forEach(l => l.intensity = baseLightIntensity);
             
-            player.position.z -= 2; // Dá um passo à frente
+            player.position.z -= 2; 
             document.getElementById('webgl-container').requestPointerLock();
         }
 
@@ -839,7 +863,6 @@
             if (keys.KeyD) moveX += 1;
 
             if (moveX !== 0 || moveZ !== 0) {
-                // Toca som do passo se estiver andando
                 playFootstep();
 
                 const forward = new THREE.Vector3(0, 0, -1).applyAxisAngle(new THREE.Vector3(0, 1, 0), player.rotation.y);
@@ -914,14 +937,12 @@
 
             ctx.strokeStyle = '#ca8a04'; ctx.lineWidth = 1.5;
 
-            // Desenhar 4 Salas no Minimapa
             ROOMS_DATA.forEach(r => {
                 const top = cz + r.zStart * scale;
                 const height = (r.zEnd - r.zStart) * scale;
                 ctx.strokeRect(cx - 12 * scale, top, 24 * scale, height);
             });
 
-            // Posição do Jogador
             const px = cx + player.position.x * scale;
             const pz = cz + player.position.z * scale;
 
