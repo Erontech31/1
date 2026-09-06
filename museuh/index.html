@@ -1,894 +1,302 @@
 <!DOCTYPE html>
-<html lang="pt-BR" class="h-full dark">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Museu Virtual da Humanidade</title>
-    
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        gold: { 300: '#fde047', 400: '#facc15', 500: '#eab308', 600: '#ca8a04' },
-                        museum: { dark: '#08080c', panel: 'rgba(18, 18, 26, 0.9)' }
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        serif: ['Cinzel', 'Georgia', 'serif']
-                    }
-                }
-            }
-        }
-    </script>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;800&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-
+    <title>Simulação: Óptica, Biometria Ocular e Sensores CMOS</title>
     <style>
-        body { font-family: 'Inter', sans-serif; overflow: hidden; user-select: none; touch-action: none; background-color: #050508; margin: 0; padding: 0; }
-        .serif-title { font-family: 'Cinzel', serif; }
-        
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(212,175,55,0.4); border-radius: 4px; }
-        
-        #crosshair {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            pointer-events: none; z-index: 20; transition: all 0.2s ease;
+        body { 
+            font-family: Arial, sans-serif; 
+            background-color: #f4f4f9; 
+            margin: 0; 
+            padding: 20px; 
         }
-        #crosshair.active circle { fill: #facc15; stroke: #000; stroke-width: 2px; }
-        #crosshair.cinema circle { fill: #38bdf8; stroke: #000; stroke-width: 2px; }
-
-        .glass-panel { background: rgba(15,15,22,0.88); backdrop-filter: blur(16px); border: 1px solid rgba(212,175,55,0.3); }
-        .gold-glow { box-shadow: 0 0 25px rgba(212,175,55,0.2); }
+        .tabs { 
+            display: flex; 
+            background: #e2e2e2; 
+            padding: 10px 10px 0 10px; 
+            border-radius: 8px 8px 0 0; 
+        }
+        .tab { 
+            padding: 12px 24px; 
+            margin-right: 5px; 
+            background: #d1d1d1; 
+            border-radius: 8px 8px 0 0; 
+            cursor: pointer; 
+            transition: background 0.2s;
+        }
+        .tab:hover { background: #c0c0c0; }
+        .tab.active { 
+            background: #fff; 
+            font-weight: bold; 
+            border-bottom: 2px solid #fff;
+        }
+        .content { 
+            display: none; 
+            background: #fff; 
+            padding: 25px; 
+            border-radius: 0 8px 8px 8px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
+        }
+        .content.active { display: block; }
+        canvas { 
+            border: 1px solid #ccc; 
+            background: #fafafa; 
+            display: block; 
+            margin: 15px 0; 
+            border-radius: 4px;
+        }
+        .control-panel { 
+            margin-top: 15px; 
+            padding: 15px; 
+            background: #f8f9fa; 
+            border-radius: 6px; 
+            border: 1px solid #e9ecef;
+        }
+        .video-container { 
+            text-align: center; 
+            margin-top: 20px;
+        }
+        video { 
+            max-width: 100%; 
+            height: auto; 
+            border: 4px solid #333; 
+            border-radius: 8px; 
+            background: #000;
+        }
+        button { 
+            padding: 10px 20px; 
+            margin: 5px; 
+            cursor: pointer; 
+            background: #0056b3; 
+            color: white; 
+            border: none; 
+            border-radius: 4px;
+        }
+        button:hover { background: #004494; }
+        input[type="range"] { vertical-align: middle; }
         
-        #webgl-container { width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; z-index: 1; }
-        
-        #loading-screen { position: fixed; inset: 0; background: #050508; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s; }
-        .loader { border: 4px solid rgba(212,175,55,0.2); border-top: 4px solid #facc15; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        /* Simulação do Sensor CMOS */
+        #cmos-view { 
+            width: 100%; 
+            max-width: 800px; 
+            height: 400px; 
+            border: 2px solid #333; 
+            background: url('https://images.unsplash.com/photo-1557811234-7a0ce7382d56?auto=format&fit=crop&q=80&w=800') no-repeat center center; 
+            background-size: cover;
+            border-radius: 6px;
+            margin-top: 15px;
+            /* A transição suave garante que o desfoque seja gradual e orgânico */
+            transition: filter 0.1s linear; 
+        }
     </style>
 </head>
-<body class="text-gray-100 antialiased">
+<body>
 
-    <video id="theater-video" playsinline crossorigin="anonymous" style="display:none;" loop></video>
-    <input type="file" id="folder-upload" accept="image/*,video/*" multiple class="hidden">
+<div class="tabs">
+    <div class="tab active" onclick="showTab('optics')">Óptica e Calor</div>
+    <div class="tab" onclick="showTab('ocular')">Biometria Ocular</div>
+    <div class="tab" onclick="showTab('cmos')">Engenharia CMOS</div>
+</div>
 
-    <div id="loading-screen">
-        <div class="loader mb-4"></div>
-        <h2 class="serif-title text-gold-300 text-2xl font-bold tracking-widest">MUSEU DA HUMANIDADE</h2>
-        <p class="text-gray-400 text-sm mt-2 font-light">Construindo arquitetura e organizando galerias...</p>
+<!-- Módulo 1: Óptica e Calor -->
+<div id="optics" class="content active">
+    <h2>Traçado de Raios e Ignição Focal</h2>
+    <p>Observe a convergência dos raios da ponta e da base do objeto. A ignição ocorrerá unicamente quando o alvo estiver posicionado com precisão matemática no ponto focal.</p>
+    <canvas id="opticsCanvas" width="800" height="400"></canvas>
+    <div class="control-panel">
+        <label>Posição do Alvo (Papel): 
+            <input type="range" id="paperPos" min="450" max="750" value="650" style="width: 300px;">
+        </label>
+        <span id="fireStatus" style="font-weight:bold; margin-left:20px;"></span>
     </div>
+</div>
 
-    <div id="webgl-container"></div>
-
-    <div id="crosshair">
-        <svg width="24" height="24" viewBox="0 0 24 24">
-            <circle cx="12" cy="12" r="3" fill="rgba(255,255,255,0.7)" stroke="rgba(0,0,0,0.5)" stroke-width="1.5"/>
-        </svg>
+<!-- Módulo 2: Biometria Ocular -->
+<div id="ocular" class="content">
+    <h2>Dinâmica Pupilar (Miose e Midríase)</h2>
+    <p>Selecione o ambiente para carregar os arquivos de vídeo locais referentes à resposta pupilar simulada.</p>
+    <div class="control-panel">
+        <button onclick="changeVideo('video1.mp4')">Vídeo 1: Alta Luminosidade (Miose)</button>
+        <button onclick="changeVideo('video2.mp4')">Vídeo 2: Baixa Luminosidade (Midríase)</button>
+        <button onclick="changeVideo('video3.mp4')">Vídeo 3: Transição Dinâmica</button>
     </div>
-
-    <header class="fixed top-0 left-0 right-0 z-20 p-4 flex justify-between items-start pointer-events-none">
-        <div class="glass-panel px-5 py-3 rounded-2xl flex items-center gap-4 pointer-events-auto gold-glow">
-            <div class="w-10 h-10 rounded-full bg-gold-500/20 flex items-center justify-center border border-gold-500/50">
-                <i class="fa-solid fa-landmark text-gold-400 text-lg"></i>
-            </div>
-            <div>
-                <h1 id="current-room-title" class="serif-title font-bold text-sm sm:text-base text-gold-300 tracking-wide">MUSEU DA HUMANIDADE</h1>
-                <p id="current-room-subtitle" class="text-[10px] sm:text-xs text-gray-400 uppercase tracking-widest">Sala 1: Berço Africano</p>
-            </div>
-        </div>
-        
-        <div class="flex gap-3 pointer-events-auto">
-            <button id="native-folder-btn" title="Selecionar Pasta Local na mesma pasta" class="glass-panel px-4 py-2 rounded-xl hover:bg-gold-500/20 text-gold-300 flex items-center gap-2 text-xs font-semibold transition-colors border-gold-500/60 bg-gold-500/10">
-                <i class="fa-solid fa-folder-tree"></i> Reproduzir por Pasta
-            </button>
-            <button id="folder-btn" title="Carregar Arquivos Avulsos" class="glass-panel px-4 py-2 rounded-xl hover:bg-gold-500/20 text-gold-300 flex items-center gap-2 text-xs font-semibold transition-colors border-gold-500/40">
-                <i class="fa-solid fa-folder-open"></i> Arquivos
-            </button>
-            <button id="help-btn" class="glass-panel w-10 h-10 rounded-xl hover:bg-gold-500/20 text-gold-300 flex items-center justify-center transition-colors">
-                <i class="fa-solid fa-circle-question text-lg"></i>
-            </button>
-        </div>
-    </header>
-
-    <div id="interaction-prompt" class="fixed bottom-12 left-1/2 transform -translate-x-1/2 z-20 transition-all duration-300 opacity-0 pointer-events-none">
-        <div class="glass-panel px-6 py-3 rounded-2xl border-2 border-gold-400 flex items-center gap-3 shadow-[0_10px_40px_rgba(0,0,0,0.8)] bg-gray-900/95">
-            <span id="prompt-key" class="bg-gold-500 text-black font-extrabold px-3 py-1 rounded-lg text-sm border-b-2 border-gold-600">E</span>
-            <span id="prompt-text" class="text-sm font-semibold text-gray-100 tracking-wide">Examinar Quadro</span>
-        </div>
+    <div class="video-container">
+        <!-- Estrutura configurada estritamente para reprodução local -->
+        <video id="eyeVideo" width="800" height="450" controls muted autoplay loop>
+            <source src="video1.mp4" type="video/mp4">
+            Seu navegador não suporta a reprodução deste formato de vídeo.
+        </video>
     </div>
+</div>
 
-    <div class="fixed bottom-4 right-4 z-20 pointer-events-auto hidden sm:block opacity-90 transition-transform hover:scale-105" title="Clique para viajar rápido pelas salas">
-        <div class="glass-panel p-2 rounded-2xl border border-gold-500/30 bg-black/70 backdrop-blur-sm cursor-pointer">
-            <canvas id="minimap-canvas" width="120" height="200" class="rounded-xl"></canvas>
-            <p class="text-[9px] text-center text-gray-400 mt-1 uppercase tracking-widest">Viajar</p>
-        </div>
+<!-- Módulo 3: Engenharia CMOS -->
+<div id="cmos" class="content">
+    <h2>Lógica de Foco do Sensor CMOS</h2>
+    <p>Ajuste o controle deslizante. A imagem ganha ou perde nitidez gradualmente de acordo com a distância do plano focal ideal (Valor = 50).</p>
+    <div class="control-panel">
+        <label>Plano Focal: 
+            <input type="range" id="focusSlider" min="0" max="100" value="10" style="width: 400px;">
+        </label>
+        <span id="focusReadout" style="margin-left: 15px;">10%</span>
     </div>
+    <div id="cmos-view"></div>
+</div>
 
-    <div id="exhibit-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md opacity-0 pointer-events-none transition-all duration-300">
-        <div class="glass-panel w-full max-w-4xl max-h-[90vh] rounded-3xl flex flex-col md:flex-row overflow-hidden relative border border-gold-500/40 shadow-2xl">
-            <div class="w-full md:w-1/2 bg-black/90 p-6 flex items-center justify-center border-b md:border-b-0 md:border-r border-gray-800">
-                <div class="w-full aspect-square flex items-center justify-center bg-gray-950 rounded-2xl overflow-hidden border border-gray-800 shadow-inner relative">
-                    <img id="modal-artwork-img" src="" class="max-w-full max-h-full object-contain" alt="Quadro Ampliado">
-                </div>
-            </div>
+<script>
+    // Gerenciamento de Abas
+    function showTab(tabId) {
+        document.querySelectorAll('.content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        event.target.classList.add('active');
+    }
+
+    // --- Módulo 1: Óptica e Calor ---
+    const canvas = document.getElementById('opticsCanvas');
+    const ctx = canvas.getContext('2d');
+    const paperPosSlider = document.getElementById('paperPos');
+    const fireStatus = document.getElementById('fireStatus');
+
+    const lensX = 400;
+    const focalLength = 150;
+    const focalPoint = lensX + focalLength; // Ponto focal em X = 550
+    const centerY = 200;
+    
+    // Dimensões do Objeto Base
+    const objX = 150;
+    const objYTop = 120; 
+    const objYBottom = 200;
+
+    function drawOptics() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Desenhar Eixo Principal
+        ctx.beginPath();
+        ctx.moveTo(0, centerY);
+        ctx.lineTo(canvas.width, centerY);
+        ctx.strokeStyle = '#aaa';
+        ctx.setLineDash([5, 5]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Desenhar Lente Convergente
+        ctx.beginPath();
+        ctx.moveTo(lensX, 50);
+        ctx.quadraticCurveTo(lensX - 25, centerY, lensX, 350);
+        ctx.quadraticCurveTo(lensX + 25, centerY, lensX, 50);
+        ctx.fillStyle = 'rgba(135, 206, 235, 0.4)';
+        ctx.fill();
+        ctx.strokeStyle = '#0056b3';
+        ctx.stroke();
+
+        // Marcar Ponto Focal
+        ctx.fillStyle = '#333';
+        ctx.beginPath(); ctx.arc(focalPoint, centerY, 4, 0, Math.PI*2); ctx.fill();
+        ctx.fillText("F'", focalPoint - 5, centerY + 20);
+
+        // Desenhar Objeto (Lado Esquerdo)
+        ctx.fillStyle = '#2ca02c';
+        ctx.fillRect(objX - 10, objYTop, 20, objYBottom - objYTop);
+        ctx.fillStyle = '#000';
+        ctx.fillText('Objeto', objX - 15, objYTop - 10);
+
+        // Cálculos Ópticos (Equação das Lentes)
+        const do_obj = lensX - objX; 
+        const di_obj = (focalLength * do_obj) / (do_obj - focalLength); 
+        const imgX = lensX + di_obj; 
+        const mag = -di_obj / do_obj; 
+
+        // Projeção Invertida
+        const imgTopProj = centerY + (objYTop - centerY) * mag;
+        const imgBottomProj = centerY + (objYBottom - centerY) * mag;
+
+        // Desenhar Raios: Ponta de cima
+        ctx.strokeStyle = 'rgba(255, 69, 0, 0.8)';
+        ctx.beginPath();
+        ctx.moveTo(objX, objYTop);
+        ctx.lineTo(lensX, objYTop);
+        ctx.lineTo(imgX, imgTopProj);
+        ctx.moveTo(objX, objYTop);
+        ctx.lineTo(lensX, centerY);
+        ctx.lineTo(imgX, imgTopProj);
+        ctx.stroke();
+
+        // Desenhar Raios: Parte de baixo
+        ctx.strokeStyle = 'rgba(30, 144, 255, 0.8)';
+        ctx.beginPath();
+        ctx.moveTo(objX, objYBottom);
+        ctx.lineTo(lensX, objYBottom);
+        ctx.lineTo(imgX, imgBottomProj);
+        ctx.moveTo(objX, objYBottom);
+        ctx.lineTo(lensX, centerY);
+        ctx.lineTo(imgX, imgBottomProj);
+        ctx.stroke();
+
+        // Desenhar Projeção (Cabeça para baixo garantida pelo multiplicador negativo)
+        ctx.fillStyle = 'rgba(44, 160, 44, 0.5)';
+        // A altura da projeção é traçada de imgBottomProj até imgTopProj
+        ctx.fillRect(imgX - 15, imgBottomProj, 30, imgTopProj - imgBottomProj);
+        ctx.fillStyle = '#000';
+        ctx.fillText('Projeção', imgX - 25, imgTopProj + 20);
+
+        // Lógica de Ignição Focal
+        const paperX = parseInt(paperPosSlider.value);
+        // Condição rigorosa: apenas entra em ignição na posição exata
+        const isFocalPoint = (paperX === focalPoint);
+
+        if (isFocalPoint) {
+            ctx.fillStyle = '#ff4500';
+            fireStatus.textContent = 'ESTADO: Ignição! Foco térmico atingido.';
+            fireStatus.style.color = 'red';
             
-            <div class="w-full md:w-1/2 p-8 flex flex-col justify-between overflow-y-auto custom-scrollbar bg-gradient-to-br from-gray-900 via-gray-950 to-black">
-                <div>
-                    <span id="modal-room-tag" class="inline-block px-3 py-1 rounded-full text-[10px] font-bold bg-gold-500/20 text-gold-300 mb-3 border border-gold-500/30 uppercase tracking-widest"></span>
-                    <h2 id="modal-title" class="serif-title text-2xl md:text-3xl font-bold text-gray-100 mb-4 leading-tight"></h2>
-                    <div id="modal-description" class="text-gray-300 text-sm md:text-base leading-relaxed space-y-3 font-light"></div>
-                </div>
-
-                <div class="mt-8 pt-4 border-t border-gray-800 flex justify-between items-center">
-                    <button id="audio-guide-btn" class="px-4 py-2.5 rounded-xl bg-gray-800 hover:bg-gold-500/20 text-gold-400 border border-gray-700 hover:border-gold-500 transition-all text-sm font-semibold flex items-center gap-2">
-                        <i class="fa-solid fa-volume-high"></i> <span id="audio-guide-text">Ouvir</span>
-                    </button>
-                    <button id="close-modal-btn" class="px-6 py-2.5 rounded-xl bg-gold-500 hover:bg-gold-400 text-black font-bold flex items-center gap-2 transition-all shadow-lg shadow-gold-500/20">
-                        <i class="fa-solid fa-xmark text-lg"></i> Fechar
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="video-selector-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md opacity-0 pointer-events-none transition-all duration-300">
-        <div class="glass-panel w-full max-w-xl rounded-3xl p-6 border border-gold-500/40 shadow-2xl text-center">
-            <div class="w-12 h-12 rounded-full bg-gold-500/20 flex items-center justify-center mx-auto mb-3 border border-gold-500/50">
-                <i class="fa-solid fa-film text-gold-400 text-xl"></i>
-            </div>
-            <h2 class="serif-title text-2xl font-bold text-gold-300 mb-1">SALA DE VÍDEO</h2>
-            <p class="text-xs text-gray-400 mb-6">Selecione o vídeo da galeria para assistir do seu assento.</p>
-
-            <div id="video-list-container" class="space-y-3 max-h-60 overflow-y-auto custom-scrollbar mb-4 text-left"></div>
-
-            <div class="mb-6 pt-4 border-t border-gray-800 flex gap-2">
-                <input type="text" id="external-video-url" placeholder="Cole o link do vídeo (MP4, Drive...)" class="flex-1 px-3 py-2 rounded-xl bg-gray-950 border border-gray-700 text-gray-300 text-sm focus:border-gold-500 focus:outline-none">
-                <button id="play-external-btn" class="px-4 py-2 rounded-xl bg-gold-500 hover:bg-gold-400 text-black font-bold text-sm transition-all shadow-lg shadow-gold-500/20">
-                    <i class="fa-solid fa-play"></i> Tocar
-                </button>
-            </div>
-
-            <div class="flex justify-end gap-3">
-                <button id="cancel-video-btn" class="px-5 py-2 rounded-xl bg-gray-800 hover:bg-gray-700 text-gray-300 font-semibold text-sm transition-all">Cancelar</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="welcome-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-xl transition-all duration-300">
-        <div class="glass-panel w-full max-w-2xl rounded-3xl p-8 border border-gold-500/40 text-center gold-glow shadow-2xl relative overflow-hidden">
-            <h2 class="serif-title text-3xl font-bold text-gold-300 mb-2">MUSEU DA HUMANIDADE</h2>
-            <p class="text-xs text-gray-300 mb-6 max-w-md mx-auto">Navegue pelas 4 salas temáticas. Os quadros ajustam seus formatos e tamanhos às imagens.</p>
-
-            <div class="grid grid-cols-2 gap-3 mb-6 text-left text-xs bg-black/50 p-4 rounded-2xl border border-gray-800">
-                <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-lg bg-gray-800 flex items-center justify-center text-gold-400 font-bold border border-gray-700">WASD</div>
-                    <span class="text-gray-300">Movimentação</span>
-                </div>
-                <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-lg bg-gray-800 flex items-center justify-center text-gold-400 font-bold border border-gray-700"><i class="fa-solid fa-mouse"></i></div>
-                    <span class="text-gray-300">Olhar em Volta</span>
-                </div>
-                <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-lg bg-gray-800 flex items-center justify-center text-gold-400 font-bold border border-gray-700">E</div>
-                    <span class="text-gray-300">Interagir (Quadro / Cinema)</span>
-                </div>
-                <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-lg bg-gray-800 flex items-center justify-center text-gold-400 font-bold border border-gray-700">ESC</div>
-                    <span class="text-gray-300">Levantar / Sair</span>
-                </div>
-            </div>
-
-            <button id="start-tour-btn" class="w-full py-3.5 rounded-2xl bg-gradient-to-r from-gold-600 to-gold-400 text-black font-extrabold uppercase tracking-widest shadow-lg shadow-gold-500/30 transition-all transform hover:scale-[1.01]">
-                Entrar no Museu
-            </button>
-        </div>
-    </div>
-
-    <script>
-        const ROOMS_DATA = [
-            { id: 1, title: "Surgimento na África", subtitle: "Sala 1: Berço Africano", zStart: -65, zEnd: -35 },
-            { id: 2, title: "Tipos de Humanos", subtitle: "Sala 2: Evolução das Espécies", zStart: -25, zEnd: 5 },
-            { id: 3, title: "O Espalhamento Global", subtitle: "Sala 3: Expansão pelo Mundo", zStart: 15, zEnd: 45 },
-            { id: 4, title: "Sala de Vídeo", subtitle: "Sala 4: Auditório e Cinema", zStart: 55, zEnd: 95 }
-        ];
-
-        const EXHIBITS_DATA = [
-            { id: 1, roomId: 1, title: "O Vale do Rift", roomTag: "Sala 1 • Berço Africano", description: "O Grande Vale do Rift na África Oriental criou variações climáticas e ecossistemas de savana que favoreceram o bipedalismo nos primeiros hominídeos.", pos: {x: -14.8, y: 3.5, z: -58}, rot: Math.PI/2 },
-            { id: 2, roomId: 1, title: "A Savana & Bipedalismo", roomTag: "Sala 1 • Berço Africano", description: "A transição das florestas densas para campos abertos exigiu postura ereta para percorrer longas distâncias e identificar predadores.", pos: {x: -14.8, y: 3.5, z: -42}, rot: Math.PI/2 },
-            { id: 3, roomId: 1, title: "Indústria Olduvaiense", roomTag: "Sala 1 • Berço Africano", description: "As primeiras ferramentas de pedra lascada criadas na África permitiram acesso a novas fontes de nutrientes e proteicos.", pos: {x: 14.8, y: 3.5, z: -58}, rot: -Math.PI/2 },
-            { id: 4, roomId: 1, title: "O Controle do Fogo", roomTag: "Sala 1 • Berço Africano", description: "O domínio do fogo na África alterou a nutrição humana, facilitou a digestão e fortaleceu os laços sociais ao redor da fogueira.", pos: {x: 14.8, y: 3.5, z: -42}, rot: -Math.PI/2 },
-            { id: 5, roomId: 2, title: "Australopithecus afarensis", roomTag: "Sala 2 • Tipos de Humanos", description: "Famoso pelo fóssil 'Lucy' de 3,2 milhões de anos. Combina características bípedes com capacidade para escalar árvores.", pos: {x: -14.8, y: 3.5, z: -18}, rot: Math.PI/2 },
-            { id: 6, roomId: 2, title: "Homo habilis", roomTag: "Sala 2 • Tipos de Humanos", description: "Primeira espécie do gênero Homo. Apresentava cérebro maior e habilidade para confecção intencional de instrumentos de pedra.", pos: {x: -14.8, y: 3.5, z: -2}, rot: Math.PI/2 },
-            { id: 7, roomId: 2, title: "Homo erectus", roomTag: "Sala 2 • Tipos de Humanos", description: "Espécie de corpo moderno e excelente caminhadora. Foi o primeiro hominídeo a se expandir além do continente africano.", pos: {x: 14.8, y: 3.5, z: -18}, rot: -Math.PI/2 },
-            { id: 8, roomId: 2, title: "Homo neanderthalensis", roomTag: "Sala 2 • Tipos de Humanos", description: "Adaptado ao clima frio da Eurásia. Possuía cérebro robusto, praticava rituais funerários e conviveu com o Homo sapiens.", pos: {x: 14.8, y: 3.5, z: -2}, rot: -Math.PI/2 },
-            { id: 9, roomId: 3, title: "O Grande Êxodo Africano", roomTag: "Sala 3 • Espalhamento Global", description: "Há cerca de 70 mil anos, grupos de Homo sapiens deixaram a África pelo Chifre Africano, iniciando a povoação do planeta.", pos: {x: -14.8, y: 3.5, z: 22}, rot: Math.PI/2 },
-            { id: 10, roomId: 3, title: "Chegada à Oceania", roomTag: "Sala 3 • Espalhamento Global", description: "A navegação costeira primitiva permitiu aos humanos alcançar a Sahul (Austrália/Nova Guiné) há mais de 50 mil anos.", pos: {x: -14.8, y: 3.5, z: 38}, rot: Math.PI/2 },
-            { id: 11, roomId: 3, title: "Travessia de Bering", roomTag: "Sala 3 • Expansão pelo Mundo", description: "Durante as eras glaciais, a ponte terrestre de Beringia conectou a Sibéria ao Alasca, permitindo a entrada do homem nas Américas.", pos: {x: 14.8, y: 3.5, z: 22}, rot: -Math.PI/2 },
-            { id: 12, roomId: 3, title: "Arte Rupestre Global", roomTag: "Sala 3 • Expansão pelo Mundo", description: "Pinturas em cavernas espalhadas pela Europa, Ásia e Américas demonstram a universalidade do pensamento simbólico humano.", pos: {x: 14.8, y: 3.5, z: 38}, rot: -Math.PI/2 }
-        ];
-
-        let AVAILABLE_VIDEOS = [
-            { 
-                id: "video1", 
-                title: "1. A Origem e Evolução da Humanidade", 
-                src: "https://drive.google.com/uc?export=download&id=1Z24nzkK_c_7Vl6AOggHa9f5gZByz_LcW" 
-            },
-            { 
-                id: "video2", 
-                title: "2. O Grande Êxodo Africano", 
-                src: "https://drive.google.com/uc?export=download&id=1EQaHwVyKR6QFkc5FyyefK5dqrntvrF2S" 
-            },
-            { 
-                id: "video3", 
-                title: "3. A Vida na Era Glacial", 
-                src: "https://drive.google.com/uc?export=download&id=17W4zetaUGo75q7-j5eQ-betnhhINtvu8" 
-            }
-        ];
-
-        let scene, camera, renderer, videoTexture;
-        let interactableObjects = [];
-        let colliders = [];
-        
-        let player = {
-            position: new THREE.Vector3(0, 1.7, -50),
-            rotation: new THREE.Euler(0, 0, 0, 'YXZ'),
-            speed: 0.14,
-            radius: 0.7
-        };
-
-        const keys = { KeyW: false, KeyS: false, KeyA: false, KeyD: false };
-        let isPointerLocked = false;
-        let hoveredObject = null;
-        let activeModal = false;
-        let isAnimatingToChair = false;
-        let isSeated = false;
-        
-        let targetChairPos = new THREE.Vector3(0, 1.9, 70);
-        let selectedVideoSrc = "";
-        let videoElement;
-        
-        let cinemaLights = [];
-        const baseLightIntensity = 0.8;
-        let audioCtx = null;
-        let lastFootstepTime = 0;
-        let speechSynth = window.speechSynthesis;
-
-        function init() {
-            scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x050508);
-            scene.fog = new THREE.FogExp2(0x050508, 0.012);
-
-            camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 200);
-            camera.rotation.order = 'YXZ';
-            
-            renderer = new THREE.WebGLRenderer({ antialias: true });
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.outputEncoding = THREE.sRGBEncoding;
-            renderer.shadowMap.enabled = true;
-            document.getElementById('webgl-container').appendChild(renderer.domElement);
-
-            setupLighting();
-            buildExterior();
-            buildMuseumArchitecture();
-            buildExhibits();
-            buildTheater();
-            setupInputAndEvents();
-            setupFolderUpload();
-
-            setTimeout(() => {
-                const ls = document.getElementById('loading-screen');
-                ls.style.opacity = '0';
-                setTimeout(() => ls.style.display = 'none', 500);
-            }, 800);
-
-            animate();
-        }
-
-        function initAudio() {
-            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-        }
-
-        function playFootstep() {
-            if (!audioCtx) return;
-            const t = audioCtx.currentTime;
-            if (t - lastFootstepTime < 0.45) return;
-            lastFootstepTime = t;
-
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(120, t);
-            osc.frequency.exponentialRampToValueAtTime(30, t + 0.1);
-            gain.gain.setValueAtTime(0, t);
-            gain.gain.linearRampToValueAtTime(0.08, t + 0.02);
-            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
-            
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start(t);
-            osc.stop(t + 0.2);
-        }
-
-        function setupLighting() {
-            scene.add(new THREE.AmbientLight(0xffffff, 0.4));
-            const addCeilingLight = (x, z, isCinema = false) => {
-                const light = new THREE.PointLight(0xfff5e6, baseLightIntensity, 40);
-                light.position.set(x, 7.5, z);
-                scene.add(light);
-                if (isCinema) cinemaLights.push(light);
-            };
-            addCeilingLight(0, -50); 
-            addCeilingLight(0, -10); 
-            addCeilingLight(0, 30);  
-            addCeilingLight(0, 65, true);  
-            addCeilingLight(0, 85, true);  
-        }
-
-        function addCollider(x, z, width, depth) {
-            colliders.push({ minX: x - width/2, maxX: x + width/2, minZ: z - depth/2, maxZ: z + depth/2 });
+            // Desenho do fogo
+            ctx.beginPath();
+            ctx.moveTo(paperX, centerY);
+            ctx.lineTo(paperX - 15, centerY - 30);
+            ctx.lineTo(paperX - 5, centerY - 20);
+            ctx.lineTo(paperX, centerY - 45);
+            ctx.lineTo(paperX + 5, centerY - 25);
+            ctx.lineTo(paperX + 15, centerY - 35);
+            ctx.fill();
+        } else {
+            ctx.fillStyle = '#f4a460'; // Cor normal do papel
+            fireStatus.textContent = 'ESTADO: Estável. Fora da zona de convergência.';
+            fireStatus.style.color = '#333';
         }
         
-        function checkCollision(pos) {
-            for (let i = 0; i < colliders.length; i++) {
-                const c = colliders[i];
-                if (pos.x + player.radius > c.minX && pos.x - player.radius < c.maxX &&
-                    pos.z + player.radius > c.minZ && pos.z - player.radius < c.maxZ) {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        function createFloorTexture() {
-            const canvas = document.createElement('canvas');
-            canvas.width = 512; canvas.height = 512;
-            const ctx = canvas.getContext('2d');
-            ctx.fillStyle = '#06060a';
-            ctx.fillRect(0, 0, 512, 512);
-            ctx.strokeStyle = '#111116';
-            ctx.lineWidth = 4;
-            ctx.strokeRect(0, 0, 512, 512);
-            ctx.strokeRect(256, 256, 512, 512);
-            const tex = new THREE.CanvasTexture(canvas);
-            tex.wrapS = THREE.RepeatWrapping;
-            tex.wrapT = THREE.RepeatWrapping;
-            tex.repeat.set(15, 30);
-            return tex;
-        }
-
-        function buildExterior() {
-            const geo = new THREE.CylinderGeometry(90, 90, 60, 32, 1, true);
-            const mat = new THREE.MeshBasicMaterial({ color: 0x050508, side: THREE.BackSide });
-            const bg = new THREE.Mesh(geo, mat);
-            bg.position.set(0, 5, 20);
-            scene.add(bg);
-            
-            window.exteriorMaterial = mat; 
-
-            new THREE.TextureLoader().load('exterior.jpg', (tex) => {
-                tex.encoding = THREE.sRGBEncoding;
-                mat.map = tex;
-                mat.color.setHex(0xffffff);
-                mat.needsUpdate = true;
-            });
-        }
-
-        function createWall(x, z, width, depth, height) {
-            const mat = new THREE.MeshStandardMaterial({ color: 0x111118, roughness: 0.85, metalness: 0.1 });
-            const wall = new THREE.Mesh(new THREE.BoxGeometry(width, height, depth), mat);
-            wall.position.set(x, height/2, z);
-            scene.add(wall);
-            addCollider(x, z, width, depth);
-        }
-
-        function createWindow(x, z, width, depth, height) {
-            const glassMat = new THREE.MeshStandardMaterial({
-                color: 0x88ccff,
-                metalness: 0.1,
-                roughness: 0.1,
-                transparent: true,
-                opacity: 0.25
-            });
-            const windowMesh = new THREE.Mesh(new THREE.BoxGeometry(width, height - 2, depth), glassMat);
-            windowMesh.position.set(x, height/2, z);
-            scene.add(windowMesh);
-            
-            const frameMat = new THREE.MeshStandardMaterial({ color: 0x050505 });
-            const frameTop = new THREE.Mesh(new THREE.BoxGeometry(width + 0.1, 1, depth), frameMat);
-            frameTop.position.set(x, height - 0.5, z);
-            scene.add(frameTop);
-            
-            const frameBot = new THREE.Mesh(new THREE.BoxGeometry(width + 0.1, 1, depth), frameMat);
-            frameBot.position.set(x, 0.5, z);
-            scene.add(frameBot);
-            
-            addCollider(x, z, width, depth);
-        }
-
-        function buildMuseumArchitecture() {
-            const floorMat = new THREE.MeshStandardMaterial({ 
-                map: createFloorTexture(), 
-                roughness: 1.0, 
-                metalness: 0.0 
-            });
-            const floor = new THREE.Mesh(new THREE.PlaneGeometry(120, 220), floorMat);
-            floor.rotation.x = -Math.PI / 2;
-            floor.position.z = 20;
-            scene.add(floor);
-
-            const ceil = new THREE.Mesh(new THREE.PlaneGeometry(120, 220), new THREE.MeshStandardMaterial({ color: 0x040406 }));
-            ceil.position.set(0, 8, 20);
-            ceil.rotation.x = Math.PI / 2;
-            scene.add(ceil);
-
-            const h = 8; const t = 1.5;
-
-            createWall(-15.5, -50, t, 35, h);
-            createWall(15.5, -50, t, 35, h);
-            
-            createWindow(-15.5, -30, t, 5, h);
-            createWindow(15.5, -30, t, 5, h);
-
-            createWall(-15.5, -10, t, 35, h);
-            createWall(15.5, -10, t, 35, h);
-
-            createWindow(-15.5, 10, t, 5, h);
-            createWindow(15.5, 10, t, 5, h);
-
-            createWall(-15.5, 30, t, 35, h);
-            createWall(15.5, 30, t, 35, h);
-
-            createWindow(-15.5, 50, t, 5, h);
-            createWindow(15.5, 50, t, 5, h);
-
-            createWall(-15.5, 76.25, t, 47.5, h);
-            createWall(15.5, 76.25, t, 47.5, h);
-
-            createWall(0, -66, 32, t, h);
-            createWall(-10.5, -32, 10, t, h); createWall(10.5, -32, 10, t, h);
-            createWall(-10.5, 8, 10, t, h); createWall(10.5, 8, 10, t, h);
-            createWall(-10.5, 48, 10, t, h); createWall(10.5, 48, 10, t, h);
-            createWall(0, 96, 32, t, h);
-        }
-
-        function createPlaqueCanvas(title) {
-            const canvas = document.createElement('canvas');
-            canvas.width = 512; canvas.height = 128;
-            const ctx = canvas.getContext('2d');
-
-            ctx.fillStyle = '#0a0a0e'; ctx.fillRect(0, 0, 512, 128);
-            ctx.strokeStyle = '#ca8a04'; ctx.lineWidth = 6;
-            ctx.strokeRect(10, 10, 492, 108);
-
-            ctx.fillStyle = '#facc15'; ctx.font = 'bold 26px Cinzel';
-            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-            ctx.fillText(title.toUpperCase(), 256, 64);
-            return canvas;
-        }
-
-        function createPlaceholderTexture(id) {
-            const canvas = document.createElement('canvas');
-            canvas.width = 600; canvas.height = 400;
-            const ctx = canvas.getContext('2d');
-            ctx.fillStyle = '#111115'; ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.strokeStyle = '#333333'; ctx.lineWidth = 4; ctx.strokeRect(10, 10, canvas.width - 20, canvas.height - 20);
-            ctx.fillStyle = '#666666'; ctx.font = 'bold 120px Inter'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-            ctx.fillText(id + ".jpg", canvas.width / 2, canvas.height / 2);
-            return new THREE.CanvasTexture(canvas);
-        }
-
-        function resizeExhibit(canvasMesh, frame, goldBorder, plaqueGroup, tex, originalHeight) {
-            const aspect = tex.image.width / tex.image.height;
-            let finalHeight = originalHeight;
-            let finalWidth = originalHeight * aspect;
-            
-            if (finalWidth > 8.5) {
-                finalWidth = 8.5;
-                finalHeight = 8.5 / aspect;
-            }
-
-            canvasMesh.geometry.dispose();
-            canvasMesh.geometry = new THREE.PlaneGeometry(finalWidth, finalHeight);
-            
-            frame.geometry.dispose();
-            frame.geometry = new THREE.BoxGeometry(finalWidth + 0.4, finalHeight + 0.4, 0.15);
-            
-            goldBorder.geometry.dispose();
-            goldBorder.geometry = new THREE.BoxGeometry(finalWidth + 0.2, finalHeight + 0.2, 0.18);
-            
-            plaqueGroup.position.set(0, -(finalHeight / 2) - 0.5, 0.1);
-        }
-
-        function buildExhibits() {
-            const textureLoader = new THREE.TextureLoader();
-
-            EXHIBITS_DATA.forEach((ex) => {
-                const group = new THREE.Group();
-                group.position.set(ex.pos.x, ex.pos.y, ex.pos.z);
-                group.rotation.y = ex.rot;
-
-                const frameMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.4 });
-                const frame = new THREE.Mesh(new THREE.BoxGeometry(6.4, 4.4, 0.15), frameMat);
-                group.add(frame);
-
-                const goldBorder = new THREE.Mesh(
-                    new THREE.BoxGeometry(6.2, 4.2, 0.18),
-                    new THREE.MeshStandardMaterial({ color: 0xca8a04, metalness: 0.8, roughness: 0.2 })
-                );
-                group.add(goldBorder);
-
-                const placeholderTex = createPlaceholderTexture(ex.id);
-                const paintMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.5, map: placeholderTex });
-                const canvasMesh = new THREE.Mesh(new THREE.PlaneGeometry(6, 4), paintMat);
-                canvasMesh.position.z = 0.1;
-                group.add(canvasMesh);
-
-                const spot = new THREE.SpotLight(0xfff8e7, 3, 12, Math.PI/4, 0.5);
-                spot.position.set(0, 2.5, 3.5);
-                spot.target = canvasMesh;
-                group.add(spot);
-
-                const plaqueGroup = new THREE.Group();
-                plaqueGroup.position.set(0, -2.5, 0.1); 
-                
-                const plaqueCanvas = createPlaqueCanvas(ex.title);
-                const plaqueTex = new THREE.CanvasTexture(plaqueCanvas);
-                const plaqueMesh = new THREE.Mesh(
-                    new THREE.PlaneGeometry(2.5, 0.63),
-                    new THREE.MeshBasicMaterial({ map: plaqueTex })
-                );
-                plaqueGroup.add(plaqueMesh);
-                group.add(plaqueGroup);
-
-                const imgPath = `${ex.id}.jpg`;
-                
-                textureLoader.load(imgPath, (tex) => {
-                    tex.encoding = THREE.sRGBEncoding;
-                    paintMat.map = tex;
-                    paintMat.needsUpdate = true;
-                    canvasMesh.userData.imgLoaded = true;
-                    canvasMesh.userData.imgSrc = imgPath;
-                    
-                    resizeExhibit(canvasMesh, frame, goldBorder, plaqueGroup, tex, 4);
-                }, undefined, () => {
-                    canvasMesh.userData.imgLoaded = false;
-                });
-
-                canvasMesh.userData = { type: 'exhibit', data: ex, imgSrc: imgPath };
-                interactableObjects.push(canvasMesh);
-                scene.add(group);
-            });
-        }
-
-        function buildTheater() {
-            videoElement = document.getElementById('theater-video');
-            videoTexture = new THREE.VideoTexture(videoElement);
-            videoTexture.encoding = THREE.sRGBEncoding;
-
-            const screenW = 22; const screenH = 12.3;
-            const screenFrame = new THREE.Mesh(new THREE.BoxGeometry(screenW + 1, screenH + 1, 0.5), new THREE.MeshStandardMaterial({ color: 0x050505, roughness: 0.9 }));
-            screenFrame.position.set(0, 5, 94.8); scene.add(screenFrame);
-
-            const screenMat = new THREE.MeshBasicMaterial({ color: 0x111116 });
-            const screenMesh = new THREE.Mesh(new THREE.PlaneGeometry(screenW, screenH), screenMat);
-            screenMesh.position.set(0, 5, 94.5); screenMesh.rotation.y = Math.PI;
-            scene.add(screenMesh);
-            window.theaterScreenMat = screenMat;
-
-            const kioskGroup = new THREE.Group();
-            kioskGroup.position.set(0, 0, 80);
-            const kioskBase = new THREE.Mesh(new THREE.BoxGeometry(2, 2.2, 0.8), new THREE.MeshStandardMaterial({ color: 0x1a1a24, metalness: 0.6, roughness: 0.3 }));
-            kioskBase.position.y = 1.1; kioskGroup.add(kioskBase);
-            const kioskScreen = new THREE.Mesh(new THREE.PlaneGeometry(1.6, 1.0), new THREE.MeshBasicMaterial({ color: 0xfacc15 }));
-            kioskScreen.position.set(0, 1.4, -0.41); kioskScreen.rotation.y = Math.PI;
-            kioskGroup.add(kioskScreen);
-            kioskScreen.userData = { type: 'cinema_kiosk' };
-            interactableObjects.push(kioskScreen); scene.add(kioskGroup);
-
-            const chairMat = new THREE.MeshStandardMaterial({ color: 0x551111, roughness: 0.7 });
-            const chairX = [-6, -2, 2, 6]; const chairZ = [70, 75];
-            chairZ.forEach(z => { chairX.forEach(x => {
-                const chair = new THREE.Group(); chair.position.set(x, 0, z);
-                const seat = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.6, 1.6), chairMat); seat.position.y = 0.8; chair.add(seat);
-                const back = new THREE.Mesh(new THREE.BoxGeometry(1.6, 1.8, 0.4), chairMat); back.position.set(0, 1.8, -0.6); chair.add(back);
-                scene.add(chair); addCollider(x, z, 1.8, 1.8);
-            });});
-        }
-
-        // Função moderna usando File System Access API para ler a pasta local nativamente
-        async function setupNativeFolderAccess() {
-            if (!window.showDirectoryPicker) {
-                alert("Seu navegador não suporta a função direta de leitura de pastas locais. Utilize o botão padrão 'Arquivos'.");
-                return;
-            }
-
-            try {
-                const dirHandle = await window.showDirectoryPicker();
-                let loadedCount = 0;
-
-                for await (const entry of dirHandle.values()) {
-                    if (entry.kind === 'file') {
-                        const file = await entry.getFile();
-                        const url = URL.createObjectURL(file);
-                        const name = file.name.toLowerCase();
-
-                        if (name === 'exterior.jpg' && file.type.startsWith('image/')) {
-                            new THREE.TextureLoader().load(url, (tex) => {
-                                tex.encoding = THREE.sRGBEncoding;
-                                window.exteriorMaterial.map = tex;
-                                window.exteriorMaterial.color.setHex(0xffffff);
-                                window.exteriorMaterial.needsUpdate = true;
-                            });
-                            loadedCount++;
-                            continue;
-                        }
-
-                        const match = name.match(/(\d+)/);
-                        if (match && file.type.startsWith('image/')) {
-                            const id = parseInt(match[0]);
-                            const targetObj = interactableObjects.find(o => o.userData.type === 'exhibit' && o.userData.data.id === id);
-                            if (targetObj) {
-                                new THREE.TextureLoader().load(url, (tex) => {
-                                    tex.encoding = THREE.sRGBEncoding;
-                                    targetObj.material.map = tex;
-                                    targetObj.material.color.setHex(0xffffff);
-                                    targetObj.material.needsUpdate = true;
-                                    targetObj.userData.imgSrc = url;
-
-                                    const group = targetObj.parent;
-                                    const frame = group.children[0];
-                                    const goldBorder = group.children[1];
-                                    const plaqueGroup = group.children[4];
-                                    resizeExhibit(targetObj, frame, goldBorder, plaqueGroup, tex, 4);
-                                });
-                                loadedCount++;
-                            }
-                        }
-
-                        if (file.type.startsWith('video/')) {
-                            AVAILABLE_VIDEOS.unshift({ id: file.name, title: `Pasta Local: ${file.name}`, src: url });
-                            loadedCount++;
-                        }
-                    }
-                }
-                alert(`Sucesso! ${loadedCount} arquivos foram carregados diretamente da sua pasta local.`);
-            } catch (err) {
-                if (err.name !== 'AbortError') {
-                    console.warn(err);
-                }
-            }
-        }
-
-        function setupFolderUpload() {
-            const folderInput = document.getElementById('folder-upload');
-            
-            // Botão de Seleção Nativa de Pasta
-            document.getElementById('native-folder-btn').addEventListener('click', setupNativeFolderAccess);
-
-            // Botão Tradicional de Arquivos
-            document.getElementById('folder-btn').addEventListener('click', () => folderInput.click());
-
-            folderInput.addEventListener('change', (e) => {
-                const files = e.target.files;
-                if (!files.length) return;
-
-                for (let file of files) {
-                    const url = URL.createObjectURL(file);
-                    const name = file.name.toLowerCase();
-
-                    if (name === 'exterior.jpg' && file.type.startsWith('image/')) {
-                        new THREE.TextureLoader().load(url, (tex) => {
-                            tex.encoding = THREE.sRGBEncoding;
-                            window.exteriorMaterial.map = tex;
-                            window.exteriorMaterial.color.setHex(0xffffff);
-                            window.exteriorMaterial.needsUpdate = true;
-                        });
-                        continue;
-                    }
-
-                    const match = name.match(/(\d+)/);
-                    if (match && file.type.startsWith('image/')) {
-                        const id = parseInt(match[0]);
-                        const targetObj = interactableObjects.find(o => o.userData.type === 'exhibit' && o.userData.data.id === id);
-                        if (targetObj) {
-                            new THREE.TextureLoader().load(url, (tex) => {
-                                tex.encoding = THREE.sRGBEncoding;
-                                targetObj.material.map = tex;
-                                targetObj.material.color.setHex(0xffffff);
-                                targetObj.material.needsUpdate = true;
-                                targetObj.userData.imgSrc = url;
-
-                                const group = targetObj.parent;
-                                const frame = group.children[0];
-                                const goldBorder = group.children[1];
-                                const plaqueGroup = group.children[4];
-                                resizeExhibit(targetObj, frame, goldBorder, plaqueGroup, tex, 4);
-                            });
-                        }
-                    }
-
-                    if (file.type.startsWith('video/')) {
-                        AVAILABLE_VIDEOS.unshift({ id: file.name, title: `Vídeo Carregado: ${file.name}`, src: url });
-                    }
-                }
-                alert("Arquivos locais e formato dos quadros atualizados!");
-            });
-        }
-
-        function setupInputAndEvents() {
-            const container = document.getElementById('webgl-container');
-            document.addEventListener('click', initAudio, { once: true });
-            container.addEventListener('click', () => { if (!isPointerLocked && !activeModal && !isSeated && !isAnimatingToChair) container.requestPointerLock(); });
-            document.addEventListener('pointerlockchange', () => isPointerLocked = (document.pointerLockElement === container) );
-
-            window.addEventListener('keydown', (e) => {
-                if (keys.hasOwnProperty(e.code)) keys[e.code] = true;
-                if (e.code === 'KeyE' && !activeModal && !isAnimatingToChair) {
-                    if (isSeated) standUp();
-                    else if (hoveredObject) {
-                        if (hoveredObject.type === 'exhibit') openExhibitModal(hoveredObject.data, hoveredObject.imgSrc);
-                        else if (hoveredObject.type === 'cinema_kiosk') openVideoSelector();
-                    }
-                }
-                if (e.code === 'Escape') { if (activeModal) closeModals(); if (isSeated) standUp(); }
-            });
-            window.addEventListener('keyup', (e) => { if (keys.hasOwnProperty(e.code)) keys[e.code] = false; });
-
-            document.addEventListener('mousemove', (e) => {
-                if (!isPointerLocked || isAnimatingToChair) return;
-                player.rotation.y -= e.movementX * 0.002;
-                player.rotation.x -= e.movementY * 0.002;
-                player.rotation.x = Math.max(-Math.PI / 2.2, Math.min(Math.PI / 2.2, player.rotation.x));
-            });
-
-            document.getElementById('minimap-canvas').addEventListener('click', (e) => {
-                e.stopPropagation(); if (activeModal || isSeated || isAnimatingToChair) return;
-                const rect = e.target.getBoundingClientRect();
-                const roomIdx = Math.floor(((e.clientY - rect.top) / rect.height) * 4);
-                let targetRoom = ROOMS_DATA[roomIdx];
-                if (targetRoom) { player.position.set(0, 1.7, (targetRoom.zStart + targetRoom.zEnd) / 2); player.rotation.set(0, 0, 0); if(!isPointerLocked) container.requestPointerLock(); }
-            });
-
-            document.getElementById('start-tour-btn').addEventListener('click', () => { document.getElementById('welcome-modal').classList.add('opacity-0', 'pointer-events-none'); container.requestPointerLock(); initAudio(); });
-            document.getElementById('close-modal-btn').addEventListener('click', closeModals);
-            document.getElementById('cancel-video-btn').addEventListener('click', closeModals);
-            document.getElementById('help-btn').addEventListener('click', () => { document.getElementById('welcome-modal').classList.remove('opacity-0', 'pointer-events-none'); if (document.pointerLockElement) document.exitPointerLock(); });
-
-            document.getElementById('play-external-btn').addEventListener('click', () => {
-                let url = document.getElementById('external-video-url').value.trim();
-                if (!url) return;
-
-                const driveRegex = /(?:drive\.google\.com\/file\/d\/|drive\.google\.com\/open\?id=)([\w-]+)/;
-                const match = url.match(driveRegex);
-                
-                if (match && match[1]) {
-                    url = `https://drive.google.com/uc?export=download&id=${match[1]}`;
-                }
-
-                startCinemaSequence(url);
-                document.getElementById('external-video-url').value = '';
-            });
-        }
-
-        document.getElementById('audio-guide-btn').addEventListener('click', () => {
-            const icon = document.querySelector('#audio-guide-btn i');
-            const text = document.getElementById('audio-guide-text');
-            if (speechSynth.speaking) { speechSynth.cancel(); icon.className = 'fa-solid fa-volume-high'; text.textContent = "Ouvir"; } 
-            else {
-                let msg = new SpeechSynthesisUtterance(document.getElementById('modal-description').textContent);
-                msg.lang = 'pt-BR'; msg.onend = () => { icon.className = 'fa-solid fa-volume-high'; text.textContent = "Ouvir"; };
-                speechSynth.speak(msg); icon.className = 'fa-solid fa-volume-xmark'; text.textContent = "Parar";
-            }
-        });
-
-        function openExhibitModal(data, imgSrc) {
-            activeModal = true; if (document.pointerLockElement) document.exitPointerLock();
-            document.getElementById('modal-title').textContent = data.title;
-            document.getElementById('modal-room-tag').textContent = data.roomTag;
-            document.getElementById('modal-description').textContent = data.description;
-            document.querySelector('#audio-guide-btn i').className = 'fa-solid fa-volume-high'; document.getElementById('audio-guide-text').textContent = "Ouvir";
-            const imgEl = document.getElementById('modal-artwork-img');
-            imgEl.src = imgSrc || createPlaceholderTexture(data.id).image.toDataURL();
-            document.getElementById('exhibit-modal').classList.remove('opacity-0', 'pointer-events-none');
-        }
-
-        function openVideoSelector() {
-            activeModal = true; if (document.pointerLockElement) document.exitPointerLock();
-            const container = document.getElementById('video-list-container'); container.innerHTML = '';
-            AVAILABLE_VIDEOS.forEach(v => {
-                const btn = document.createElement('button');
-                btn.className = "w-full p-3 rounded-xl bg-gray-900 hover:bg-gold-500/20 hover:border-gold-400 border border-gray-800 text-left font-semibold text-sm flex justify-between items-center transition-all group";
-                btn.innerHTML = `<span>${v.title}</span> <i class="fa-solid fa-play text-gold-400 group-hover:translate-x-1 transition-transform"></i>`;
-                btn.onclick = () => startCinemaSequence(v.src); container.appendChild(btn);
-            });
-            document.getElementById('video-selector-modal').classList.remove('opacity-0', 'pointer-events-none');
-        }
-
-        function closeModals() {
-            activeModal = false; speechSynth.cancel(); 
-            document.getElementById('exhibit-modal').classList.add('opacity-0', 'pointer-events-none');
-            document.getElementById('video-selector-modal').classList.add('opacity-0', 'pointer-events-none');
-            if (!isSeated && !isAnimatingToChair) document.getElementById('webgl-container').requestPointerLock();
-        }
-
-        function startCinemaSequence(videoSrc) {
-            selectedVideoSrc = videoSrc; closeModals(); isAnimatingToChair = true;
-            const startPos = player.position.clone(); const startRotY = player.rotation.y;
-            let progress = 0; const duration = 120; 
-            function animateWalk() {
-                progress++; const t = progress / duration;
-                player.position.lerpVectors(startPos, targetChairPos, t);
-                player.rotation.y = THREE.MathUtils.lerp(startRotY, Math.PI, t);
-                player.rotation.x = THREE.MathUtils.lerp(player.rotation.x, 0, t);
-                camera.position.copy(player.position); camera.rotation.copy(player.rotation);
-                if (progress < duration) requestAnimationFrame(animateWalk);
-                else {
-                    isAnimatingToChair = false; isSeated = true; cinemaLights.forEach(l => l.intensity = 0.1); 
-                    videoElement.src = selectedVideoSrc; videoElement.load();
-                    videoElement.play().then(() => {
-                        window.theaterScreenMat.map = videoTexture; window.theaterScreenMat.color.setHex(0xffffff); window.theaterScreenMat.needsUpdate = true;
-                    }).catch(err => console.warn(err));
-                }
-            }
-            animateWalk();
-        }
-
-        function standUp() { isSeated = false; videoElement.pause(); cinemaLights.forEach(l => l.intensity = baseLightIntensity); player.position.z -= 2; document.getElementById('webgl-container').requestPointerLock(); }
-
-        function updateMovement() {
-            if (activeModal || isSeated || isAnimatingToChair || !isPointerLocked) return;
-            let moveX = 0, moveZ = 0;
-            if (keys.KeyW) moveZ -= 1; if (keys.KeyS) moveZ += 1; if (keys.KeyA) moveX -= 1; if (keys.KeyD) moveX += 1;
-            if (moveX !== 0 || moveZ !== 0) {
-                playFootstep();
-                const forward = new THREE.Vector3(0, 0, -1).applyAxisAngle(new THREE.Vector3(0, 1, 0), player.rotation.y);
-                const side = new THREE.Vector3(1, 0, 0).applyAxisAngle(new THREE.Vector3(0, 1, 0), player.rotation.y);
-                forward.y = 0; side.y = 0; forward.normalize(); side.normalize();
-                const moveVec = new THREE.Vector3(); moveVec.addScaledVector(forward, -moveZ * player.speed); moveVec.addScaledVector(side, moveX * player.speed);
-                let nextX = player.position.clone(); nextX.x += moveVec.x; let nextZ = player.position.clone(); nextZ.z += moveVec.z;
-                if (!checkCollision(nextX)) player.position.x = nextX.x; if (!checkCollision(nextZ)) player.position.z = nextZ.z;
-            }
-            camera.position.copy(player.position); camera.rotation.copy(player.rotation); updateHUD();
-        }
-
-        function checkRaycast() {
-            if (activeModal || isSeated || isAnimatingToChair) return;
-            const raycaster = new THREE.Raycaster(); raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
-            const intersects = raycaster.intersectObjects(interactableObjects);
-            const prompt = document.getElementById('interaction-prompt'), crosshair = document.getElementById('crosshair'), promptText = document.getElementById('prompt-text');
-            if (intersects.length > 0 && intersects[0].distance < 7) {
-                const hit = intersects[0].object.userData; hoveredObject = hit; prompt.style.opacity = '1';
-                if (hit.type === 'exhibit') { promptText.textContent = `Examinar Quadro "${hit.data.title}"`; crosshair.className = 'active'; }
-                else if (hit.type === 'cinema_kiosk') { promptText.textContent = "Escolher Vídeo no Cinema"; crosshair.className = 'cinema'; }
-            } else { hoveredObject = null; prompt.style.opacity = '0'; crosshair.className = ''; }
-        }
-
-        function updateHUD() {
-            const z = player.position.z; const currentRoom = ROOMS_DATA.find(r => z >= r.zStart && z <= r.zEnd) || ROOMS_DATA[0];
-            document.getElementById('current-room-title').textContent = currentRoom.title.toUpperCase();
-            document.getElementById('current-room-subtitle').textContent = currentRoom.subtitle;
-        }
-
-        function updateMinimap() {
-            const canvas = document.getElementById('minimap-canvas'); if (!canvas) return;
-            const ctx = canvas.getContext('2d'); ctx.clearRect(0, 0, canvas.width, canvas.height);
-            const scale = 0.9, cx = canvas.width / 2, cz = 30;
-            ctx.strokeStyle = '#ca8a04'; ctx.lineWidth = 1.5;
-            ROOMS_DATA.forEach(r => { ctx.strokeRect(cx - 12 * scale, cz + r.zStart * scale, 24 * scale, (r.zEnd - r.zStart) * scale); });
-            ctx.fillStyle = '#facc15'; ctx.beginPath(); ctx.arc(cx + player.position.x * scale, cz + player.position.z * scale, 3.5, 0, Math.PI * 2); ctx.fill();
-        }
-
-        function animate() { requestAnimationFrame(animate); updateMovement(); checkRaycast(); updateMinimap(); renderer.render(scene, camera); }
-        window.addEventListener('resize', () => { camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); });
-        window.onload = init;
-    </script>
+        // Desenhar Alvo (Papel)
+        ctx.fillRect(paperX - 2, centerY - 60, 4, 120);
+    }
+
+    paperPosSlider.addEventListener('input', drawOptics);
+    drawOptics(); // Initial render
+
+    // --- Módulo 2: Biometria Ocular ---
+    function changeVideo(filename) {
+        const video = document.getElementById('eyeVideo');
+        video.src = filename;
+        video.load(); // Força o carregamento do arquivo local
+        video.play().catch(e => console.log("Aguardando interação do usuário para reproduzir.", e));
+    }
+
+    // --- Módulo 3: Engenharia CMOS ---
+    const focusSlider = document.getElementById('focusSlider');
+    const cmosView = document.getElementById('cmos-view');
+    const focusReadout = document.getElementById('focusReadout');
+    
+    function updateCmosFocus() {
+        const val = parseInt(focusSlider.value);
+        const idealFocus = 50;
+        focusReadout.textContent = val + '%';
+        
+        // Desfoque gradual absoluto baseado na distância linear até o foco ideal
+        const blurAmount = Math.abs(val - idealFocus) * 0.2;
+        cmosView.style.filter = `blur(${blurAmount}px)`;
+    }
+
+    focusSlider.addEventListener('input', updateCmosFocus);
+    updateCmosFocus(); // Initial render
+
+</script>
 </body>
 </html>
