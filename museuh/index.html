@@ -55,7 +55,7 @@
 </head>
 <body class="text-gray-100 antialiased">
 
-    <video id="theater-video" playsinline crossorigin="anonymous" style="display:none;" loop></video>
+    <video id="theater-video" playsinline style="display:none;" loop muted></video>
     <input type="file" id="folder-upload" accept="image/*,video/*" multiple class="hidden">
 
     <div id="loading-screen">
@@ -244,7 +244,7 @@
         let isAnimatingToChair = false;
         let isSeated = false;
         
-        let targetChairPos = new THREE.Vector3(0, 1.9, 70);
+        let targetChairPos = new THREE.Vector3(0, 1.9, 68);
         let selectedVideoSrc = "";
         let videoElement;
         
@@ -567,35 +567,335 @@
             videoElement = document.getElementById('theater-video');
             videoTexture = new THREE.VideoTexture(videoElement);
             videoTexture.encoding = THREE.sRGBEncoding;
+            videoTexture.minFilter = THREE.LinearFilter;
+            videoTexture.magFilter = THREE.LinearFilter;
 
+            // === TELA DE CINEMA ===
             const screenW = 22; const screenH = 12.3;
-            const screenFrame = new THREE.Mesh(new THREE.BoxGeometry(screenW + 1, screenH + 1, 0.5), new THREE.MeshStandardMaterial({ color: 0x050505, roughness: 0.9 }));
-            screenFrame.position.set(0, 5, 94.8); scene.add(screenFrame);
 
+            // Moldura externa escura
+            const outerFrame = new THREE.Mesh(
+                new THREE.BoxGeometry(screenW + 2, screenH + 2, 0.6),
+                new THREE.MeshStandardMaterial({ color: 0x0a0a0a, roughness: 0.8 })
+            );
+            outerFrame.position.set(0, 5, 94.7);
+            scene.add(outerFrame);
+
+            // Moldura dourada interna
+            const goldFrame = new THREE.Mesh(
+                new THREE.BoxGeometry(screenW + 1, screenH + 1, 0.7),
+                new THREE.MeshStandardMaterial({ color: 0xca8a04, metalness: 0.9, roughness: 0.15 })
+            );
+            goldFrame.position.set(0, 5, 94.6);
+            scene.add(goldFrame);
+
+            // Tela propriamente dita
             const screenMat = new THREE.MeshBasicMaterial({ color: 0x111116 });
             const screenMesh = new THREE.Mesh(new THREE.PlaneGeometry(screenW, screenH), screenMat);
-            screenMesh.position.set(0, 5, 94.5); screenMesh.rotation.y = Math.PI;
+            screenMesh.position.set(0, 5, 94.5);
+            screenMesh.rotation.y = Math.PI;
             scene.add(screenMesh);
             window.theaterScreenMat = screenMat;
 
-            const kioskGroup = new THREE.Group();
-            kioskGroup.position.set(0, 0, 80);
-            const kioskBase = new THREE.Mesh(new THREE.BoxGeometry(2, 2.2, 0.8), new THREE.MeshStandardMaterial({ color: 0x1a1a24, metalness: 0.6, roughness: 0.3 }));
-            kioskBase.position.y = 1.1; kioskGroup.add(kioskBase);
-            const kioskScreen = new THREE.Mesh(new THREE.PlaneGeometry(1.6, 1.0), new THREE.MeshBasicMaterial({ color: 0xfacc15 }));
-            kioskScreen.position.set(0, 1.4, -0.41); kioskScreen.rotation.y = Math.PI;
-            kioskGroup.add(kioskScreen);
-            kioskScreen.userData = { type: 'cinema_kiosk' };
-            interactableObjects.push(kioskScreen); scene.add(kioskGroup);
+            // === CORTINAS VERMELHAS ===
+            const curtainMat = new THREE.MeshStandardMaterial({
+                color: 0x8b0000,
+                roughness: 0.9,
+                side: THREE.DoubleSide
+            });
 
+            // Cortina esquerda
+            for (let i = 0; i < 5; i++) {
+                const curtain = new THREE.Mesh(
+                    new THREE.PlaneGeometry(2.5, 14),
+                    curtainMat
+                );
+                curtain.position.set(-14.5 + i * 0.3, 5.5, 93.5 - i * 0.2);
+                curtain.rotation.y = Math.PI + (i * 0.08);
+                scene.add(curtain);
+            }
+
+            // Cortina direita
+            for (let i = 0; i < 5; i++) {
+                const curtain = new THREE.Mesh(
+                    new THREE.PlaneGeometry(2.5, 14),
+                    curtainMat
+                );
+                curtain.position.set(14.5 - i * 0.3, 5.5, 93.5 - i * 0.2);
+                curtain.rotation.y = Math.PI - (i * 0.08);
+                scene.add(curtain);
+            }
+
+            // Bando superior da cortina
+            const valance = new THREE.Mesh(
+                new THREE.BoxGeometry(32, 2, 1),
+                new THREE.MeshStandardMaterial({ color: 0x6b0000, roughness: 0.8 })
+            );
+            valance.position.set(0, 12.5, 93.5);
+            scene.add(valance);
+
+            // Franja dourada no bando
+            for (let fx = -15; fx <= 15; fx += 1.5) {
+                const tassel = new THREE.Mesh(
+                    new THREE.CylinderGeometry(0.08, 0.08, 0.8, 8),
+                    new THREE.MeshStandardMaterial({ color: 0xd4af37, metalness: 0.8, roughness: 0.2 })
+                );
+                tassel.position.set(fx, 11.2, 93.8);
+                scene.add(tassel);
+            }
+
+            // === TAPETE VERMELHO ===
+            const carpetMat = new THREE.MeshStandardMaterial({ color: 0x4a0000, roughness: 1 });
+            const carpet = new THREE.Mesh(
+                new THREE.PlaneGeometry(28, 40),
+                carpetMat
+            );
+            carpet.rotation.x = -Math.PI / 2;
+            carpet.position.set(0, 0.02, 75);
+            scene.add(carpet);
+
+            // Padrão dourado no tapete (faixas)
+            const carpetBorderMat = new THREE.MeshStandardMaterial({ color: 0x8b6914, roughness: 0.9 });
+            const carpetBorder1 = new THREE.Mesh(new THREE.PlaneGeometry(28, 0.5), carpetBorderMat);
+            carpetBorder1.rotation.x = -Math.PI / 2;
+            carpetBorder1.position.set(0, 0.03, 56);
+            scene.add(carpetBorder1);
+            const carpetBorder2 = new THREE.Mesh(new THREE.PlaneGeometry(28, 0.5), carpetBorderMat);
+            carpetBorder2.rotation.x = -Math.PI / 2;
+            carpetBorder2.position.set(0, 0.03, 94);
+            scene.add(carpetBorder2);
+
+            // === CADEIRAS DE CINEMA (3 fileiras, 5 poltronas) ===
             const chairMat = new THREE.MeshStandardMaterial({ color: 0x551111, roughness: 0.7 });
-            const chairX = [-6, -2, 2, 6]; const chairZ = [70, 75];
-            chairZ.forEach(z => { chairX.forEach(x => {
-                const chair = new THREE.Group(); chair.position.set(x, 0, z);
-                const seat = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.6, 1.6), chairMat); seat.position.y = 0.8; chair.add(seat);
-                const back = new THREE.Mesh(new THREE.BoxGeometry(1.6, 1.8, 0.4), chairMat); back.position.set(0, 1.8, -0.6); chair.add(back);
-                scene.add(chair); addCollider(x, z, 1.8, 1.8);
-            });});
+            const chairArmMat = new THREE.MeshStandardMaterial({ color: 0x1a0a0a, roughness: 0.5 });
+            const chairX = [-7.5, -3.75, 0, 3.75, 7.5];
+            const chairZ = [62, 68, 74];
+
+            chairZ.forEach((z, zIdx) => {
+                chairX.forEach((x, xIdx) => {
+                    const chair = new THREE.Group();
+                    chair.position.set(x, 0, z);
+
+                    // Assento
+                    const seat = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.5, 1.6), chairMat);
+                    seat.position.y = 0.8;
+                    chair.add(seat);
+
+                    // Encosto
+                    const back = new THREE.Mesh(new THREE.BoxGeometry(1.6, 2, 0.35), chairMat);
+                    back.position.set(0, 1.9, -0.6);
+                    chair.add(back);
+
+                    // Encosto superior
+                    const backTop = new THREE.Mesh(new THREE.BoxGeometry(1.7, 0.4, 0.4), chairMat);
+                    backTop.position.set(0, 3, -0.6);
+                    chair.add(backTop);
+
+                    // Braços
+                    const armL = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.8, 1.4), chairArmMat);
+                    armL.position.set(-0.85, 1.2, -0.1);
+                    chair.add(armL);
+                    const armR = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.8, 1.4), chairArmMat);
+                    armR.position.set(0.85, 1.2, -0.1);
+                    chair.add(armR);
+
+                    // Número da poltrona na primeira fileira
+                    if (zIdx === 0) {
+                        const numCanvas = document.createElement('canvas');
+                        numCanvas.width = 64; numCanvas.height = 32;
+                        const nctx = numCanvas.getContext('2d');
+                        nctx.fillStyle = '#0a0a0a'; nctx.fillRect(0, 0, 64, 32);
+                        nctx.fillStyle = '#d4af37'; nctx.font = 'bold 18px Inter';
+                        nctx.textAlign = 'center'; nctx.textBaseline = 'middle';
+                        nctx.fillText(String(xIdx + 1), 32, 16);
+                        const numTex = new THREE.CanvasTexture(numCanvas);
+                        const numPlate = new THREE.Mesh(
+                            new THREE.PlaneGeometry(0.3, 0.15),
+                            new THREE.MeshBasicMaterial({ map: numTex })
+                        );
+                        numPlate.position.set(0, 0.55, 0.75);
+                        chair.add(numPlate);
+                    }
+
+                    scene.add(chair);
+                    addCollider(x, z, 1.8, 1.8);
+                });
+            });
+
+            // === CORREDOR CENTRAL ===
+            const aisleMat = new THREE.MeshStandardMaterial({ color: 0x2a0000, roughness: 0.95 });
+            const aisle = new THREE.Mesh(
+                new THREE.PlaneGeometry(1.5, 40),
+                aisleMat
+            );
+            aisle.rotation.x = -Math.PI / 2;
+            aisle.position.set(0, 0.025, 75);
+            scene.add(aisle);
+
+            // Luzes de chão do corredor
+            for (let lz = 58; lz <= 92; lz += 4) {
+                [-0.8, 0.8].forEach(lx => {
+                    const floorLight = new THREE.PointLight(0xffaa00, 0.3, 3);
+                    floorLight.position.set(lx, 0.1, lz);
+                    scene.add(floorLight);
+
+                    const floorLightCover = new THREE.Mesh(
+                        new THREE.CylinderGeometry(0.15, 0.15, 0.1, 16),
+                        new THREE.MeshStandardMaterial({ color: 0x333333, metalness: 0.8, roughness: 0.3 })
+                    );
+                    floorLightCover.position.set(lx, 0.05, lz);
+                    scene.add(floorLightCover);
+                });
+            }
+
+            // === QUIOSQUE DE INTERAÇÃO ===
+            const kioskGroup = new THREE.Group();
+            kioskGroup.position.set(0, 0, 55);
+
+            const kioskBase = new THREE.Mesh(
+                new THREE.BoxGeometry(2.5, 2.5, 1),
+                new THREE.MeshStandardMaterial({ color: 0x1a1a24, metalness: 0.6, roughness: 0.3 })
+            );
+            kioskBase.position.y = 1.25;
+            kioskGroup.add(kioskBase);
+
+            // Detalhe dourado na base
+            const kioskGold = new THREE.Mesh(
+                new THREE.BoxGeometry(2.6, 0.1, 1.1),
+                new THREE.MeshStandardMaterial({ color: 0xca8a04, metalness: 0.9, roughness: 0.15 })
+            );
+            kioskGold.position.y = 0.05;
+            kioskGroup.add(kioskGold);
+
+            const kioskScreen = new THREE.Mesh(
+                new THREE.PlaneGeometry(2, 1.25),
+                new THREE.MeshBasicMaterial({ color: 0xfacc15 })
+            );
+            kioskScreen.position.set(0, 1.6, -0.51);
+            kioskScreen.rotation.y = Math.PI;
+            kioskGroup.add(kioskScreen);
+
+            // Moldura da tela do quiosque
+            const kioskScreenFrame = new THREE.Mesh(
+                new THREE.BoxGeometry(2.2, 1.45, 0.1),
+                new THREE.MeshStandardMaterial({ color: 0x0a0a0a, metalness: 0.5, roughness: 0.4 })
+            );
+            kioskScreenFrame.position.set(0, 1.6, -0.45);
+            kioskScreenFrame.rotation.y = Math.PI;
+            kioskGroup.add(kioskScreenFrame);
+
+            // Texto no quiosque
+            const kioskIconCanvas = document.createElement('canvas');
+            kioskIconCanvas.width = 256; kioskIconCanvas.height = 160;
+            const kctx = kioskIconCanvas.getContext('2d');
+            kctx.fillStyle = '#0a0a0a'; kctx.fillRect(0, 0, 256, 160);
+            kctx.fillStyle = '#facc15'; kctx.font = 'bold 28px Cinzel';
+            kctx.textAlign = 'center'; kctx.textBaseline = 'middle';
+            kctx.fillText('CINEMA', 128, 55);
+            kctx.font = 'bold 16px Inter';
+            kctx.fillStyle = '#ca8a04';
+            kctx.fillText('SELECIONE O VIDEO', 128, 90);
+            kctx.font = '12px Inter';
+            kctx.fillStyle = '#888';
+            kctx.fillText('Pressione E', 128, 125);
+            const kioskIconTex = new THREE.CanvasTexture(kioskIconCanvas);
+            kioskScreen.material.map = kioskIconTex;
+            kioskScreen.material.color.setHex(0xffffff);
+            kioskScreen.material.needsUpdate = true;
+
+            kioskScreen.userData = { type: 'cinema_kiosk' };
+            interactableObjects.push(kioskScreen);
+            scene.add(kioskGroup);
+
+            // === COLUNAS DECORATIVAS NAS PAREDES ===
+            const columnMat = new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.7 });
+            const columnGoldMat = new THREE.MeshStandardMaterial({ color: 0xca8a04, metalness: 0.8, roughness: 0.2 });
+
+            for (let colZ = 58; colZ <= 90; colZ += 8) {
+                [-14.5, 14.5].forEach(colX => {
+                    const column = new THREE.Mesh(
+                        new THREE.CylinderGeometry(0.4, 0.5, 7, 16),
+                        columnMat
+                    );
+                    column.position.set(colX, 3.5, colZ);
+                    scene.add(column);
+
+                    // Base da coluna
+                    const colBase = new THREE.Mesh(
+                        new THREE.BoxGeometry(1.2, 0.3, 1.2),
+                        columnGoldMat
+                    );
+                    colBase.position.set(colX, 0.15, colZ);
+                    scene.add(colBase);
+
+                    // Topo da coluna
+                    const colTop = new THREE.Mesh(
+                        new THREE.BoxGeometry(1.2, 0.3, 1.2),
+                        columnGoldMat
+                    );
+                    colTop.position.set(colX, 7.15, colZ);
+                    scene.add(colTop);
+
+                    // Arandela de parede
+                    const wallSconce = new THREE.PointLight(0xffcc66, 0.4, 8);
+                    wallSconce.position.set(colX + (colX > 0 ? -0.8 : 0.8), 4.5, colZ);
+                    scene.add(wallSconce);
+                    cinemaLights.push(wallSconce);
+
+                    const sconceMesh = new THREE.Mesh(
+                        new THREE.SphereGeometry(0.2, 16, 16),
+                        new THREE.MeshBasicMaterial({ color: 0xffcc66 })
+                    );
+                    sconceMesh.position.copy(wallSconce.position);
+                    scene.add(sconceMesh);
+                });
+            }
+
+            // === PLAQUA DE ENTRADA DA SALA ===
+            const entranceSignCanvas = document.createElement('canvas');
+            entranceSignCanvas.width = 512; entranceSignCanvas.height = 128;
+            const esctx = entranceSignCanvas.getContext('2d');
+            esctx.fillStyle = '#0a0a0e'; esctx.fillRect(0, 0, 512, 128);
+            esctx.strokeStyle = '#ca8a04'; esctx.lineWidth = 4;
+            esctx.strokeRect(8, 8, 496, 112);
+            esctx.fillStyle = '#facc15'; esctx.font = 'bold 28px Cinzel';
+            esctx.textAlign = 'center'; esctx.textBaseline = 'middle';
+            esctx.fillText('AUDITORIO CINEMA', 256, 50);
+            esctx.fillStyle = '#ca8a04'; esctx.font = '14px Inter';
+            esctx.fillText('SALA 4 - PROJECOES DA HISTORIA', 256, 90);
+            const entranceSignTex = new THREE.CanvasTexture(entranceSignCanvas);
+            const entranceSign = new THREE.Mesh(
+                new THREE.PlaneGeometry(5, 1.25),
+                new THREE.MeshBasicMaterial({ map: entranceSignTex })
+            );
+            entranceSign.position.set(0, 5.5, 50.1);
+            entranceSign.rotation.y = Math.PI;
+            scene.add(entranceSign);
+
+            // === PROJETOR NO TETO ===
+            const projector = new THREE.Mesh(
+                new THREE.BoxGeometry(2, 0.8, 3),
+                new THREE.MeshStandardMaterial({ color: 0x111111, metalness: 0.5, roughness: 0.5 })
+            );
+            projector.position.set(0, 7.2, 75);
+            scene.add(projector);
+
+            // Lente do projetor
+            const projectorLens = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.4, 0.5, 0.3, 24),
+                new THREE.MeshStandardMaterial({ color: 0x333333, metalness: 0.9, roughness: 0.1 })
+            );
+            projectorLens.rotation.x = Math.PI / 2;
+            projectorLens.position.set(0, 7.2, 76.6);
+            scene.add(projectorLens);
+
+            // Luz do projetor (ativa quando vídeo toca)
+            const projLight = new THREE.SpotLight(0xffffff, 0, 30, Math.PI / 6, 0.5);
+            projLight.position.set(0, 7, 76);
+            projLight.target.position.set(0, 5, 94.5);
+            scene.add(projLight);
+            scene.add(projLight.target);
+            window.projectorLight = projLight;
         }
 
         // Função moderna usando File System Access API para ler a pasta local nativamente
@@ -802,28 +1102,81 @@
         }
 
         function startCinemaSequence(videoSrc) {
-            selectedVideoSrc = videoSrc; closeModals(); isAnimatingToChair = true;
-            const startPos = player.position.clone(); const startRotY = player.rotation.y;
-            let progress = 0; const duration = 120; 
+            selectedVideoSrc = videoSrc;
+            closeModals();
+            isAnimatingToChair = true;
+
+            // Aplica a textura do vídeo na tela imediatamente
+            window.theaterScreenMat.map = videoTexture;
+            window.theaterScreenMat.color.setHex(0xffffff);
+            window.theaterScreenMat.needsUpdate = true;
+
+            // Configura o vídeo
+            videoElement.src = selectedVideoSrc;
+            videoElement.load();
+
+            const startPos = player.position.clone();
+            const startRotY = player.rotation.y;
+            let progress = 0;
+            const duration = 120;
+
             function animateWalk() {
-                progress++; const t = progress / duration;
+                progress++;
+                const t = progress / duration;
                 player.position.lerpVectors(startPos, targetChairPos, t);
                 player.rotation.y = THREE.MathUtils.lerp(startRotY, Math.PI, t);
                 player.rotation.x = THREE.MathUtils.lerp(player.rotation.x, 0, t);
-                camera.position.copy(player.position); camera.rotation.copy(player.rotation);
-                if (progress < duration) requestAnimationFrame(animateWalk);
-                else {
-                    isAnimatingToChair = false; isSeated = true; cinemaLights.forEach(l => l.intensity = 0.1); 
-                    videoElement.src = selectedVideoSrc; videoElement.load();
-                    videoElement.play().then(() => {
-                        window.theaterScreenMat.map = videoTexture; window.theaterScreenMat.color.setHex(0xffffff); window.theaterScreenMat.needsUpdate = true;
-                    }).catch(err => console.warn(err));
+                camera.position.copy(player.position);
+                camera.rotation.copy(player.rotation);
+
+                if (progress < duration) {
+                    requestAnimationFrame(animateWalk);
+                } else {
+                    isAnimatingToChair = false;
+                    isSeated = true;
+
+                    // Apaga as luzes da sala
+                    cinemaLights.forEach(l => l.intensity = 0.05);
+
+                    // Liga o projetor
+                    if (window.projectorLight) {
+                        window.projectorLight.intensity = 2;
+                    }
+
+                    // Tenta reproduzir o vídeo
+                    const playPromise = videoElement.play();
+
+                    if (playPromise !== undefined) {
+                        playPromise.then(() => {
+                            console.log('Vídeo reproduzindo:', videoSrc);
+                            // Tenta habilitar o som após o usuário já ter interagido
+                            setTimeout(() => {
+                                videoElement.muted = false;
+                                videoElement.volume = 0.8;
+                            }, 100);
+                        }).catch(err => {
+                            console.warn('Autoplay bloqueado, vídeo carregado mas precisa de interação:', err);
+                            // Mantém mudo e tenta novamente
+                            videoElement.muted = true;
+                            videoElement.play().catch(e => console.warn('Falha na reprodução:', e));
+                        });
+                    }
                 }
             }
             animateWalk();
         }
 
-        function standUp() { isSeated = false; videoElement.pause(); cinemaLights.forEach(l => l.intensity = baseLightIntensity); player.position.z -= 2; document.getElementById('webgl-container').requestPointerLock(); }
+        function standUp() {
+            isSeated = false;
+            videoElement.pause();
+            cinemaLights.forEach(l => l.intensity = baseLightIntensity);
+            // Desliga o projetor
+            if (window.projectorLight) {
+                window.projectorLight.intensity = 0;
+            }
+            player.position.z -= 2;
+            document.getElementById('webgl-container').requestPointerLock();
+        }
 
         function updateMovement() {
             if (activeModal || isSeated || isAnimatingToChair || !isPointerLocked) return;
