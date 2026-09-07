@@ -156,6 +156,31 @@
         </div>
     </div>
 
+    <!-- Barra de controles do video -->
+    <div id="video-controls" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-30 opacity-0 pointer-events-none transition-all duration-300">
+        <div class="glass-panel px-4 py-3 rounded-2xl border border-gold-500/40 flex items-center gap-2 shadow-2xl bg-black/90">
+            <button id="video-rewind" class="w-11 h-11 rounded-xl bg-gray-800 hover:bg-gold-500/20 text-gold-300 hover:text-gold-400 flex items-center justify-center transition-all border border-gray-700 hover:border-gold-500/50" title="Voltar 10 segundos">
+                <i class="fa-solid fa-backward-fast text-base"></i>
+            </button>
+            <button id="video-playpause" class="w-14 h-11 rounded-xl bg-gold-500 hover:bg-gold-400 text-black flex items-center justify-center transition-all font-bold shadow-lg shadow-gold-500/20" title="Pausar / Reproduzir">
+                <i class="fa-solid fa-pause text-lg"></i>
+            </button>
+            <button id="video-forward" class="w-11 h-11 rounded-xl bg-gray-800 hover:bg-gold-500/20 text-gold-300 hover:text-gold-400 flex items-center justify-center transition-all border border-gray-700 hover:border-gold-500/50" title="Avancar 10 segundos">
+                <i class="fa-solid fa-forward-fast text-base"></i>
+            </button>
+            <div class="w-px h-8 bg-gray-700 mx-1"></div>
+            <div class="flex items-center gap-2 px-2">
+                <span id="video-time-current" class="text-gold-300 text-xs font-mono min-w-[40px] text-center">0:00</span>
+                <span class="text-gray-600 text-xs">/</span>
+                <span id="video-time-total" class="text-gray-400 text-xs font-mono min-w-[40px] text-center">0:00</span>
+            </div>
+            <div class="w-px h-8 bg-gray-700 mx-1"></div>
+            <button id="video-close" class="w-11 h-11 rounded-xl bg-red-900/50 hover:bg-red-600 text-red-300 hover:text-white flex items-center justify-center transition-all border border-red-800/50 hover:border-red-500" title="Fechar video">
+                <i class="fa-solid fa-xmark text-base"></i>
+            </button>
+        </div>
+    </div>
+
     <!-- Feedback de status do video -->
     <div id="video-feedback" class="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-30 opacity-0 pointer-events-none transition-all duration-300">
         <div class="glass-panel px-6 py-4 rounded-2xl border-2 border-gold-400 flex items-center gap-4 shadow-2xl bg-black/90 max-w-md">
@@ -225,23 +250,7 @@
             { id: 12, roomId: 3, title: "Arte Rupestre Global", roomTag: "Sala 3 • Expansão pelo Mundo", description: "Pinturas em cavernas espalhadas pela Europa, Ásia e Américas demonstram a universalidade do pensamento simbólico humano.", pos: {x: 14.8, y: 3.5, z: 38}, rot: -Math.PI/2 }
         ];
 
-        let AVAILABLE_VIDEOS = [
-            { 
-                id: "video1", 
-                title: "1. A Origem e Evolução da Humanidade", 
-                src: "video1.mp4" 
-            },
-            { 
-                id: "video2", 
-                title: "2. O Grande Êxodo Africano", 
-                src: "video2.mp4" 
-            },
-            { 
-                id: "video3", 
-                title: "3. A Vida na Era Glacial", 
-                src: "video3.mp4" 
-            }
-        ];
+        let AVAILABLE_VIDEOS = [];
 
         let scene, camera, renderer, videoTexture;
         let interactableObjects = [];
@@ -274,6 +283,16 @@
             const ls = document.getElementById('loading-screen');
             const loadingText = document.getElementById('loading-text');
             const loadingProgress = document.getElementById('loading-progress');
+
+            // Se nao houver videos pre-definidos, entra direto no museu
+            if (AVAILABLE_VIDEOS.length === 0) {
+                ls.style.opacity = '0';
+                setTimeout(() => {
+                    ls.style.display = 'none';
+                    container.requestPointerLock();
+                }, 300);
+                return;
+            }
 
             // Mostra a tela de carregamento
             ls.style.display = 'flex';
@@ -1077,7 +1096,6 @@
                 }
                 if (e.code === 'Escape') { 
                     if (activeModal) closeModals(); 
-                    if (isVideoPlaying) stopVideo(); 
                 }
             });
             window.addEventListener('keyup', (e) => { if (keys.hasOwnProperty(e.code)) keys[e.code] = false; });
@@ -1134,12 +1152,48 @@
         function openVideoSelector() {
             activeModal = true; if (document.pointerLockElement) document.exitPointerLock();
             const container = document.getElementById('video-list-container'); container.innerHTML = '';
-            AVAILABLE_VIDEOS.forEach(v => {
-                const btn = document.createElement('button');
-                btn.className = "w-full p-3 rounded-xl bg-gray-900 hover:bg-gold-500/20 hover:border-gold-400 border border-gray-800 text-left font-semibold text-sm flex justify-between items-center transition-all group";
-                btn.innerHTML = `<span>${v.title}</span> <i class="fa-solid fa-play text-gold-400 group-hover:translate-x-1 transition-transform"></i>`;
-                btn.onclick = () => startCinemaSequence(v.src); container.appendChild(btn);
-            });
+            
+            if (AVAILABLE_VIDEOS.length === 0) {
+                // Nenhum video carregado - mostra instrucoes
+                const emptyMsg = document.createElement('div');
+                emptyMsg.className = "text-center py-6 px-4";
+                emptyMsg.innerHTML = `
+                    <div class="w-16 h-16 rounded-full bg-gold-500/10 flex items-center justify-center mx-auto mb-4 border border-gold-500/30">
+                        <i class="fa-solid fa-folder-open text-gold-400 text-2xl"></i>
+                    </div>
+                    <h3 class="text-gold-300 font-bold mb-2">Nenhum video carregado</h3>
+                    <p class="text-gray-400 text-xs mb-4">Use um dos botões no canto superior direito para carregar seus videos locais:</p>
+                    <div class="space-y-2 text-left">
+                        <div class="flex items-center gap-3 p-3 rounded-xl bg-gray-900/80 border border-gray-800">
+                            <div class="w-8 h-8 rounded-lg bg-gold-500/20 flex items-center justify-center flex-shrink-0">
+                                <i class="fa-solid fa-folder-tree text-gold-400 text-sm"></i>
+                            </div>
+                            <div>
+                                <p class="text-gold-300 text-xs font-bold">Reproduzir por Pasta</p>
+                                <p class="text-gray-500 text-[10px]">Selecione uma pasta inteira com seus videos</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3 p-3 rounded-xl bg-gray-900/80 border border-gray-800">
+                            <div class="w-8 h-8 rounded-lg bg-gray-700/50 flex items-center justify-center flex-shrink-0">
+                                <i class="fa-solid fa-folder-open text-gray-400 text-sm"></i>
+                            </div>
+                            <div>
+                                <p class="text-gray-300 text-xs font-bold">Arquivos</p>
+                                <p class="text-gray-500 text-[10px]">Selecione arquivos de video avulsos</p>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-gray-500 text-[10px] mt-4">Formatos suportados: MP4, WebM, OGG</p>
+                `;
+                container.appendChild(emptyMsg);
+            } else {
+                AVAILABLE_VIDEOS.forEach(v => {
+                    const btn = document.createElement('button');
+                    btn.className = "w-full p-3 rounded-xl bg-gray-900 hover:bg-gold-500/20 hover:border-gold-400 border border-gray-800 text-left font-semibold text-sm flex justify-between items-center transition-all group";
+                    btn.innerHTML = `<span>${v.title}</span> <i class="fa-solid fa-play text-gold-400 group-hover:translate-x-1 transition-transform"></i>`;
+                    btn.onclick = () => startCinemaSequence(v.src); container.appendChild(btn);
+                });
+            }
             document.getElementById('video-selector-modal').classList.remove('opacity-0', 'pointer-events-none');
         }
 
@@ -1179,6 +1233,86 @@
             feedback.style.pointerEvents = 'none';
         }
 
+        // Funcao auxiliar para formatar tempo em MM:SS
+        function formatTime(seconds) {
+            if (isNaN(seconds) || !isFinite(seconds)) return '0:00';
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return mins + ':' + (secs < 10 ? '0' : '') + secs;
+        }
+
+        // Atualiza o display de tempo na barra de controles
+        function updateVideoTimeDisplay() {
+            if (!videoElement) return;
+            document.getElementById('video-time-current').textContent = formatTime(videoElement.currentTime);
+            document.getElementById('video-time-total').textContent = formatTime(videoElement.duration);
+        }
+
+        // Mostra a barra de controles do video
+        function showVideoControls() {
+            const controls = document.getElementById('video-controls');
+            controls.style.opacity = '1';
+            controls.style.pointerEvents = 'auto';
+            updateVideoTimeDisplay();
+        }
+
+        // Esconde a barra de controles do video
+        function hideVideoControls() {
+            const controls = document.getElementById('video-controls');
+            controls.style.opacity = '0';
+            controls.style.pointerEvents = 'none';
+        }
+
+        // Atualiza o icone do botao play/pause
+        function updatePlayPauseButton() {
+            const btn = document.getElementById('video-playpause');
+            const icon = btn.querySelector('i');
+            if (videoElement.paused) {
+                icon.className = 'fa-solid fa-play text-lg';
+            } else {
+                icon.className = 'fa-solid fa-pause text-lg';
+            }
+        }
+
+        // Configura os eventos dos controles de video
+        function setupVideoControls() {
+            // Play/Pause
+            document.getElementById('video-playpause').addEventListener('click', () => {
+                if (videoElement.paused) {
+                    videoElement.play().catch(err => console.warn(err));
+                } else {
+                    videoElement.pause();
+                }
+                updatePlayPauseButton();
+            });
+
+            // Voltar 10 segundos
+            document.getElementById('video-rewind').addEventListener('click', () => {
+                videoElement.currentTime = Math.max(0, videoElement.currentTime - 10);
+                updateVideoTimeDisplay();
+            });
+
+            // Avancar 10 segundos
+            document.getElementById('video-forward').addEventListener('click', () => {
+                videoElement.currentTime = Math.min(videoElement.duration, videoElement.currentTime + 10);
+                updateVideoTimeDisplay();
+            });
+
+            // Fechar video
+            document.getElementById('video-close').addEventListener('click', () => {
+                stopVideo();
+            });
+
+            // Eventos do elemento de video
+            videoElement.addEventListener('play', updatePlayPauseButton);
+            videoElement.addEventListener('pause', updatePlayPauseButton);
+            videoElement.addEventListener('timeupdate', updateVideoTimeDisplay);
+            videoElement.addEventListener('loadedmetadata', updateVideoTimeDisplay);
+        }
+
+        let videoControlsSetup = false;
+        let videoTimeUpdateInterval = null;
+
         function startCinemaSequence(videoSrc) {
             selectedVideoSrc = videoSrc;
             closeModals();
@@ -1186,6 +1320,12 @@
 
             // Sai do pointer lock para o usuario poder ver o video tranquilamente
             if (document.pointerLockElement) document.exitPointerLock();
+
+            // Configura controles na primeira vez
+            if (!videoControlsSetup) {
+                setupVideoControls();
+                videoControlsSetup = true;
+            }
 
             // Mostra feedback de carregamento
             showVideoFeedback('Carregando video...', 'Preparando a projecao na tela grande', 'fa-film');
@@ -1216,22 +1356,25 @@
                 playPromise.then(() => {
                     // Sucesso com som!
                     console.log('Video reproduzindo com som:', videoSrc);
-                    showVideoFeedback('Reproduzindo!', 'Aproveite a sessao. Pressione ESC para parar.', 'fa-volume-high');
-                    setTimeout(hideVideoFeedback, 3000);
+                    hideVideoFeedback();
+                    showVideoControls();
                 }).catch(err => {
                     console.warn('Autoplay com som bloqueado, tentando mudo:', err);
                     // Navegador bloqueou som automatico - tenta mudo
                     videoElement.muted = true;
                     videoElement.play().then(() => {
-                        // Funcionou mudo - oferece botao para ativar som
+                        // Funcionou mudo - mostra feedback
+                        hideVideoFeedback();
+                        showVideoControls();
                         showVideoFeedback(
                             'Som desativado',
-                            'Clique no botao para ativar o som do video',
+                            'Clique no botao abaixo para ativar o som',
                             'fa-volume-xmark',
                             true,
                             () => {
                                 videoElement.muted = false;
                                 videoElement.volume = 1.0;
+                                videoElement.play().catch(e => console.warn(e));
                                 showVideoFeedback('Som ativado!', 'Aproveite a sessao', 'fa-volume-high');
                                 setTimeout(hideVideoFeedback, 2000);
                             }
@@ -1241,11 +1384,12 @@
                         console.error('Falha na reproducao:', e);
                         showVideoFeedback(
                             'Video nao encontrado',
-                            'Coloque o arquivo ' + videoSrc + ' na mesma pasta do HTML',
+                            'Use os botoes "Reproduzir por Pasta" ou "Arquivos" para carregar videos',
                             'fa-triangle-exclamation'
                         );
-                        // Nao para o video imediatamente - deixa a tela escura como sala de cinema
-                        // O usuario pode pressionar ESC para voltar
+                        isVideoPlaying = false;
+                        cinemaLights.forEach(l => l.intensity = baseLightIntensity);
+                        if (window.projectorLight) window.projectorLight.intensity = 0;
                     });
                 });
             }
@@ -1261,6 +1405,7 @@
                 window.projectorLight.intensity = 0;
             }
             hideVideoFeedback();
+            hideVideoControls();
             document.getElementById('webgl-container').requestPointerLock();
         }
 
