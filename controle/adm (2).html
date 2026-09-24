@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Escola Pro • Central de Controle</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary:#2563eb;
+            --primary-2:#1d4ed8;
+            --success:#16a34a;
+            --warning:#f59e0b;
+            --danger:#dc2626;
+            --sidebar:#0b1220;
+            --sidebar-2:#111c30;
+            --bg:#f4f7fb;
+            --surface:#ffffff;
+            --surface-2:#f8fafc;
+            --text:#172033;
+            --muted:#64748b;
+            --border:#e5eaf1;
+            --shadow:0 14px 35px rgba(15,23,42,.08);
+            --sidebar-w:272px;
+        }
+        * { box-sizing:border-box; }
+        html { background:var(--bg); }
+        body { background:var(--bg); font-family:'Inter',system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; margin:0; color:var(--text); }
+        button,input,select,textarea { font:inherit; }
+
+        /* Login */
+        #login-screen {
+            position:fixed; inset:0; z-index:3000; display:flex; align-items:center; justify-content:center; padding:24px;
+            background:radial-gradient(circle at 20% 15%, rgba(37,99,235,.28), transparent 32%), linear-gradient(145deg,#07101f,#0f1d35 62%,#102b4d);
+        }
+        .login-card { width:min(440px,100%); border:1px solid rgba(255,255,255,.12); border-radius:28px; background:rgba(255,255,255,.97); padding:34px; box-shadow:0 28px 90px rgba(0,0,0,.35); }
+        .login-icon { width:58px; height:58px; border-radius:18px; display:grid; place-items:center; margin:0 auto 16px; color:#fff; font-size:24px; background:linear-gradient(135deg,var(--primary),#38bdf8); box-shadow:0 12px 28px rgba(37,99,235,.28); }
+        .login-card h4 { font-weight:800; letter-spacing:-.02em; }
+        .login-card .form-control { min-height:50px; border-radius:14px; }
+        .login-card .btn { min-height:48px; border-radius:14px; font-weight:700; }
+
+        /* Layout */
+        .sidebar { width:var(--sidebar-w); height:100vh; background:linear-gradient(180deg,var(--sidebar),var(--sidebar-2)); color:#fff; position:fixed; inset:0 auto 0 0; z-index:1000; display:flex; flex-direction:column; box-shadow:12px 0 35px rgba(15,23,42,.08); }
+        .sidebar-header { padding:26px 22px 20px; border-bottom:1px solid rgba(255,255,255,.08); }
+        .brand-row { display:flex; align-items:center; gap:12px; }
+        .brand-icon { width:42px; height:42px; border-radius:14px; display:grid; place-items:center; background:linear-gradient(135deg,#2563eb,#38bdf8); box-shadow:0 8px 20px rgba(37,99,235,.28); }
+        .brand-title { font-weight:800; font-size:15px; letter-spacing:.02em; }
+        .brand-sub { font-size:11px; color:#94a3b8; margin-top:2px; }
+        .sidebar-nav { padding:16px 12px; overflow:auto; flex:1; }
+        .menu-section { padding:12px 13px 7px; color:#64748b; font-size:10px; text-transform:uppercase; letter-spacing:.13em; font-weight:800; }
+        .menu-item { padding:12px 14px; border-radius:13px; cursor:pointer; color:#94a3b8; display:flex; align-items:center; gap:12px; transition:.18s ease; margin:3px 0; font-size:14px; font-weight:600; }
+        .menu-item i { width:20px; text-align:center; }
+        .menu-item:hover { background:rgba(255,255,255,.07); color:#fff; transform:translateX(2px); }
+        .menu-item.active { background:linear-gradient(135deg,rgba(37,99,235,.95),rgba(14,165,233,.85)); color:#fff; box-shadow:0 10px 24px rgba(37,99,235,.22); }
+        .menu-item.logout { color:#fca5a5; margin-top:8px; }
+        .sidebar-footer { padding:14px 16px 18px; border-top:1px solid rgba(255,255,255,.08); }
+        .firebase-mini { background:rgba(255,255,255,.055); border:1px solid rgba(255,255,255,.07); border-radius:14px; padding:11px 12px; font-size:11px; color:#cbd5e1; display:flex; align-items:center; justify-content:space-between; gap:8px; }
+        .connection-dot { width:8px; height:8px; border-radius:50%; background:#94a3b8; box-shadow:0 0 0 4px rgba(148,163,184,.08); }
+        .connection-dot.online { background:#22c55e; box-shadow:0 0 0 4px rgba(34,197,94,.12); }
+        .connection-dot.offline { background:#ef4444; box-shadow:0 0 0 4px rgba(239,68,68,.12); }
+
+        .main { margin-left:var(--sidebar-w); padding:28px 34px 46px; min-height:100vh; transition:.25s; }
+        .topbar { min-height:66px; display:flex; align-items:center; justify-content:space-between; gap:20px; margin-bottom:24px; }
+        .page-kicker { color:var(--primary); font-weight:800; font-size:11px; letter-spacing:.12em; text-transform:uppercase; }
+        .page-title { font-size:26px; font-weight:800; margin:3px 0 0; letter-spacing:-.025em; }
+        .top-status { display:flex; align-items:center; gap:8px; padding:9px 13px; border:1px solid var(--border); border-radius:999px; background:#fff; color:var(--muted); font-size:12px; box-shadow:0 6px 18px rgba(15,23,42,.04); }
+
+        .tab-content { animation:tabIn .22s ease both; }
+        @keyframes tabIn { from{opacity:0;transform:translateY(5px)} to{opacity:1;transform:none} }
+        .section-title { font-weight:800; color:#263247; margin-bottom:20px; border-left:4px solid var(--primary); padding-left:13px; letter-spacing:-.02em; }
+        .section-subtitle { color:var(--muted); margin-top:-11px; margin-bottom:22px; font-size:13px; }
+        .card { border:1px solid var(--border); border-radius:18px; box-shadow:0 8px 24px rgba(15,23,42,.055); background:var(--surface); }
+        .card-soft { background:linear-gradient(180deg,#fff,#fbfdff); }
+        .metric-card { height:100%; padding:20px; position:relative; overflow:hidden; }
+        .metric-card::after { content:''; position:absolute; width:90px; height:90px; border-radius:50%; background:rgba(37,99,235,.055); right:-24px; bottom:-28px; }
+        .metric-icon { width:42px; height:42px; display:grid; place-items:center; border-radius:13px; background:#eff6ff; color:var(--primary); font-size:17px; margin-bottom:15px; }
+        .metric-label { color:var(--muted); font-size:12px; font-weight:700; }
+        .metric-value { font-size:28px; font-weight:800; letter-spacing:-.03em; margin-top:4px; }
+        .metric-foot { font-size:11px; color:#94a3b8; margin-top:5px; }
+        .dashboard-note { border-radius:18px; border:1px solid #dbeafe; background:linear-gradient(135deg,#eff6ff,#f8fbff); padding:18px 20px; }
+
+        .btn { border-radius:11px; font-weight:700; }
+        .btn-primary { background:var(--primary); border-color:var(--primary); }
+        .btn-primary:hover { background:var(--primary-2); border-color:var(--primary-2); }
+        .form-control,.form-select { border-color:#dce3ec; border-radius:11px; min-height:43px; box-shadow:none!important; }
+        .form-control:focus,.form-select:focus { border-color:#93c5fd; box-shadow:0 0 0 .2rem rgba(37,99,235,.09)!important; }
+        .table { --bs-table-bg:transparent; }
+        .table thead th { color:#64748b; font-size:11px; text-transform:uppercase; letter-spacing:.045em; font-weight:800; border-bottom-color:#e9edf3; }
+        .table tbody td { vertical-align:middle; border-color:#f0f2f6; }
+        .table-responsive { border-radius:14px; }
+        .edit-btn { color:var(--primary); cursor:pointer; margin-left:8px; font-size:.8rem; }
+        .logo-preview { width:44px; height:44px; border-radius:13px; object-fit:cover; background:#eef2f7; border:1px solid var(--border); }
+        .status-dot { width:8px; height:8px; border-radius:50%; display:inline-block; margin-right:5px; }
+        .monitor-table { font-size:12px; }
+        .monitor-table td { padding:6px 8px; }
+        .code-pill { display:inline-flex; align-items:center; gap:7px; padding:6px 10px; border-radius:999px; font-size:11px; font-weight:800; }
+        .code-pill.ok { color:#166534; background:#dcfce7; }
+        .code-pill.missing { color:#92400e; background:#fef3c7; }
+        .reader-form-card { padding:22px; }
+        .reader-code-box { position:relative; }
+        .reader-code-box .form-control { padding-right:46px; font-size:20px; letter-spacing:.12em; font-weight:800; text-transform:uppercase; }
+        .reader-code-toggle { position:absolute; right:8px; top:50%; transform:translateY(-50%); width:34px; height:34px; border:0; border-radius:9px; background:#eef2ff; color:#4338ca; }
+        .reader-help { border:1px dashed #bfdbfe; background:#f8fbff; color:#52627b; border-radius:14px; padding:13px 14px; font-size:12px; line-height:1.5; }
+        .reader-path { font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; background:#0f172a; color:#cbd5e1; border-radius:10px; padding:9px 11px; font-size:11px; overflow:auto; }
+        .badge-soft-blue { color:#1d4ed8; background:#dbeafe; }
+        .badge-soft-green { color:#166534; background:#dcfce7; }
+        .badge-soft-red { color:#991b1b; background:#fee2e2; }
+        .empty-state { padding:42px 18px; text-align:center; color:#94a3b8; }
+        .empty-state i { font-size:30px; margin-bottom:10px; }
+
+        .modal-content { border:0; border-radius:20px; box-shadow:0 24px 70px rgba(15,23,42,.18); }
+        .modal-header,.modal-footer { border-color:#eef2f6; }
+        .modal-header h5 { font-weight:800; }
+
+        #area-impressao .cartao-qr { break-inside:avoid; border:1px solid #ddd; border-radius:8px; padding:10px; text-align:center; }
+        @media print {
+            .no-print,.topbar { display:none!important; }
+            .main { margin-left:0; padding:0; }
+            #area-impressao { display:grid!important; grid-template-columns:repeat(4,1fr); gap:10px; }
+        }
+        @media (max-width: 1000px) {
+            :root { --sidebar-w:226px; }
+            .main { padding:24px 22px 40px; }
+            .menu-item { font-size:13px; }
+        }
+        @media (max-width: 760px) {
+            .sidebar { width:74px; }
+            .sidebar .brand-copy,.sidebar .menu-item span,.sidebar .menu-section,.sidebar-footer { display:none; }
+            .sidebar-header { padding:18px 15px; }
+            .brand-icon { margin:auto; }
+            .menu-item { justify-content:center; padding:13px; }
+            .main { margin-left:74px; padding:20px 16px 36px; }
+            .topbar { align-items:flex-start; }
+            .top-status { display:none; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- LOGIN MASTER -->
+<div id="login-screen">
+    <div class="login-card">
+        <div class="login-icon"><i class="fas fa-shield-halved"></i></div>
+        <div class="text-center mb-4">
+            <h4 class="mb-1">Central Administrativa</h4>
+            <div class="text-muted small">Controle de saídas • acesso master</div>
+        </div>
+        <label class="form-label small fw-bold text-secondary">Senha Master</label>
+        <input type="password" id="master-code" class="form-control mb-3" placeholder="Digite sua senha" onkeydown="if(event.key==='Enter') checkMaster()">
+        <button class="btn btn-primary w-100" onclick="checkMaster()"><i class="fas fa-arrow-right-to-bracket me-2"></i>Entrar no Painel</button>
+        <div id="login-err" class="text-danger small mt-3 text-center" style="display:none;">Acesso negado. Confira a senha.</div>
+    </div>
+</div>
+
+<div id="admin-panel" style="display:none;">
+    <div class="sidebar no-print">
+        <div class="sidebar-header">
+            <div class="brand-row">
+                <div class="brand-icon"><i class="fas fa-school"></i></div>
+                <div class="brand-copy">
+                    <div class="brand-title">ESCOLA PRO</div>
+                    <div class="brand-sub">Central de Controle</div>
+                </div>
+            </div>
+        </div>
+        <div class="sidebar-nav">
+            <div class="menu-section">Visão geral</div>
+            <div class="menu-item active" onclick="switchTab('dashboard', this)"><i class="fas fa-grid-2"></i><span>Dashboard</span></div>
+            <div class="menu-item" onclick="switchTab('monitor', this)"><i class="fas fa-display"></i><span>Monitoramento</span></div>
+            <div class="menu-section">Controle do APK</div>
+            <div class="menu-item" onclick="switchTab('leitor', this)"><i class="fas fa-key"></i><span>Liberação do Leitor</span></div>
+            <div class="menu-item" onclick="switchTab('professores', this)"><i class="fas fa-user-tie"></i><span>Professores</span></div>
+            <div class="menu-item" onclick="switchTab('estrutura', this)"><i class="fas fa-sitemap"></i><span>Estrutura Escolar</span></div>
+            <div class="menu-section">Ferramentas</div>
+            <div class="menu-item" onclick="switchTab('migrar', this)"><i class="fas fa-file-import"></i><span>Migrar Dados</span></div>
+            <div class="menu-item logout" onclick="location.reload()"><i class="fas fa-power-off"></i><span>Sair</span></div>
+        </div>
+        <div class="sidebar-footer">
+            <div class="firebase-mini"><span><span id="sidebar-conn-dot" class="connection-dot"></span> Firebase</span><strong id="sidebar-conn-text">Conectando</strong></div>
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="topbar no-print">
+            <div>
+                <div class="page-kicker">Sistema escolar</div>
+                <h1 id="page-title" class="page-title">Dashboard</h1>
+            </div>
+            <div id="top-conn-status" class="top-status"><span class="connection-dot"></span><span>Conectando ao Firebase…</span></div>
+        </div>
+        <!-- DASHBOARD -->
+        <div id="tab-dashboard" class="tab-content">
+            <h3 class="section-title">Visão geral</h3>
+            <p class="section-subtitle">Acompanhe a estrutura cadastrada e o uso do sistema de saídas em tempo real.</p>
+            <div class="row g-3">
+                <div class="col-6 col-xl"><div class="card metric-card"><div class="metric-icon"><i class="fas fa-school"></i></div><div class="metric-label">Escolas</div><div class="metric-value" id="dash-escolas">0</div><div class="metric-foot">unidades cadastradas</div></div></div>
+                <div class="col-6 col-xl"><div class="card metric-card"><div class="metric-icon"><i class="fas fa-layer-group"></i></div><div class="metric-label">Turmas</div><div class="metric-value" id="dash-turmas">0</div><div class="metric-foot">turmas ativas</div></div></div>
+                <div class="col-6 col-xl"><div class="card metric-card"><div class="metric-icon"><i class="fas fa-users"></i></div><div class="metric-label">Alunos</div><div class="metric-value" id="dash-alunos">0</div><div class="metric-foot">alunos cadastrados</div></div></div>
+                <div class="col-6 col-xl"><div class="card metric-card"><div class="metric-icon"><i class="fas fa-person-walking-arrow-right"></i></div><div class="metric-label">Saídas hoje</div><div class="metric-value" id="dash-saidas">0</div><div class="metric-foot">registros acumulados</div></div></div>
+                <div class="col-6 col-xl"><div class="card metric-card"><div class="metric-icon"><i class="fas fa-key"></i></div><div class="metric-label">Leitores liberáveis</div><div class="metric-value" id="dash-leitores">0</div><div class="metric-foot">códigos configurados</div></div></div>
+            </div>
+            <div class="dashboard-note mt-4 d-flex flex-wrap align-items-center justify-content-between gap-3">
+                <div><strong><i class="fas fa-mobile-screen-button me-2 text-primary"></i>Controle do APK</strong><div class="small text-muted mt-1">Cadastre o código usado pelo professor para iniciar câmera, leitor QR e motor de voz.</div></div>
+                <button class="btn btn-primary btn-sm" onclick="switchTab('leitor', document.querySelector(".menu-item[onclick*=\"leitor\"]"))"><i class="fas fa-key me-2"></i>Configurar leitor</button>
+            </div>
+        </div>
+
+        <!-- MONITORAMENTO DETALHADO -->
+        <div id="tab-monitor" class="tab-content" style="display:none;">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="section-title">Monitoramento Detalhado</h3>
+                <div class="input-group input-group-sm" style="width: 250px;">
+                    <span class="input-group-text"><i class="fas fa-search"></i></span>
+                    <input type="text" id="monitor-search" class="form-control" placeholder="Buscar aluno ou turma..." onkeyup="renderMonitor()">
+                </div>
+            </div>
+            <div class="mb-3 d-flex gap-3 small text-muted">
+                <span><span class="status-dot bg-success"></span> Em Sala</span>
+                <span><span class="status-dot bg-primary"></span> 1ª Saída</span>
+                <span><span class="status-dot bg-danger"></span> Limite Atingido</span>
+                <span><span class="status-dot bg-warning"></span> Agendado</span>
+            </div>
+            <div id="monitor-grid" class="row g-3"></div>
+        </div>
+
+
+        <!-- LIBERAÇÃO DO LEITOR / APK -->
+        <div id="tab-leitor" class="tab-content" style="display:none;">
+            <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
+                <div>
+                    <h3 class="section-title mb-2">Liberação do Leitor</h3>
+                    <p class="section-subtitle mb-0">Cadastre o código que o professor digita no APK antes de iniciar câmera, leitor QR e voz.</p>
+                </div>
+                <span class="badge rounded-pill badge-soft-blue px-3 py-2"><i class="fas fa-shield-halved me-1"></i> Controle por turma</span>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-lg-5">
+                    <div class="card reader-form-card h-100">
+                        <div class="d-flex align-items-center gap-3 mb-4">
+                            <div class="metric-icon mb-0"><i class="fas fa-key"></i></div>
+                            <div><div class="fw-bold">Cadastrar código</div><div class="small text-muted">Defina um código diferente para cada turma.</div></div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Escola</label>
+                            <select id="reader-school" class="form-select" onchange="loadReaderTurmas()"><option value="">Selecione a escola...</option></select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Turma</label>
+                            <select id="reader-turma" class="form-select" onchange="loadReaderCode()" disabled><option value="">Selecione a turma...</option></select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Código de liberação</label>
+                            <div class="reader-code-box">
+                                <input id="reader-code" type="password" class="form-control" maxlength="12" autocomplete="new-password" placeholder="Ex.: 582941" oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')">
+                                <button class="reader-code-toggle" type="button" onclick="toggleReaderCode()" title="Mostrar/ocultar código"><i id="reader-code-eye" class="fas fa-eye"></i></button>
+                            </div>
+                            <div class="form-text">Use de 4 a 12 caracteres. Para facilitar no tablet, o botão “Gerar” cria 6 números.</div>
+                        </div>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <button class="btn btn-outline-secondary" onclick="generateReaderCode()"><i class="fas fa-wand-magic-sparkles me-2"></i>Gerar</button>
+                            <button class="btn btn-primary flex-grow-1" onclick="saveReaderCode()"><i class="fas fa-floppy-disk me-2"></i>Salvar código</button>
+                            <button id="reader-remove-btn" class="btn btn-outline-danger" onclick="removeReaderCode()" disabled title="Remover código"><i class="fas fa-trash"></i></button>
+                        </div>
+                        <div class="reader-help mt-4"><i class="fas fa-circle-info me-2 text-primary"></i>O APK deve consultar este código depois que a turma for aberta. Antes da validação, câmera, QR e motor de voz permanecem bloqueados.</div>
+                        <div class="reader-path mt-3">schools/{escola}/turmas/{turma}/config/codigo_leitor</div>
+                    </div>
+                </div>
+                <div class="col-lg-7">
+                    <div class="card p-3 h-100">
+                        <div class="d-flex justify-content-between align-items-center px-2 pt-1 pb-3">
+                            <div><strong>Códigos cadastrados</strong><div class="small text-muted">Situação de todas as turmas.</div></div>
+                            <span id="reader-config-count" class="badge rounded-pill badge-soft-green px-3 py-2">0 configurados</span>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table align-middle mb-0">
+                                <thead><tr><th>Escola</th><th>Turma</th><th>Status</th><th>Atualização</th><th class="text-end">Ações</th></tr></thead>
+                                <tbody id="reader-code-list"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PROFESSORES -->
+        <div id="tab-professores" class="tab-content" style="display:none;">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="section-title">Gestão de Professores</h3>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-sm btn-outline-dark" onclick="openModalPass()">Senhas Master</button>
+                    <button class="btn btn-primary" onclick="openModalProf()"><i class="fas fa-plus me-2"></i>Novo Professor</button>
+                </div>
+            </div>
+            <div class="card p-4">
+                <table class="table align-middle">
+                    <thead><tr><th>E-mail</th><th>Vínculos (Escola > Turmas)</th><th class="text-end">Ações</th></tr></thead>
+                    <tbody id="list-professores"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ESTRUTURA ESCOLAR -->
+        <div id="tab-estrutura" class="tab-content" style="display:none;">
+            <h3 class="section-title">Estrutura Escolar</h3>
+
+            <div id="lvl-escolas">
+                <div class="d-flex justify-content-between mb-3"><h5>Escolas</h5><button class="btn btn-sm btn-primary" onclick="openModalEscola()"><i class="fas fa-plus"></i> Nova Escola</button></div>
+                <div class="row" id="admin-list-escolas"></div>
+            </div>
+
+            <div id="lvl-turmas" style="display:none;">
+                <div class="d-flex align-items-center mb-3">
+                    <button class="btn btn-sm btn-link p-0 me-3" onclick="backToEscolas()"><i class="fas fa-arrow-left"></i></button>
+                    <h5 id="turma-title">Turmas</h5>
+                    <button class="btn btn-sm btn-primary ms-auto" onclick="openModalTurma()"><i class="fas fa-plus"></i> Nova Turma</button>
+                </div>
+                <div class="card p-3"><table class="table align-middle"><thead><tr><th>Turma</th><th>PIN</th><th>Leitor</th><th class="text-end">Ações</th></tr></thead><tbody id="list-turmas"></tbody></table></div>
+            </div>
+
+            <div id="lvl-alunos" style="display:none;">
+                <div class="d-flex align-items-center mb-3">
+                    <button class="btn btn-sm btn-link p-0 me-3" onclick="backToTurmas()"><i class="fas fa-arrow-left"></i></button>
+                    <h5 id="aluno-title">Alunos</h5>
+                    <div class="ms-auto d-flex gap-2">
+                        <button class="btn btn-sm btn-success" onclick="openModalAluno()"><i class="fas fa-plus"></i> Adicionar</button>
+                        <button class="btn btn-sm btn-dark" onclick="imprimirTurma()"><i class="fas fa-print"></i> Imprimir</button>
+                    </div>
+                </div>
+                <div class="card p-3"><table class="table align-middle"><thead><tr><th>Nome</th><th>Saídas</th><th class="text-end">Ações</th></tr></thead><tbody id="list-alunos"></tbody></table></div>
+            </div>
+        </div>
+
+        <!-- MIGRAR -->
+        <div id="tab-migrar" class="tab-content" style="display:none;">
+            <h3 class="section-title">Migrar Dados</h3>
+            <div id="list-legado" class="row"></div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAIS -->
+<div class="modal fade" id="modal-prof" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
+    <div class="modal-header"><h5>Configurar Professor</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body">
+        <input type="hidden" id="prof-uid">
+        <div class="mb-3"><label>Escola</label><select id="prof-sel-esc" class="form-select" onchange="loadTurmasCheckboxes()"></select></div>
+        <div class="mb-3"><label>E-mail</label><input type="email" id="prof-email" class="form-control"></div>
+        <div id="prof-pass-box" class="mb-3"><label>Senha</label><input type="password" id="prof-pass" class="form-control"></div>
+        <div class="mb-3"><label>Turmas Autorizadas</label><div id="prof-turmas-checks" class="p-3 border rounded bg-light" style="max-height: 200px; overflow-y: auto;"></div></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-primary" onclick="saveProfessor()">Salvar</button></div>
+</div></div></div>
+
+<div class="modal fade" id="modal-escola" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
+    <div class="modal-header"><h5>Escola</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body">
+        <input type="hidden" id="esc-id">
+        <input type="text" id="esc-nome" class="form-control mb-3" placeholder="Nome">
+        <input type="text" id="esc-logo" class="form-control" placeholder="URL Logo">
+    </div>
+    <div class="modal-footer"><button class="btn btn-primary" onclick="saveEscola()">Salvar</button></div>
+</div></div></div>
+
+<div class="modal fade" id="modal-turma" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
+    <div class="modal-header"><h5>Turma</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body">
+        <input type="hidden" id="tur-id">
+        <input type="text" id="tur-nome" class="form-control mb-3" placeholder="Nome">
+        <input type="text" id="tur-code" class="form-control" placeholder="PIN">
+    </div>
+    <div class="modal-footer"><button class="btn btn-primary" onclick="saveTurma()">Salvar</button></div>
+</div></div></div>
+
+<div class="modal fade" id="modal-aluno" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
+    <div class="modal-header"><h5>Aluno</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body">
+        <input type="hidden" id="alu-old-nome">
+        <input type="text" id="alu-nome" class="form-control mb-3" placeholder="Nome">
+        <div id="alu-mass-box"><textarea id="alu-massa" class="form-control" rows="5" placeholder="Ou lista de nomes..."></textarea></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-success" onclick="saveAlunos()">Salvar</button></div>
+</div></div></div>
+
+<div class="modal fade" id="modal-config-pass" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
+    <div class="modal-header"><h5>Senhas do sistema</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body">
+        <div class="mb-3"><label>Senha Admin</label><input type="text" id="cfg-pass-admin" class="form-control"></div>
+        <div class="mb-3"><label>Senha Diretor</label><input type="text" id="cfg-pass-dir" class="form-control"></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-primary" onclick="savePasswords()">Atualizar</button></div>
+</div></div></div>
+
+
+<div class="modal fade" id="modal-mig" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
+    <div class="modal-header"><h5>Migrar turma: <span id="mig-name"></span></h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body">
+        <div class="mb-3"><label class="form-label">Escola de destino</label><select id="mig-esc-sel" class="form-select"></select></div>
+        <div class="mb-3"><label class="form-label">E-mail do professor</label><input type="email" id="mig-email" class="form-control" placeholder="professor@escola.com"></div>
+        <div class="mb-3"><label class="form-label">Senha do professor</label><input type="password" id="mig-pass" class="form-control"></div>
+        <div><label class="form-label">Código da turma</label><input type="text" id="mig-code" class="form-control"></div>
+    </div>
+    <div class="modal-footer"><button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-warning" onclick="execMig()"><i class="fas fa-file-import me-2"></i>Migrar</button></div>
+</div></div></div>
+
+<div id="area-impressao" style="display:none;"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyBWB41DNUr-14oi6N3D_8M6KPFqH3yYesU",
+        authDomain: "controle-de-saida-54745.firebaseapp.com",
+        databaseURL: "https://controle-de-saida-54745-default-rtdb.firebaseio.com",
+        projectId: "controle-de-saida-54745",
+        storageBucket: "controle-de-saida-54745.firebasestorage.app",
+        appId: "1:933472401696:web:a84d400cd2905c6201ff45"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const fAuth = firebase.auth();
+
+    // O estado real da conexão será refletido no painel após o login master.
+    db.ref('.info/connected').on('value', snap => {
+        if (document.getElementById('admin-panel')?.style.display !== 'none') setConnectionUI(snap.val() === true);
+    });
+
+    let masterData = { schools: {}, users_map: {}, admin: { config: {} } };
+    let legadoData = { salas: {} };
+    let currEsc = null, currTur = null;
+    let firebaseOnline = false;
+
+    function setConnectionUI(online) {
+        firebaseOnline = !!online;
+        const dot = document.getElementById('sidebar-conn-dot');
+        const txt = document.getElementById('sidebar-conn-text');
+        const top = document.getElementById('top-conn-status');
+        if (dot) dot.className = 'connection-dot ' + (online ? 'online' : 'offline');
+        if (txt) txt.textContent = online ? 'Online' : 'Offline';
+        if (top) top.innerHTML = `<span class="connection-dot ${online ? 'online' : 'offline'}"></span><span>${online ? 'Firebase conectado' : 'Firebase sem conexão'}</span>`;
+    }
+
+    function checkMaster() {
+        const pin = document.getElementById('master-code').value;
+        const err = document.getElementById('login-err');
+        if (err) err.style.display = 'none';
+        db.ref('admin/config/senha_admin').once('value', s => {
+            if(pin === (s.val() || "311201")) {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('admin-panel').style.display = 'block';
+                startSync();
+            } else if (err) {
+                err.style.display = 'block';
+            }
+        }).catch(() => { if(err) { err.textContent='Não foi possível validar a senha. Verifique a conexão.'; err.style.display='block'; } });
+    }
+
+    function startSync() {
+        db.ref('.info/connected').on('value', snap => setConnectionUI(snap.val() === true));
+        db.ref().on('value', snap => {
+            const data = snap.val() || {};
+            masterData.schools = data.schools || {};
+            masterData.users_map = data.users_map || {};
+            masterData.admin = data.admin || { config: {} };
+            renderAll();
+            checkAutomaticReset(); // Verifica a virada do dia
+        });
+        db.ref('salas').on('value', s => { legadoData.salas = s.val() || {}; renderLegado(); });
+    }
+
+    function checkAutomaticReset() {
+        const today = new Date().toLocaleDateString('pt-BR');
+        const lastReset = masterData.admin.config.lastResetDate;
+
+        if (lastReset && lastReset !== today) {
+            console.log("Virada de dia detectada! Executando reset automático...");
+            execGlobalReset(today);
+        } else if (!lastReset) {
+            // Primeira vez configurando o controle de reset
+            db.ref('admin/config/lastResetDate').set(today);
+        }
+    }
+
+    async function execGlobalReset(dateLabel) {
+        try {
+            const updates = {};
+            for (let e in masterData.schools) {
+                const turs = masterData.schools[e].turmas || {};
+                for (let t in turs) {
+                    const alus = turs[t].alunos || {};
+                    for (let a in alus) {
+                        updates[`schools/${e}/turmas/${t}/alunos/${a}/contador`] = 0;
+                        updates[`schools/${e}/turmas/${t}/alunos/${a}/hora1`] = "";
+                        updates[`schools/${e}/turmas/${t}/alunos/${a}/hora2`] = "";
+                        updates[`schools/${e}/turmas/${t}/alunos/${a}/previsao`] = "";
+                        updates[`schools/${e}/turmas/${t}/alunos/${a}/ultimoTimestamp`] = 0;
+                    }
+                }
+            }
+            if (Object.keys(updates).length > 0) {
+                await db.ref().update(updates);
+            }
+            await db.ref('admin/config/lastResetDate').set(dateLabel);
+            alert("Sistema resetado automaticamente para o novo dia!");
+        } catch (e) { console.error("Falha no reset automático", e); }
+    }
+
+    function switchTab(id, el) {
+        document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
+        document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
+        const tab = document.getElementById('tab-'+id);
+        if (tab) tab.style.display = 'block';
+        if(el) el.classList.add('active');
+        const titles = { dashboard:'Dashboard', monitor:'Monitoramento', leitor:'Liberação do Leitor', professores:'Professores', estrutura:'Estrutura Escolar', migrar:'Migrar Dados' };
+        const pageTitle = document.getElementById('page-title');
+        if (pageTitle) pageTitle.textContent = titles[id] || 'Escola Pro';
+        if (id === 'leitor') initReaderTab();
+    }
+
+    function renderAll() {
+        renderDash();
+        renderMonitor();
+        renderProfessores();
+        renderEstruturaEscolas();
+        renderReaderCodes();
+        if(currEsc) renderEstruturaTurmas();
+        if(currTur) renderEstruturaAlunos();
+    }
+
+    function renderDash() {
+        const escCount = Object.keys(masterData.schools).length;
+        const profCount = Object.keys(masterData.users_map || {}).length;
+        let turCount = 0, aluCount = 0, saiCount = 0, readerCount = 0;
+        for(let e in masterData.schools) {
+            const turs = masterData.schools[e].turmas || {};
+            turCount += Object.keys(turs).length;
+            for(let t in turs) {
+                if (String(turs[t].config?.codigo_leitor || '').trim()) readerCount++;
+                const alus = turs[t].alunos || {};
+                for(let a in alus) { aluCount++; saiCount += Number(alus[a].contador || 0); }
+            }
+        }
+        const set = (id, value) => { const el=document.getElementById(id); if(el) el.innerText=value; };
+        set('dash-escolas', escCount);
+        set('dash-turmas', turCount);
+        set('dash-alunos', aluCount);
+        set('dash-saidas', saiCount);
+        set('dash-leitores', readerCount);
+    }
+
+    function renderMonitor() {
+        const grid = document.getElementById('monitor-grid');
+        const query = document.getElementById('monitor-search').value.toLowerCase();
+        let html = '';
+        for(let e in masterData.schools) {
+            const turs = masterData.schools[e].turmas || {};
+            for(let t in turs) {
+                const alus = turs[t].alunos || {};
+                const tNome = t.replace('tur_','');
+                const filteredNames = Object.keys(alus).filter(a => a.toLowerCase().includes(query) || tNome.toLowerCase().includes(query));
+                if(query && filteredNames.length === 0) continue;
+
+                const list = filteredNames.sort().map(a => {
+                    const alu = alus[a];
+                    let dot = 'bg-success';
+                    if(alu.previsao) dot = 'bg-warning';
+                    else if(alu.contador === 1) dot = 'bg-primary';
+                    else if(alu.contador >= 2) dot = 'bg-danger';
+
+                    return `<tr>
+                        <td><span class="status-dot ${dot}"></span> ${a}</td>
+                        <td class="text-center">${alu.hora1 || '--:--'}</td>
+                        <td class="text-center">${alu.hora2 || '--:--'}</td>
+                        <td class="text-end fw-bold">${alu.previsao ? '⏳ '+alu.previsao : alu.contador+'/2'}</td>
+                    </tr>`;
+                }).join('');
+
+                html += `<div class="col-md-6 col-lg-4"><div class="card p-3 h-100 shadow-sm">
+                    <div class="d-flex justify-content-between mb-2 border-bottom pb-2"><strong>${tNome}</strong><small class="text-muted">${masterData.schools[e].nome}</small></div>
+                    <div style="max-height:250px; overflow-y:auto;">
+                        <table class="table table-sm monitor-table mb-0">
+                            <thead><tr class="text-muted x-small"><th>Aluno</th><th>1ª</th><th>2ª</th><th class="text-end">Status</th></tr></thead>
+                            <tbody>${list || '<tr><td colspan="4" class="text-center py-3 text-muted">Nenhum aluno nesta sala.</td></tr>'}</tbody>
+                        </table>
+                    </div>
+                    <div class="mt-auto pt-3 text-center border-top">
+                        <button class="btn btn-sm btn-outline-danger w-100 x-small" onclick="resetTurmaManual('${e}', '${t}')"><i class="fas fa-trash-can me-1"></i> Resetar Turma</button>
+                    </div>
+                </div></div>`;
+            }
+        }
+        grid.innerHTML = html || '<div class="col-12 text-center p-5 text-muted">Nenhum registro encontrado para essa busca.</div>';
+    }
+
+    async function resetTurmaManual(escId, turId) {
+        if (!confirm("Deseja zerar todas as saídas desta turma agora?")) return;
+        try {
+            const alus = masterData.schools[escId]?.turmas[turId]?.alunos || {};
+            const updates = {};
+            for (let a in alus) {
+                updates[`schools/${escId}/turmas/${turId}/alunos/${a}/contador`] = 0;
+                updates[`schools/${escId}/turmas/${turId}/alunos/${a}/hora1`] = "";
+                updates[`schools/${escId}/turmas/${turId}/alunos/${a}/hora2`] = "";
+                updates[`schools/${escId}/turmas/${turId}/alunos/${a}/previsao`] = "";
+                updates[`schools/${escId}/turmas/${turId}/alunos/${a}/ultimoTimestamp`] = 0;
+            }
+            updates[`schools/${escId}/turmas/${turId}/controle/leitorQR`] = null;
+            updates[`schools/${escId}/turmas/${turId}/controle/ultimoTimestampGlobal`] = 0;
+            updates[`schools/${escId}/turmas/${turId}/controle/ultimoAluno`] = '';
+            updates[`schools/${escId}/turmas/${turId}/controle/ultimaSaidaNumero`] = 0;
+            updates[`schools/${escId}/turmas/${turId}/controle/reiniciadoEm`] = firebase.database.ServerValue.TIMESTAMP;
+            if (Object.keys(updates).length > 0) {
+                await db.ref().update(updates);
+                alert("Turma resetada com sucesso!");
+            }
+        } catch (e) { alert("Erro ao resetar: " + e.message); }
+    }
+
+    // LIBERAÇÃO DO LEITOR / APK
+    function initReaderTab() {
+        const school = document.getElementById('reader-school');
+        if (!school) return;
+        const atual = school.value;
+        school.innerHTML = '<option value="">Selecione a escola...</option>' + Object.keys(masterData.schools || {})
+            .sort((a,b) => String(masterData.schools[a]?.nome || a).localeCompare(String(masterData.schools[b]?.nome || b), 'pt-BR'))
+            .map(id => `<option value="${id}">${escapeHtml(masterData.schools[id]?.nome || id)}</option>`).join('');
+        if (atual && masterData.schools[atual]) school.value = atual;
+        loadReaderTurmas(true);
+        renderReaderCodes();
+    }
+
+    function escapeHtml(v) {
+        return String(v ?? '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+    }
+
+    function loadReaderTurmas(preserve = false) {
+        const school = document.getElementById('reader-school');
+        const turma = document.getElementById('reader-turma');
+        const code = document.getElementById('reader-code');
+        const remove = document.getElementById('reader-remove-btn');
+        if (!school || !turma || !code) return;
+        const old = preserve ? turma.value : '';
+        const escId = school.value;
+        if (!escId) {
+            turma.innerHTML = '<option value="">Selecione a turma...</option>';
+            turma.disabled = true;
+            code.value = '';
+            if(remove) remove.disabled = true;
+            return;
+        }
+        const turs = masterData.schools[escId]?.turmas || {};
+        turma.innerHTML = '<option value="">Selecione a turma...</option>' + Object.keys(turs)
+            .sort((a,b) => String(turs[a]?.config?.nome || a).localeCompare(String(turs[b]?.config?.nome || b), 'pt-BR'))
+            .map(id => `<option value="${id}">${escapeHtml(turs[id]?.config?.nome || id.replace('tur_',''))}</option>`).join('');
+        turma.disabled = false;
+        if (old && turs[old]) turma.value = old;
+        loadReaderCode();
+    }
+
+    function loadReaderCode() {
+        const escId = document.getElementById('reader-school')?.value;
+        const turId = document.getElementById('reader-turma')?.value;
+        const input = document.getElementById('reader-code');
+        const remove = document.getElementById('reader-remove-btn');
+        if (!input) return;
+        const current = escId && turId ? String(masterData.schools[escId]?.turmas?.[turId]?.config?.codigo_leitor || '') : '';
+        input.value = current;
+        if (remove) remove.disabled = !current;
+    }
+
+    function toggleReaderCode() {
+        const input = document.getElementById('reader-code');
+        const eye = document.getElementById('reader-code-eye');
+        if (!input) return;
+        input.type = input.type === 'password' ? 'text' : 'password';
+        if (eye) eye.className = input.type === 'password' ? 'fas fa-eye' : 'fas fa-eye-slash';
+    }
+
+    function generateReaderCode() {
+        const input = document.getElementById('reader-code');
+        if (!input) return;
+        if (!document.getElementById('reader-school')?.value || !document.getElementById('reader-turma')?.value) {
+            return alert('Selecione a escola e a turma antes de gerar o código.');
+        }
+        const bytes = new Uint32Array(1);
+        if (window.crypto?.getRandomValues) window.crypto.getRandomValues(bytes); else bytes[0] = Math.floor(Math.random()*1000000);
+        input.value = String(bytes[0] % 1000000).padStart(6,'0');
+        input.type = 'text';
+        const eye = document.getElementById('reader-code-eye'); if(eye) eye.className='fas fa-eye-slash';
+        input.focus(); input.select();
+    }
+
+    async function saveReaderCode() {
+        const escId = document.getElementById('reader-school')?.value;
+        const turId = document.getElementById('reader-turma')?.value;
+        const input = document.getElementById('reader-code');
+        const code = String(input?.value || '').trim().toUpperCase().replace(/[^A-Z0-9]/g,'');
+        if (!escId || !turId) return alert('Selecione a escola e a turma.');
+        if (code.length < 4 || code.length > 12) return alert('O código deve ter entre 4 e 12 caracteres.');
+        try {
+            await db.ref(`schools/${escId}/turmas/${turId}/config`).update({
+                codigo_leitor: code,
+                codigo_leitor_atualizado_em: firebase.database.ServerValue.TIMESTAMP
+            });
+            if (input) input.value = code;
+            alert('Código de liberação salvo com sucesso!');
+        } catch (e) { alert('Erro ao salvar o código: ' + e.message); }
+    }
+
+    async function removeReaderCode(escArg = '', turArg = '') {
+        const escId = escArg || document.getElementById('reader-school')?.value;
+        const turId = turArg || document.getElementById('reader-turma')?.value;
+        if (!escId || !turId) return alert('Selecione a escola e a turma.');
+        if (!confirm('Remover o código de liberação desta turma? O APK não poderá liberar o leitor por código até um novo cadastro.')) return;
+        try {
+            await db.ref(`schools/${escId}/turmas/${turId}/config`).update({ codigo_leitor:null, codigo_leitor_atualizado_em:null });
+            if (!escArg) {
+                const input=document.getElementById('reader-code'); if(input) input.value='';
+                const btn=document.getElementById('reader-remove-btn'); if(btn) btn.disabled=true;
+            }
+        } catch (e) { alert('Erro ao remover o código: ' + e.message); }
+    }
+
+    function editReaderCode(escId, turId) {
+        switchTab('leitor', document.querySelector('.menu-item[onclick*="leitor"]'));
+        const school = document.getElementById('reader-school');
+        if (school) school.value = escId;
+        loadReaderTurmas();
+        const turma = document.getElementById('reader-turma');
+        if (turma) turma.value = turId;
+        loadReaderCode();
+        setTimeout(() => document.getElementById('reader-code')?.focus(), 80);
+    }
+
+    function formatReaderDate(ts) {
+        const n = Number(ts || 0);
+        if (!n) return '—';
+        try { return new Date(n).toLocaleString('pt-BR', {day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}); } catch { return '—'; }
+    }
+
+    function renderReaderCodes() {
+        const tbody = document.getElementById('reader-code-list');
+        if (!tbody) return;
+        let rows = '', configured = 0, total = 0;
+        Object.keys(masterData.schools || {}).sort((a,b)=>String(masterData.schools[a]?.nome||a).localeCompare(String(masterData.schools[b]?.nome||b),'pt-BR')).forEach(escId => {
+            const esc = masterData.schools[escId] || {};
+            const turs = esc.turmas || {};
+            Object.keys(turs).sort((a,b)=>String(turs[a]?.config?.nome||a).localeCompare(String(turs[b]?.config?.nome||b),'pt-BR')).forEach(turId => {
+                total++;
+                const cfg = turs[turId]?.config || {};
+                const has = !!String(cfg.codigo_leitor || '').trim();
+                if (has) configured++;
+                rows += `<tr>
+                    <td><strong>${escapeHtml(esc.nome || escId)}</strong></td>
+                    <td>${escapeHtml(cfg.nome || turId.replace('tur_',''))}</td>
+                    <td>${has ? '<span class="code-pill ok"><i class="fas fa-circle-check"></i> Configurado</span>' : '<span class="code-pill missing"><i class="fas fa-triangle-exclamation"></i> Sem código</span>'}</td>
+                    <td class="small text-muted">${escapeHtml(formatReaderDate(cfg.codigo_leitor_atualizado_em))}</td>
+                    <td class="text-end"><button class="btn btn-sm btn-outline-primary" onclick="editReaderCode('${escId}','${turId}')"><i class="fas fa-pen"></i></button>${has ? ` <button class="btn btn-sm btn-outline-danger" onclick="removeReaderCode('${escId}','${turId}')"><i class="fas fa-trash"></i></button>` : ''}</td>
+                </tr>`;
+            });
+        });
+        tbody.innerHTML = rows || '<tr><td colspan="5"><div class="empty-state"><i class="fas fa-key"></i><div>Nenhuma turma cadastrada.</div></div></td></tr>';
+        const badge = document.getElementById('reader-config-count');
+        if (badge) badge.textContent = `${configured} de ${total} configurados`;
+        const dash = document.getElementById('dash-leitores'); if(dash) dash.textContent=configured;
+        const school = document.getElementById('reader-school');
+        if (school && school.options.length <= 1 && Object.keys(masterData.schools || {}).length) initReaderTab();
+    }
+
+    // PROFESSORES
+    function openModalProf(uid) {
+        const sel = document.getElementById('prof-sel-esc');
+        sel.innerHTML = '<option value="">Selecione a Escola...</option>' + Object.keys(masterData.schools).map(id => `<option value="${id}">${masterData.schools[id].nome}</option>`).join('');
+        if(uid) {
+            const map = masterData.users_map[uid];
+            document.getElementById('prof-uid').value = uid;
+            document.getElementById('prof-sel-esc').value = map.schoolId;
+            document.getElementById('prof-email').value = map.email || "";
+            document.getElementById('prof-pass-box').style.display = 'none';
+            loadTurmasCheckboxes(map.turmas);
+        } else {
+            document.getElementById('prof-uid').value = ""; document.getElementById('prof-email').value = "";
+            document.getElementById('prof-pass').value = ""; document.getElementById('prof-pass-box').style.display = 'block';
+            document.getElementById('prof-turmas-checks').innerHTML = 'Selecione uma escola.';
+        }
+        new bootstrap.Modal(document.getElementById('modal-prof')).show();
+    }
+    function loadTurmasCheckboxes(selected = {}) {
+        const escId = document.getElementById('prof-sel-esc').value;
+        const box = document.getElementById('prof-turmas-checks');
+        if(!escId) return box.innerHTML = '';
+        const turs = masterData.schools[escId].turmas || {};
+        const html = Object.keys(turs).map(id => `<div class="form-check"><input class="form-check-input turma-chk" type="checkbox" value="${id}" id="chk-${id}" ${selected[id] ? 'checked' : ''}><label class="form-check-label" for="chk-${id}">${id.replace('tur_','')}</label></div>`).join('');
+        box.innerHTML = html || 'Nenhuma turma cadastrada.';
+    }
+    async function saveProfessor() {
+        const email = document.getElementById('prof-email').value, pass = document.getElementById('prof-pass').value, escId = document.getElementById('prof-sel-esc').value;
+        const chks = document.querySelectorAll('.turma-chk:checked');
+        const turmas = {}; chks.forEach(c => turmas[c.value] = true);
+        if(!email || !escId) return alert("Erro");
+        try {
+            let uid = document.getElementById('prof-uid').value;
+            if(!uid) {
+                try { const s = await fAuth.createUserWithEmailAndPassword(email, pass); uid = s.user.uid; }
+                catch(e) { if(e.code==='auth/email-already-in-use'){ const s = await fAuth.signInWithEmailAndPassword(email,pass); uid=s.user.uid; } else throw e; }
+            }
+            await db.ref(`users_map/${uid}`).set({ schoolId: escId, turmas, email });
+            bootstrap.Modal.getInstance(document.getElementById('modal-prof')).hide();
+        } catch(e) { alert(e.message); }
+    }
+    function renderProfessores() {
+        const list = document.getElementById('list-professores');
+        list.innerHTML = Object.keys(masterData.users_map).map(uid => {
+            const map = masterData.users_map[uid];
+            const tNames = Object.keys(map.turmas || {}).map(t => t.replace('tur_','')).join(', ');
+            return `<tr><td><strong>${map.email || '---'}</strong><br><small class="text-muted">${uid.slice(0,6)}</small></td><td><span class="badge bg-light text-dark">${masterData.schools[map.schoolId]?.nome || '?'} > ${tNames || 'Nenhuma'}</span></td><td class="text-end"><button class="btn btn-sm btn-outline-primary me-1" onclick="openModalProf('${uid}')"><i class="fas fa-edit"></i></button><button class="btn btn-sm btn-outline-danger" onclick="deleteProf('${uid}')"><i class="fas fa-trash"></i></button></td></tr>`;
+        }).join('') || '<tr><td colspan="3" class="text-center">Vazio</td></tr>';
+    }
+    function deleteProf(uid) { if(confirm("Excluir professor?")) db.ref(`users_map/${uid}`).remove(); }
+
+    // ESTRUTURA
+    function openModalEscola(id) {
+        if(id) { document.getElementById('esc-id').value = id; document.getElementById('esc-nome').value = masterData.schools[id].nome; document.getElementById('esc-logo').value = masterData.schools[id].info?.logoUrl || ""; }
+        else { document.getElementById('esc-id').value = ""; document.getElementById('esc-nome').value = ""; document.getElementById('esc-logo').value = ""; }
+        new bootstrap.Modal(document.getElementById('modal-escola')).show();
+    }
+    function saveEscola() {
+        const id = document.getElementById('esc-id').value || 'esc_' + Date.now();
+        const n = document.getElementById('esc-nome').value.trim();
+        let l = document.getElementById('esc-logo').value.trim();
+
+        if(!n) return alert("Digite o nome da escola!");
+
+        // Inteligência para converter links do Google Drive em links diretos de imagem
+        if (l.includes('drive.google.com')) {
+            const driveParts = l.split('/d/');
+            if (driveParts.length > 1) {
+                const fileId = driveParts[1].split('/')[0];
+                l = `https://drive.google.com/uc?id=${fileId}`;
+            }
+        }
+
+        db.ref(`schools/${id}/nome`).set(n);
+        db.ref(`schools/${id}/info`).update({id, nome:n, logoUrl:l}).then(() => {
+            bootstrap.Modal.getInstance(document.getElementById('modal-escola')).hide();
+            // Reset campos e feedback
+            document.getElementById('esc-nome').value = '';
+            document.getElementById('esc-logo').value = '';
+            document.getElementById('esc-id').value = '';
+            alert("Escola e Logo salvos com sucesso!");
+        });
+    }
+    function renderEstruturaEscolas() {
+        const l = document.getElementById('admin-list-escolas');
+        l.innerHTML = Object.keys(masterData.schools).map(id => `<div class="col-md-6 mb-3"><div class="card p-3 d-flex flex-row align-items-center gap-3"><img src="${masterData.schools[id].info?.logoUrl || ''}" class="logo-preview" onerror="this.src='https://placehold.co/40x40?text=?'"><div><h6>${masterData.schools[id].nome} <i class="fas fa-pen edit-btn" onclick="openModalEscola('${id}')"></i></h6></div><div class="ms-auto"><button class="btn btn-sm btn-primary" onclick="selectEscola('${id}')">Turmas</button><button class="btn btn-sm btn-outline-danger ms-1" onclick="deleteEscola('${id}')"><i class="fas fa-trash"></i></button></div></div></div>`).join('');
+    }
+    function deleteEscola(id) { if(confirm("Apagar?")) db.ref(`schools/${id}`).remove(); }
+    function selectEscola(id) { currEsc = id; document.getElementById('lvl-escolas').style.display='none'; document.getElementById('lvl-turmas').style.display='block'; document.getElementById('turma-title').innerText = "Turmas: " + masterData.schools[id].nome; renderEstruturaTurmas(); }
+    function backToEscolas() { currEsc = null; document.getElementById('lvl-turmas').style.display='none'; document.getElementById('lvl-escolas').style.display='block'; }
+
+    function openModalTurma(id) {
+        if(id) { document.getElementById('tur-id').value = id; document.getElementById('tur-nome').value = id.replace('tur_',''); document.getElementById('tur-code').value = masterData.schools[currEsc].turmas[id].config?.codigo || ""; }
+        else { document.getElementById('tur-id').value = ""; document.getElementById('tur-nome').value = ""; document.getElementById('tur-code').value = ""; }
+        new bootstrap.Modal(document.getElementById('modal-turma')).show();
+    }
+    function saveTurma() {
+        const n = document.getElementById('tur-nome').value, c = document.getElementById('tur-code').value;
+        if(!n || !c) return alert("Erro");
+        const tId = document.getElementById('tur-id').value || 'tur_' + n.replace(/\s+/g,'_');
+        db.ref(`schools/${currEsc}/turmas/${tId}/config`).update({codigo:c, nome:n}).then(() => bootstrap.Modal.getInstance(document.getElementById('modal-turma')).hide());
+    }
+    function renderEstruturaTurmas() {
+        const turs = masterData.schools[currEsc]?.turmas || {};
+        document.getElementById('list-turmas').innerHTML = Object.keys(turs).map(id => {
+            const cfg = turs[id].config || {};
+            const leitor = String(cfg.codigo_leitor || '').trim();
+            return `<tr><td><strong>${escapeHtml(cfg.nome || id.replace('tur_',''))}</strong> <i class="fas fa-pen edit-btn" onclick="openModalTurma('${id}')"></i></td><td><code>${escapeHtml(cfg.codigo || '')}</code></td><td>${leitor ? '<span class="code-pill ok">Configurado</span>' : '<span class="code-pill missing">Sem código</span>'}</td><td class="text-end"><button class="btn btn-sm btn-outline-primary me-1" onclick="editReaderCode('${currEsc}','${id}')"><i class="fas fa-key"></i></button><button class="btn btn-sm btn-primary" onclick="selectTurma('${id}')">Alunos</button><button class="btn btn-sm btn-outline-danger ms-1" onclick="deleteTurma('${id}')"><i class="fas fa-trash"></i></button></td></tr>`;
+        }).join('');
+    }
+    function deleteTurma(id) { if(confirm("Excluir?")) db.ref(`schools/${currEsc}/turmas/${id}`).remove(); }
+    function selectTurma(id) { currTur = id; document.getElementById('lvl-turmas').style.display='none'; document.getElementById('lvl-alunos').style.display='block'; document.getElementById('aluno-title').innerText = "Alunos: " + id.replace('tur_',''); renderEstruturaAlunos(); }
+    function backToTurmas() { currTur = null; document.getElementById('lvl-alunos').style.display='none'; document.getElementById('lvl-turmas').style.display='block'; }
+
+    function openModalAluno(n) {
+        if(n) { document.getElementById('alu-old-nome').value = n; document.getElementById('alu-nome').value = n; document.getElementById('alu-mass-box').style.display='none'; }
+        else { document.getElementById('alu-old-nome').value = ""; document.getElementById('alu-nome').value = ""; document.getElementById('alu-mass-box').style.display='block'; }
+        new bootstrap.Modal(document.getElementById('modal-aluno')).show();
+    }
+    async function saveAlunos() {
+        const old = document.getElementById('alu-old-nome').value, single = document.getElementById('alu-nome').value.trim().toUpperCase(), mass = document.getElementById('alu-massa').value;
+        const ref = db.ref(`schools/${currEsc}/turmas/${currTur}/alunos`);
+        if(old) { const s = await ref.child(old).get(); await ref.child(single).set(s.val()); if(old!==single) await ref.child(old).remove(); }
+        else { const nomes = mass ? mass.split('\n').map(n => n.trim().toUpperCase()).filter(n => n) : [single]; nomes.forEach(n => ref.child(n).set({ contador:0, hora1:"", hora2:"", previsao:"", ultimoTimestamp:0, limite:2 })); }
+        bootstrap.Modal.getInstance(document.getElementById('modal-aluno')).hide();
+    }
+    function renderEstruturaAlunos() {
+        const alus = masterData.schools[currEsc]?.turmas[currTur]?.alunos || {};
+        document.getElementById('list-alunos').innerHTML = Object.keys(alus).sort().map(n => `<tr><td><strong>${n}</strong> <i class="fas fa-pen edit-btn" onclick="openModalAluno('${n}')"></i></td><td>${alus[n].contador}/2</td><td class="text-end"><button class="btn btn-sm btn-outline-danger" onclick="deleteAluno('${n}')"><i class="fas fa-trash"></i></button></td></tr>`).join('');
+    }
+    function deleteAluno(n) { if(confirm("Remover?")) db.ref(`schools/${currEsc}/turmas/${currTur}/alunos/${n}`).remove(); }
+
+    function renderLegado() {
+        const list = document.getElementById('list-legado');
+        list.innerHTML = Object.keys(legadoData.salas).map(t => `<div class="col-md-4 mb-2"><div class="card p-2 d-flex flex-row justify-content-between align-items-center"><span>${t}</span><button class="btn btn-sm btn-warning" onclick="openMig('${t}')">Migrar</button></div></div>`).join('');
+    }
+    function openMig(t) {
+        document.getElementById('mig-name').innerText = t;
+        const sel = document.getElementById('mig-esc-sel');
+        sel.innerHTML = Object.keys(masterData.schools).map(id => `<option value="${id}">${masterData.schools[id].nome}</option>`).join('');
+        new bootstrap.Modal(document.getElementById('modal-mig')).show();
+    }
+    async function execMig() {
+        const old = document.getElementById('mig-name').innerText, esc = document.getElementById('mig-esc-sel').value, email = document.getElementById('mig-email').value, pass = document.getElementById('mig-pass').value, code = document.getElementById('mig-code').value;
+        try {
+            let uid = null;
+            try { const s = await fAuth.createUserWithEmailAndPassword(email, pass); uid = s.user.uid; }
+            catch(e) { if(e.code==='auth/email-already-in-use'){ const s = await fAuth.signInWithEmailAndPassword(email,pass); uid=s.user.uid; } else throw e; }
+            const alus = legadoData.salas[old].alunos || {};
+            const tId = 'tur_' + old.replace(/\s+/g,'_');
+            await db.ref(`schools/${esc}/turmas/${tId}`).set({ config: { email, codigo: code }, alunos: alus });
+            await db.ref(`users_map/${uid}`).set({ schoolId: esc, turmas: {[tId]: true}, email: email });
+            await db.ref(`salas/${old}`).remove();
+            bootstrap.Modal.getInstance(document.getElementById('modal-mig')).hide();
+        } catch(e) { alert(e.message); }
+    }
+
+    function openModalPass() {
+        document.getElementById('cfg-pass-admin').value = masterData.admin?.config?.senha_admin || '';
+        document.getElementById('cfg-pass-dir').value = masterData.admin?.config?.senha_diretor || '';
+        new bootstrap.Modal(document.getElementById('modal-config-pass')).show();
+    }
+
+    function savePasswords() {
+        const a = document.getElementById('cfg-pass-admin').value, d = document.getElementById('cfg-pass-dir').value;
+        db.ref('admin/config').update({ senha_admin: a, senha_diretor: d }).then(() => { alert("OK"); bootstrap.Modal.getInstance(document.getElementById('modal-config-pass')).hide(); });
+    }
+
+    function imprimirTurma() {
+        const area = document.getElementById('area-impressao');
+        area.innerHTML = '';
+        const alus = masterData.schools[currEsc].turmas[currTur].alunos || {};
+        Object.keys(alus).sort().forEach(n => {
+            const div = document.createElement('div');
+            div.className = 'cartao-qr';
+            div.innerHTML = `<div id="qri-${n.replace(/\s+/g,'')}"></div><small><strong>${n}</strong></small>`;
+            area.appendChild(div);
+            new QRCode(document.getElementById('qri-'+n.replace(/\s+/g,'')), { text: n, width: 130, height: 130 });
+        });
+        window.print();
+    }
+</script>
+</body>
+</html>
