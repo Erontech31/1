@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Baixar Meu Aplicativo - APK</title>
+    <style>
+        :root {
+            --cor-primaria: #10b981; /* Verde estilo Android */
+            --cor-primaria-hover: #059669;
+            --cor-fundo: #f3f4f6;
+            --cor-card: #ffffff;
+            --cor-texto: #1f2937;
+            --cor-texto-secundario: #6b7280;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--cor-fundo);
+            color: var(--cor-texto);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: var(--cor-card);
+            max-width: 450px;
+            width: 100%;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            text-align: center;
+        }
+
+        .app-icon {
+            width: 100px;
+            height: 100px;
+            border-radius: 22px;
+            object-fit: cover;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            margin-bottom: 15px;
+        }
+
+        .app-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .app-developer {
+            font-size: 0.9rem;
+            color: var(--cor-primaria);
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .app-info {
+            display: flex;
+            justify-content: space-around;
+            background-color: #f9fafb;
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 0.85rem;
+            border: 1px solid #e5e7eb;
+        }
+
+        .info-item span {
+            display: block;
+            font-weight: 700;
+            color: var(--cor-texto);
+            font-size: 0.95rem;
+        }
+
+        .info-item {
+            color: var(--cor-texto-secundario);
+        }
+
+        .app-description {
+            font-size: 0.95rem;
+            color: var(--cor-texto-secundario);
+            line-height: 1.5;
+            margin-bottom: 25px;
+        }
+
+        .download-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            background-color: var(--cor-primaria);
+            color: white;
+            text-decoration: none;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .download-btn:hover {
+            background-color: var(--cor-primaria-hover);
+        }
+
+        .download-btn:active {
+            transform: scale(0.98);
+        }
+
+        .download-btn svg {
+            width: 24px;
+            height: 24px;
+            margin-right: 10px;
+            fill: currentColor;
+        }
+
+        .instructions {
+            margin-top: 25px;
+            text-align: left;
+            background-color: #fffbeb;
+            border-left: 4px solid #f59e0b;
+            padding: 12px 15px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            color: #92400e;
+        }
+
+        .instructions h4 {
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+
+        .instructions ol {
+            padding-left: 18px;
+        }
+
+        .instructions li {
+            margin-bottom: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Substitua o src abaixo pelo caminho da logo do seu App -->
+        <img src="https://via.placeholder.com/150/10b981/ffffff?text=LOGO" alt="Ícone do App" class="app-icon">
+        
+        <h1 class="app-title">Nome do Seu App</h1>
+        <p class="app-developer">Desenvolvido por Você</p>
+
+        <div class="app-info">
+            <div class="info-item">
+                <span>v1.0.0</span>
+                Versão
+            </div>
+            <div class="info-item">
+                <span>15.4 MB</span>
+                Tamanho
+            </div>
+            <div class="info-item">
+                <span>Android 6.0+</span>
+                Requisitos
+            </div>
+        </div>
+
+        <p class="app-description">
+            Coloque aqui uma breve descrição sobre o que o seu aplicativo faz, suas principais funcionalidades e por que as pessoas devem baixá-lo.
+        </p>
+
+        <!-- IMPORTANTE: Coloque o nome exato do seu arquivo APK no href -->
+        <a href="meu-aplicativo.apk" download="NomeDoSeuApp.apk" class="download-btn">
+            <svg viewBox="0 0 24 24">
+                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+            </svg>
+            Baixar APK Agora
+        </a>
+
+        <div class="instructions">
+            <h4>⚠️ Como instalar:</h4>
+            <ol>
+                <li>Clique no botão acima para baixar o arquivo <strong>.apk</strong>.</li>
+                <li>Abra o arquivo baixado nas suas notificações ou pasta de Downloads.</li>
+                <li>Se solicitado, ative a opção <strong>"Permitir desta fonte"</strong> (Fontes desconhecidas) nas configurações do seu Android.</li>
+                <li>Toque em <strong>Instalar</strong> e pronto!</li>
+            </ol>
+        </div>
+    </div>
+
+</body>
+</html>
