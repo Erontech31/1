@@ -34,6 +34,8 @@
             --header-ribbon-bg: #fef3c7;
             --header-ribbon-border: #f59e0b;
             --header-ribbon-text: #92400e;
+            --theme-wash: #f6e8d8;
+            --theme-tint: #e9c39d;
         }
 
         [data-theme="blue"] {
@@ -56,6 +58,8 @@
             --header-ribbon-bg: #e0f2fe;
             --header-ribbon-border: #38bdf8;
             --header-ribbon-text: #075985;
+            --theme-wash: #dcefff;
+            --theme-tint: #9bd3f4;
         }
 
         [data-theme="pink"] {
@@ -78,6 +82,8 @@
             --header-ribbon-bg: #fce7f3;
             --header-ribbon-border: #f472b6;
             --header-ribbon-text: #9d174d;
+            --theme-wash: #ffe3ee;
+            --theme-tint: #f5abc9;
         }
 
         [data-theme="mint"] {
@@ -100,6 +106,8 @@
             --header-ribbon-bg: #d1fae5;
             --header-ribbon-border: #34d399;
             --header-ribbon-text: #065f46;
+            --theme-wash: #ddf8e6;
+            --theme-tint: #9addb2;
         }
 
         body {
@@ -312,88 +320,88 @@
         }
 
         body {
-            background-color: #fffaf2;
+            background-color: var(--bg-main);
             background-image:
-                radial-gradient(circle at 8% 18%, rgba(251, 207, 232, 0.42), transparent 22rem),
-                radial-gradient(circle at 92% 8%, rgba(186, 230, 253, 0.42), transparent 24rem),
-                radial-gradient(circle at 80% 75%, rgba(187, 247, 208, 0.3), transparent 22rem),
-                radial-gradient(rgba(244, 180, 195, 0.28) 1.2px, transparent 1.2px);
+                radial-gradient(circle at 8% 18%, color-mix(in srgb, var(--bg-accent) 34%, transparent), transparent 22rem),
+                radial-gradient(circle at 92% 8%, color-mix(in srgb, var(--theme-tint) 48%, transparent), transparent 24rem),
+                radial-gradient(circle at 80% 75%, color-mix(in srgb, var(--bg-soft) 82%, transparent), transparent 22rem),
+                radial-gradient(color-mix(in srgb, var(--bg-accent) 27%, transparent) 1.2px, transparent 1.2px);
             background-size: auto, auto, auto, 28px 28px;
         }
 
         .theme-card {
-            border-color: rgba(255, 255, 255, 0.95);
-            box-shadow: 0 14px 34px -16px rgba(89, 37, 58, 0.28), 0 3px 10px rgba(95, 168, 211, 0.1);
+            border-color: color-mix(in srgb, var(--bg-accent) 42%, white);
+            box-shadow: 0 14px 34px -16px color-mix(in srgb, var(--bg-accent) 36%, transparent), 0 3px 10px color-mix(in srgb, var(--bg-accent) 16%, transparent);
         }
 
         .nursery-header {
             background:
-                radial-gradient(circle at 8% 85%, rgba(253, 230, 138, 0.28), transparent 18rem),
-                radial-gradient(circle at 96% 18%, rgba(251, 207, 232, 0.4), transparent 20rem),
-                linear-gradient(135deg, #fff8dc 0%, #fff1f7 42%, #eff8ff 72%, #effff5 100%);
-            border: 3px solid #ffffff;
-            box-shadow: 0 18px 38px -18px rgba(124, 92, 163, 0.35), 0 0 0 2px rgba(186, 230, 253, 0.8);
+                radial-gradient(circle at 8% 85%, color-mix(in srgb, var(--bg-accent) 32%, transparent), transparent 18rem),
+                radial-gradient(circle at 96% 18%, color-mix(in srgb, var(--theme-tint) 46%, transparent), transparent 20rem),
+                linear-gradient(135deg, var(--theme-wash) 0%, color-mix(in srgb, var(--bg-soft) 58%, white) 50%, color-mix(in srgb, var(--theme-tint) 30%, white) 100%);
+            border: 3px solid color-mix(in srgb, var(--bg-accent) 40%, white);
+            box-shadow: 0 18px 38px -18px color-mix(in srgb, var(--bg-accent) 46%, transparent), 0 0 0 2px color-mix(in srgb, var(--bg-accent) 24%, white);
         }
 
         .nursery-inner-frame {
-            background-color: rgba(255, 255, 255, 0.88);
+            background-color: color-mix(in srgb, var(--bg-soft) 34%, white);
             background-image:
-                radial-gradient(rgba(244, 180, 195, 0.18) 1.3px, transparent 1.3px),
-                linear-gradient(135deg, rgba(255, 249, 219, 0.72), rgba(241, 250, 255, 0.75) 55%, rgba(242, 255, 247, 0.72));
+                radial-gradient(color-mix(in srgb, var(--bg-accent) 24%, transparent) 1.3px, transparent 1.3px),
+                linear-gradient(135deg, color-mix(in srgb, var(--theme-wash) 65%, white), color-mix(in srgb, var(--bg-soft) 45%, white) 55%, color-mix(in srgb, var(--theme-tint) 28%, white));
             background-size: 22px 22px, auto;
             box-shadow: inset 0 1px 12px rgba(255, 255, 255, 0.9);
         }
 
         .nursery-mascot-frame {
-            background: radial-gradient(circle at 50% 35%, #ffffff 0%, #fff1f7 48%, #eaf7ff 100%);
-            outline-color: #f9a8d4;
-            box-shadow: 0 12px 26px -8px rgba(236, 131, 158, 0.3);
+            background: radial-gradient(circle at 50% 35%, #ffffff 0%, var(--theme-wash) 52%, var(--bg-soft) 100%);
+            outline-color: var(--bg-accent);
+            box-shadow: 0 12px 26px -8px color-mix(in srgb, var(--bg-accent) 42%, transparent);
         }
 
         .nursery-prize-card {
-            background: linear-gradient(110deg, #fff5c2 0%, #fffaf0 48%, #ffeff6 100%);
-            border: 2px dashed #f5b942;
-            box-shadow: 0 5px 14px rgba(245, 185, 66, 0.12);
+            background: linear-gradient(110deg, color-mix(in srgb, var(--badge-bg) 85%, white) 0%, color-mix(in srgb, var(--theme-wash) 65%, white) 48%, color-mix(in srgb, var(--theme-tint) 34%, white) 100%);
+            border: 2px dashed color-mix(in srgb, var(--bg-accent) 68%, white);
+            box-shadow: 0 5px 14px color-mix(in srgb, var(--bg-accent) 18%, transparent);
         }
 
         .nursery-info-card {
-            background: linear-gradient(135deg, #eff9ff 0%, #ffffff 58%, #f1fff7 100%);
-            border-color: #b6e3f7;
+            background: linear-gradient(135deg, color-mix(in srgb, var(--theme-wash) 65%, white) 0%, #ffffff 58%, color-mix(in srgb, var(--bg-soft) 70%, white) 100%);
+            border-color: color-mix(in srgb, var(--bg-accent) 38%, white);
         }
 
         #exportDetailsRow > span:last-child {
-            background: linear-gradient(135deg, #fff3f7 0%, #fffaf0 100%);
-            border-color: #f7bfd7;
+            background: linear-gradient(135deg, color-mix(in srgb, var(--theme-wash) 78%, white) 0%, color-mix(in srgb, var(--badge-bg) 64%, white) 100%);
+            border-color: color-mix(in srgb, var(--bg-accent) 42%, white);
         }
 
         .nursery-ribbon-banner {
-            background: linear-gradient(90deg, #fff0c2 0%, #ffe8f2 34%, #e5f5ff 68%, #e8ffef 100%);
-            border-color: #f3b6d2;
+            background: linear-gradient(90deg, var(--theme-wash) 0%, color-mix(in srgb, var(--bg-soft) 76%, white) 50%, color-mix(in srgb, var(--theme-tint) 38%, white) 100%);
+            border-color: color-mix(in srgb, var(--bg-accent) 42%, white);
         }
 
         #raffleGrid .cell-available:nth-child(4n + 1) {
-            background: linear-gradient(145deg, #fff6cf, #ffffff 75%);
-            border-color: #f4d36a;
+            background: linear-gradient(145deg, color-mix(in srgb, var(--bg-accent) 25%, white), #ffffff 82%);
+            border-color: color-mix(in srgb, var(--bg-accent) 52%, white);
         }
 
         #raffleGrid .cell-available:nth-child(4n + 2) {
-            background: linear-gradient(145deg, #ffeaf3, #ffffff 75%);
-            border-color: #f5b9d1;
+            background: linear-gradient(145deg, color-mix(in srgb, var(--theme-tint) 34%, white), #ffffff 82%);
+            border-color: color-mix(in srgb, var(--theme-tint) 62%, white);
         }
 
         #raffleGrid .cell-available:nth-child(4n + 3) {
-            background: linear-gradient(145deg, #e8f6ff, #ffffff 75%);
-            border-color: #a9d8f1;
+            background: linear-gradient(145deg, color-mix(in srgb, var(--bg-soft) 74%, white), #ffffff 82%);
+            border-color: color-mix(in srgb, var(--bg-soft) 74%, white);
         }
 
         #raffleGrid .cell-available:nth-child(4n) {
-            background: linear-gradient(145deg, #eaffef, #ffffff 75%);
-            border-color: #a9dfbd;
+            background: linear-gradient(145deg, color-mix(in srgb, var(--bg-accent) 18%, white), #ffffff 82%);
+            border-color: color-mix(in srgb, var(--bg-accent) 45%, white);
         }
 
         #raffleGrid .cell-available:hover {
-            background: linear-gradient(145deg, #fff1c2, #ffffff);
-            box-shadow: 0 8px 18px rgba(95, 168, 211, 0.18);
+            background: linear-gradient(145deg, color-mix(in srgb, var(--bg-accent) 34%, white), #ffffff);
+            box-shadow: 0 8px 18px color-mix(in srgb, var(--bg-accent) 26%, transparent);
         }
 
         #raffleGrid .cell-pending {
@@ -407,9 +415,9 @@
         }
 
         .no-export.sticky {
-            background: rgba(255, 255, 255, 0.94);
-            border-bottom: 3px solid #f3c7db;
-            box-shadow: 0 6px 20px rgba(89, 37, 58, 0.1);
+            background: color-mix(in srgb, var(--theme-wash) 56%, white);
+            border-bottom: 3px solid color-mix(in srgb, var(--bg-accent) 52%, white);
+            box-shadow: 0 6px 20px color-mix(in srgb, var(--bg-accent) 20%, transparent);
         }
 
         @media (max-width: 640px) {
@@ -1117,7 +1125,9 @@
                 ribbonBg: '#fef3c7',
                 ribbonBorder: '#f59e0b',
                 ribbonText: '#92400e',
-                dotColor: '#efe2d3'
+                dotColor: '#e9c39d',
+                posterWash: '#f6e8d8',
+                posterTint: '#eed2b4'
             },
             blue: {
                 bgMain: '#f4f9fd',
@@ -1133,7 +1143,9 @@
                 ribbonBg: '#e0f2fe',
                 ribbonBorder: '#38bdf8',
                 ribbonText: '#075985',
-                dotColor: '#dbeafe'
+                dotColor: '#9bd3f4',
+                posterWash: '#dcefff',
+                posterTint: '#b5e3fb'
             },
             pink: {
                 bgMain: '#fff8fa',
@@ -1149,7 +1161,9 @@
                 ribbonBg: '#fce7f3',
                 ribbonBorder: '#f472b6',
                 ribbonText: '#9d174d',
-                dotColor: '#fce7f3'
+                dotColor: '#f5abc9',
+                posterWash: '#ffe3ee',
+                posterTint: '#fac3d9'
             },
             mint: {
                 bgMain: '#f4fbf8',
@@ -1165,7 +1179,9 @@
                 ribbonBg: '#d1fae5',
                 ribbonBorder: '#34d399',
                 ribbonText: '#065f46',
-                dotColor: '#d8f3dc'
+                dotColor: '#9addb2',
+                posterWash: '#ddf8e6',
+                posterTint: '#b7ecc8'
             }
         };
 
@@ -1346,8 +1362,10 @@
                 const btn = document.getElementById('themeBtn-' + name);
                 if (btn) {
                     btn.className = name === t 
-                        ? 'px-2.5 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 transition-all bg-stone-800 text-white shadow-sm' 
+                        ? 'px-2.5 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 transition-all text-white shadow-sm' 
                         : 'px-2.5 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 transition-all text-slate-600 hover:bg-white';
+                    btn.style.backgroundColor = name === t ? getComputedStyle(document.body).getPropertyValue('--bg-accent').trim() : '';
+                    btn.setAttribute('aria-pressed', String(name === t));
                 }
             });
             const sel = document.getElementById('cfgThemeSelect');
@@ -2260,10 +2278,9 @@
             ctx.scale(resolutionScale, resolutionScale);
 
             const pageGradient = ctx.createLinearGradient(0, 0, W, H);
-            pageGradient.addColorStop(0, '#fff8df');
-            pageGradient.addColorStop(0.42, '#fff1f7');
-            pageGradient.addColorStop(0.72, '#eff8ff');
-            pageGradient.addColorStop(1, '#effff3');
+            pageGradient.addColorStop(0, palette.posterWash);
+            pageGradient.addColorStop(0.52, palette.bgSoft);
+            pageGradient.addColorStop(1, palette.posterTint);
             ctx.fillStyle = pageGradient;
             ctx.fillRect(0, 0, W, H);
 
@@ -2280,10 +2297,10 @@
             const headerY = outerPad;
 
             const headerGradient = ctx.createLinearGradient(headerX, headerY, headerX + contentW, headerY + headerH);
-            headerGradient.addColorStop(0, '#fffaf0');
-            headerGradient.addColorStop(0.48, '#fff4f8');
-            headerGradient.addColorStop(1, '#eff9ff');
-            drawRoundedRect(ctx, headerX, headerY, contentW, headerH, 30, headerGradient, '#f4c4d9', 4);
+            headerGradient.addColorStop(0, palette.posterWash);
+            headerGradient.addColorStop(0.5, palette.bgSoft);
+            headerGradient.addColorStop(1, palette.posterTint);
+            drawRoundedRect(ctx, headerX, headerY, contentW, headerH, 30, headerGradient, palette.accent, 4);
             drawNurseryBunting(ctx, headerX + 14, headerY + 3, contentW - 28);
 
             const innerX = headerX + 16;
@@ -2291,10 +2308,10 @@
             const innerW = contentW - 32;
             const innerH = headerH - 70;
             const innerGradient = ctx.createLinearGradient(innerX, innerY, innerX + innerW, innerY + innerH);
-            innerGradient.addColorStop(0, '#fffef5');
-            innerGradient.addColorStop(0.52, '#fff7fb');
-            innerGradient.addColorStop(1, '#f0faff');
-            drawRoundedRect(ctx, innerX, innerY, innerW, innerH, 24, innerGradient, '#c6e8f7', 2.5, [9, 6]);
+            innerGradient.addColorStop(0, palette.skyTop);
+            innerGradient.addColorStop(0.52, palette.bgSoft);
+            innerGradient.addColorStop(1, palette.posterWash);
+            drawRoundedRect(ctx, innerX, innerY, innerW, innerH, 24, innerGradient, palette.border, 2.5, [9, 6]);
 
             drawRoundedRect(ctx, innerX + 18, innerY + 12, 600, 32, 16, palette.bgSoft, palette.border, 1.5);
             ctx.font = '800 15px "Nunito", sans-serif';
@@ -2356,10 +2373,10 @@
 
             const prizeCardH = 88;
             const prizeGradient = ctx.createLinearGradient(cardsX, cardsY, cardsX + cardsW, cardsY + prizeCardH);
-            prizeGradient.addColorStop(0, '#fff4c2');
-            prizeGradient.addColorStop(0.52, '#fffaf0');
-            prizeGradient.addColorStop(1, '#ffedf5');
-            drawRoundedRect(ctx, cardsX, cardsY, cardsW, prizeCardH, 18, prizeGradient, '#f2bd50', 2.5, [8, 5]);
+            prizeGradient.addColorStop(0, palette.badgeBg);
+            prizeGradient.addColorStop(0.52, palette.posterWash);
+            prizeGradient.addColorStop(1, palette.bgSoft);
+            drawRoundedRect(ctx, cardsX, cardsY, cardsW, prizeCardH, 18, prizeGradient, palette.accent, 2.5, [8, 5]);
             drawRoundedRect(ctx, cardsX + 12, cardsY + 12, 52, 52, 14, '#fef3c7', '#f59e0b', 2);
             ctx.font = '700 26px "Nunito", sans-serif';
             ctx.textAlign = 'center';
@@ -2392,9 +2409,9 @@
             const bottomCardH = 82;
 
             const priceGradient = ctx.createLinearGradient(cardsX, cardsY, cardsX + halfW, cardsY + bottomCardH);
-            priceGradient.addColorStop(0, '#eaf7ff');
-            priceGradient.addColorStop(1, '#f0fff5');
-            drawRoundedRect(ctx, cardsX, cardsY, halfW, bottomCardH, 18, priceGradient, '#a9d8f1', 2);
+            priceGradient.addColorStop(0, palette.skyTop);
+            priceGradient.addColorStop(1, palette.bgSoft);
+            drawRoundedRect(ctx, cardsX, cardsY, halfW, bottomCardH, 18, priceGradient, palette.border, 2);
             drawRoundedRect(ctx, cardsX + 12, cardsY + 15, 52, 52, 14, palette.bgSoft, palette.border, 1.5);
             ctx.font = '700 24px "Nunito", sans-serif';
             ctx.textAlign = 'center';
@@ -2424,9 +2441,9 @@
 
             const pixX = cardsX + halfW + 12;
             const pixGradient = ctx.createLinearGradient(pixX, cardsY, pixX + halfW, cardsY + bottomCardH);
-            pixGradient.addColorStop(0, '#fff0f6');
-            pixGradient.addColorStop(1, '#fff8e6');
-            drawRoundedRect(ctx, pixX, cardsY, halfW, bottomCardH, 18, pixGradient, '#f2bfd2', 2);
+            pixGradient.addColorStop(0, palette.badgeBg);
+            pixGradient.addColorStop(1, palette.posterWash);
+            drawRoundedRect(ctx, pixX, cardsY, halfW, bottomCardH, 18, pixGradient, palette.border, 2);
             drawRoundedRect(ctx, pixX + 12, cardsY + 15, 52, 52, 14, '#fef3c7', '#f59e0b', 1.5);
             ctx.font = '700 24px "Nunito", sans-serif';
             ctx.textAlign = 'center';
@@ -2449,19 +2466,18 @@
 
             const gridGradient = ctx.createLinearGradient(gridCardX, gridCardY, gridCardX + contentW, gridCardY + gridCardH);
             gridGradient.addColorStop(0, '#ffffff');
-            gridGradient.addColorStop(0.5, '#fffdf9');
-            gridGradient.addColorStop(1, '#f6fcff');
-            drawRoundedRect(ctx, gridCardX, gridCardY, contentW, gridCardH, 30, gridGradient, '#c7e7f4', 3.5);
+            gridGradient.addColorStop(0.5, palette.skyTop);
+            gridGradient.addColorStop(1, palette.bgSoft);
+            drawRoundedRect(ctx, gridCardX, gridCardY, contentW, gridCardH, 30, gridGradient, palette.border, 3.5);
 
             const bannerX = gridCardX + gridInnerPad;
             const bannerY = gridCardY + 14;
             const bannerW = contentW - gridInnerPad * 2;
             const bannerGradient = ctx.createLinearGradient(bannerX, bannerY, bannerX + bannerW, bannerY);
-            bannerGradient.addColorStop(0, '#fff1c8');
-            bannerGradient.addColorStop(0.34, '#ffeaf4');
-            bannerGradient.addColorStop(0.68, '#eaf6ff');
-            bannerGradient.addColorStop(1, '#eaffef');
-            drawRoundedRect(ctx, bannerX, bannerY, bannerW, 48, 16, bannerGradient, '#e8bfd4', 2, [7, 5]);
+            bannerGradient.addColorStop(0, palette.badgeBg);
+            bannerGradient.addColorStop(0.5, palette.bgSoft);
+            bannerGradient.addColorStop(1, palette.posterWash);
+            drawRoundedRect(ctx, bannerX, bannerY, bannerW, 48, 16, bannerGradient, palette.border, 2, [7, 5]);
 
             ctx.textAlign = 'left';
             ctx.textBaseline = 'middle';
@@ -2508,8 +2524,8 @@
                 } else if (status === 'pending') {
                     drawRoundedRect(ctx, cx, cy, cellW, cellH, 14, '#fff0c4', '#f2ad30', 2.2);
                 } else {
-                    const cellColors = ['#fff8df', '#fff0f6', '#edf8ff', '#effff3'];
-                    drawRoundedRect(ctx, cx, cy, cellW, cellH, 14, cellColors[idx % cellColors.length], '#d4cddd', 1.8, [5, 4]);
+                    const cellColors = [palette.badgeBg, palette.bgSoft, palette.skyTop, palette.posterWash];
+                    drawRoundedRect(ctx, cx, cy, cellW, cellH, 14, cellColors[idx % cellColors.length], palette.border, 1.8, [5, 4]);
                 }
 
                 ctx.font = '700 10px "Nunito", sans-serif';
@@ -2585,10 +2601,10 @@
             const footerY = gridCardY + gridCardH + sectionGap;
 
             const footerGradient = ctx.createLinearGradient(footerX, footerY, footerX + contentW, footerY);
-            footerGradient.addColorStop(0, '#fff7dc');
-            footerGradient.addColorStop(0.5, '#fff2f8');
-            footerGradient.addColorStop(1, '#eaf8ff');
-            drawRoundedRect(ctx, footerX, footerY, contentW, footerH, 24, footerGradient, '#d7c9e8', 3);
+            footerGradient.addColorStop(0, palette.badgeBg);
+            footerGradient.addColorStop(0.5, palette.posterWash);
+            footerGradient.addColorStop(1, palette.bgSoft);
+            drawRoundedRect(ctx, footerX, footerY, contentW, footerH, 24, footerGradient, palette.border, 3);
             drawRoundedRect(ctx, footerX + 16, footerY + 13, 48, 48, 14, palette.bgSoft, palette.border, 1.5);
             ctx.font = '700 24px "Nunito", sans-serif';
             ctx.textAlign = 'center';
