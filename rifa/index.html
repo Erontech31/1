@@ -310,6 +310,120 @@
                 animation: none;
             }
         }
+
+        body {
+            background-color: #fffaf2;
+            background-image:
+                radial-gradient(circle at 8% 18%, rgba(251, 207, 232, 0.42), transparent 22rem),
+                radial-gradient(circle at 92% 8%, rgba(186, 230, 253, 0.42), transparent 24rem),
+                radial-gradient(circle at 80% 75%, rgba(187, 247, 208, 0.3), transparent 22rem),
+                radial-gradient(rgba(244, 180, 195, 0.28) 1.2px, transparent 1.2px);
+            background-size: auto, auto, auto, 28px 28px;
+        }
+
+        .theme-card {
+            border-color: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 14px 34px -16px rgba(89, 37, 58, 0.28), 0 3px 10px rgba(95, 168, 211, 0.1);
+        }
+
+        .nursery-header {
+            background:
+                radial-gradient(circle at 8% 85%, rgba(253, 230, 138, 0.28), transparent 18rem),
+                radial-gradient(circle at 96% 18%, rgba(251, 207, 232, 0.4), transparent 20rem),
+                linear-gradient(135deg, #fff8dc 0%, #fff1f7 42%, #eff8ff 72%, #effff5 100%);
+            border: 3px solid #ffffff;
+            box-shadow: 0 18px 38px -18px rgba(124, 92, 163, 0.35), 0 0 0 2px rgba(186, 230, 253, 0.8);
+        }
+
+        .nursery-inner-frame {
+            background-color: rgba(255, 255, 255, 0.88);
+            background-image:
+                radial-gradient(rgba(244, 180, 195, 0.18) 1.3px, transparent 1.3px),
+                linear-gradient(135deg, rgba(255, 249, 219, 0.72), rgba(241, 250, 255, 0.75) 55%, rgba(242, 255, 247, 0.72));
+            background-size: 22px 22px, auto;
+            box-shadow: inset 0 1px 12px rgba(255, 255, 255, 0.9);
+        }
+
+        .nursery-mascot-frame {
+            background: radial-gradient(circle at 50% 35%, #ffffff 0%, #fff1f7 48%, #eaf7ff 100%);
+            outline-color: #f9a8d4;
+            box-shadow: 0 12px 26px -8px rgba(236, 131, 158, 0.3);
+        }
+
+        .nursery-prize-card {
+            background: linear-gradient(110deg, #fff5c2 0%, #fffaf0 48%, #ffeff6 100%);
+            border: 2px dashed #f5b942;
+            box-shadow: 0 5px 14px rgba(245, 185, 66, 0.12);
+        }
+
+        .nursery-info-card {
+            background: linear-gradient(135deg, #eff9ff 0%, #ffffff 58%, #f1fff7 100%);
+            border-color: #b6e3f7;
+        }
+
+        #exportDetailsRow > span:last-child {
+            background: linear-gradient(135deg, #fff3f7 0%, #fffaf0 100%);
+            border-color: #f7bfd7;
+        }
+
+        .nursery-ribbon-banner {
+            background: linear-gradient(90deg, #fff0c2 0%, #ffe8f2 34%, #e5f5ff 68%, #e8ffef 100%);
+            border-color: #f3b6d2;
+        }
+
+        #raffleGrid .cell-available:nth-child(4n + 1) {
+            background: linear-gradient(145deg, #fff6cf, #ffffff 75%);
+            border-color: #f4d36a;
+        }
+
+        #raffleGrid .cell-available:nth-child(4n + 2) {
+            background: linear-gradient(145deg, #ffeaf3, #ffffff 75%);
+            border-color: #f5b9d1;
+        }
+
+        #raffleGrid .cell-available:nth-child(4n + 3) {
+            background: linear-gradient(145deg, #e8f6ff, #ffffff 75%);
+            border-color: #a9d8f1;
+        }
+
+        #raffleGrid .cell-available:nth-child(4n) {
+            background: linear-gradient(145deg, #eaffef, #ffffff 75%);
+            border-color: #a9dfbd;
+        }
+
+        #raffleGrid .cell-available:hover {
+            background: linear-gradient(145deg, #fff1c2, #ffffff);
+            box-shadow: 0 8px 18px rgba(95, 168, 211, 0.18);
+        }
+
+        #raffleGrid .cell-pending {
+            background: linear-gradient(145deg, #ffe7a3, #fff8e4);
+            border-color: #f2ad30;
+        }
+
+        #raffleGrid .cell-paid {
+            background: linear-gradient(145deg, #c9f7d8, #effff4);
+            border-color: #45bf7d;
+        }
+
+        .no-export.sticky {
+            background: rgba(255, 255, 255, 0.94);
+            border-bottom: 3px solid #f3c7db;
+            box-shadow: 0 6px 20px rgba(89, 37, 58, 0.1);
+        }
+
+        @media (max-width: 640px) {
+            .no-export.sticky {
+                padding-top: 0.65rem;
+                padding-bottom: 0.65rem;
+            }
+
+            .nursery-header,
+            main.theme-card,
+            footer.theme-card {
+                border-radius: 1.5rem;
+            }
+        }
     </style>
 </head>
 <body class="min-h-screen pb-16" data-theme="neutral">
@@ -349,7 +463,7 @@
                     <i class="fa-solid fa-trophy"></i> Sortear Número
                 </button>
 
-                <button onclick="exportFullRafflePng(true)" class="px-3.5 py-1.5 rounded-full text-xs font-extrabold bg-sky-600 hover:bg-sky-700 text-white flex items-center gap-1.5 transition shadow-sm" title="Cria uma imagem vertical 9:16 exclusiva com o Cabeçalho e a Cartela">
+                <button onclick="exportFullRafflePng(true)" class="px-3.5 py-1.5 rounded-full text-xs font-extrabold bg-sky-600 hover:bg-sky-700 text-white flex items-center gap-1.5 transition shadow-sm" title="Baixa imagem vertical 9:16 em alta resolução com o Cabeçalho e a Cartela">
                     <i class="fa-solid fa-mobile-screen-button"></i> Imagem 9:16 Celular (PNG)
                 </button>
 
@@ -662,9 +776,6 @@
                         <span class="font-kid text-base sm:text-lg font-bold text-stone-800 block leading-tight">
                             👣 Escolha seu Número da Sorte 👣
                         </span>
-                        <span class="text-[11px] font-semibold opacity-75">
-                            Números marcados com <strong class="text-rose-600">×</strong> já possuem participante reservado ou confirmado
-                        </span>
                     </div>
                 </div>
 
@@ -917,20 +1028,15 @@
                     <div>
                         <p class="text-[10px] font-extrabold uppercase tracking-wider text-sky-800">Proporção Vertical 9:16 • Alta Visibilidade no Celular</p>
                         <h3 id="imagePreviewModalTitle" class="font-kid text-base sm:text-lg font-bold leading-tight text-stone-800">
-                            Cartaz Vertical (Cabeçalho + Cartela 5 Colunas)
+                            Cartaz 9:16 Tela Cheia • Alta Resolução
                         </h3>
                     </div>
                 </div>
 
                 <div class="flex items-center gap-2">
-                    <div class="inline-flex items-center bg-white p-1 rounded-xl border theme-border text-xs font-bold shadow-sm">
-                        <button type="button" id="posterModeBtn-9x16" onclick="setPosterFormatMode('9x16')" class="px-2.5 py-1 rounded-lg bg-sky-600 text-white font-extrabold transition">
-                            📱 9:16 Tela Cheia
-                        </button>
-                        <button type="button" id="posterModeBtn-9x16_tall" onclick="setPosterFormatMode('9x16_tall')" class="px-2.5 py-1 rounded-lg text-stone-600 hover:bg-stone-100 font-bold transition">
-                            🔎 9:16 Ampliado
-                        </button>
-                    </div>
+                    <span class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-sky-50 border border-sky-200 text-xs font-extrabold text-sky-800">
+                        📱 9:16 Tela Cheia • PNG 2×
+                    </span>
                     <button type="button" onclick="closeImagePreviewModal()" aria-label="Fechar visualização" class="w-9 h-9 rounded-full bg-white hover:bg-stone-100 border theme-border flex items-center justify-center font-bold">
                         <i class="fa-solid fa-xmark"></i>
                     </button>
@@ -940,7 +1046,7 @@
             <div class="p-3 sm:p-5 overflow-y-auto flex-1 bg-stone-100/80 flex flex-col items-center gap-3">
                 <p id="posterDimensionInfo" class="text-xs font-bold text-stone-600 text-center">
                     <i class="fa-solid fa-circle-check text-emerald-600 mr-1"></i>
-                    Formato vertical <strong>9:16 (1080×1920 px)</strong> com 5 colunas largas e fundo 100% opaco — ideal para tela de celular e impressão vertical.
+                    Formato vertical <strong>9:16 (2160×3840 px)</strong> em alta resolução, ideal para tela de celular e impressão vertical.
                 </p>
                 <div class="w-full max-w-md bg-white p-2 sm:p-3 rounded-2xl border theme-border shadow-inner flex justify-center">
                     <img id="generatedRafflePreviewImg" alt="Imagem vertical 9:16 gerada da Rifa com Cabeçalho e Cartela" class="w-full h-auto rounded-xl border border-stone-200 shadow-sm" />
@@ -948,11 +1054,8 @@
             </div>
 
             <div class="px-4 sm:px-6 py-3.5 bg-white border-t theme-border flex flex-wrap items-center justify-end gap-2 shrink-0">
-                <button type="button" onclick="downloadGeneratedRaffleImage()" class="px-4 py-2.5 rounded-2xl bg-sky-600 hover:bg-sky-700 text-white font-extrabold text-xs sm:text-sm flex items-center gap-2 shadow-sm transition">
-                    <i class="fa-solid fa-download"></i> Baixar PNG (9:16)
-                </button>
-                <button type="button" onclick="exportFullRafflePng(true, 2)" class="px-4 py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs sm:text-sm flex items-center gap-2 shadow-sm transition">
-                    <i class="fa-solid fa-expand"></i> Alta resolução (2×)
+                <button type="button" onclick="downloadGeneratedRaffleImage()" class="px-4 py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs sm:text-sm flex items-center gap-2 shadow-sm transition">
+                    <i class="fa-solid fa-download"></i> Baixar PNG em Alta Resolução (2×)
                 </button>
                 <button type="button" id="btnShareGeneratedImage" onclick="shareGeneratedRaffleImage()" class="px-4 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs sm:text-sm flex items-center gap-2 shadow-sm transition">
                     <i class="fa-solid fa-share-nodes"></i> Compartilhar no Celular
@@ -1068,7 +1171,6 @@
 
         let lastGeneratedDataUrl = '';
         let lastGeneratedFileName = 'rifa_bebe_9x16.png';
-        let currentPosterFormatMode = '9x16';
 
         let appState = {
             theme: 'neutral',
@@ -1831,6 +1933,68 @@
             ctx.restore();
         }
 
+        function drawToyBlocks(ctx, x, y, size) {
+            const blocks = [
+                { x, y: y + size * 0.48, color: '#f9a8d4', label: 'A' },
+                { x: x + size * 0.43, y: y + size * 0.48, color: '#93c5fd', label: 'B' },
+                { x: x + size * 0.22, y, color: '#fcd34d', label: 'C' }
+            ];
+            blocks.forEach((block) => {
+                drawRoundedRect(ctx, block.x, block.y, size * 0.42, size * 0.42, size * 0.08, block.color, '#ffffff', 2);
+                ctx.font = `800 ${Math.round(size * 0.23)}px "Fredoka", "Quicksand", sans-serif`;
+                ctx.fillStyle = '#ffffff';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(block.label, block.x + size * 0.21, block.y + size * 0.21);
+            });
+        }
+
+        function drawBabyFace(ctx, cx, cy, radius) {
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(cx, cy, radius + 4, 0, Math.PI * 2);
+            ctx.fillStyle = '#ffffff';
+            ctx.fill();
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = '#f9a8d4';
+            ctx.stroke();
+
+            ctx.fillStyle = '#e6b88a';
+            ctx.beginPath();
+            ctx.arc(cx, cy + 2, radius * 0.72, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#8b5e5a';
+            ctx.beginPath();
+            ctx.arc(cx, cy - radius * 0.28, radius * 0.73, Math.PI, Math.PI * 2);
+            ctx.quadraticCurveTo(cx + radius * 0.55, cy - radius * 0.36, cx + radius * 0.58, cy + radius * 0.02);
+            ctx.quadraticCurveTo(cx, cy - radius * 0.24, cx - radius * 0.58, cy + radius * 0.02);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.fillStyle = '#3d2c20';
+            [-0.27, 0.27].forEach((offset) => {
+                ctx.beginPath();
+                ctx.arc(cx + radius * offset, cy + radius * 0.02, radius * 0.065, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            ctx.fillStyle = '#f48c98';
+            [-0.43, 0.43].forEach((offset) => {
+                ctx.beginPath();
+                ctx.ellipse(cx + radius * offset, cy + radius * 0.23, radius * 0.14, radius * 0.08, 0, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            ctx.beginPath();
+            ctx.strokeStyle = '#7a493d';
+            ctx.lineWidth = Math.max(1.5, radius * 0.07);
+            ctx.lineCap = 'round';
+            ctx.arc(cx, cy + radius * 0.17, radius * 0.17, 0.15, Math.PI - 0.15);
+            ctx.stroke();
+            ctx.restore();
+        }
+
         function drawNurseryBunting(ctx, startX, startY, totalWidth) {
             const flagColors = ['#fde68a', '#fbcfe8', '#bae6fd', '#bbf7d0', '#fed7aa', '#e9d5ff'];
             const count = 13;
@@ -2037,23 +2201,7 @@
             ctx.restore();
         }
 
-        function setPosterFormatMode(mode) {
-            currentPosterFormatMode = mode === '9x16_tall' ? '9x16_tall' : '9x16';
-            const btnStandard = document.getElementById('posterModeBtn-9x16');
-            const btnTall = document.getElementById('posterModeBtn-9x16_tall');
-            if (btnStandard && btnTall) {
-                if (currentPosterFormatMode === '9x16') {
-                    btnStandard.className = 'px-2.5 py-1 rounded-lg bg-sky-600 text-white font-extrabold transition';
-                    btnTall.className = 'px-2.5 py-1 rounded-lg text-stone-600 hover:bg-stone-100 font-bold transition';
-                } else {
-                    btnTall.className = 'px-2.5 py-1 rounded-lg bg-sky-600 text-white font-extrabold transition';
-                    btnStandard.className = 'px-2.5 py-1 rounded-lg text-stone-600 hover:bg-stone-100 font-bold transition';
-                }
-            }
-            exportFullRafflePng(false);
-        }
-
-        function exportFullRafflePng(autoDownload = true, resolutionScale = 1) {
+        function exportFullRafflePng(autoDownload = true, resolutionScale = 2) {
             if (autoDownload) {
                 showToast(resolutionScale > 1 ? 'Gerando PNG em alta resolução...' : 'Gerando imagem vertical 9:16 para celular...', 'info');
             }
@@ -2065,7 +2213,7 @@
             }
         }
 
-        function generatePosterCanvas(autoDownload, resolutionScale = 1) {
+        function generatePosterCanvas(autoDownload, resolutionScale = 2) {
             const palette = THEME_CANVAS_PALETTES[appState.theme] || THEME_CANVAS_PALETTES.neutral;
             const { title, babyName, prize, price, priceExtra, totalNumbers, drawDate, notes } = appState.config;
             const total = Number(totalNumbers) || 100;
@@ -2082,7 +2230,7 @@
             const sectionGap = 14;
             const footerH = 74;
 
-            const cols = 5;
+            const cols = total > 200 ? 10 : total > 100 ? 8 : 5;
             const rows = Math.ceil(total / cols);
             const gridInnerPad = 20;
             const gridTopHeaderH = 74;
@@ -2090,22 +2238,11 @@
             const cellGapX = 10;
             const cellW = Math.floor((contentW - gridInnerPad * 2 - cellGapX * (cols - 1)) / cols);
 
-            let H = 1920;
-            let cellGapY = 7;
-            let cellH = 56;
-
-            if (currentPosterFormatMode === '9x16' && total <= 100) {
-                H = 1920;
-                const availableGridCardH = H - (outerPad * 2 + headerH + sectionGap * 2 + footerH);
-                const availableRowsH = availableGridCardH - gridTopHeaderH - gridBottomPad;
-                cellGapY = rows <= 10 ? 10 : 7;
-                cellH = Math.floor((availableRowsH - cellGapY * (rows - 1)) / rows);
-            } else {
-                cellGapY = 10;
-                cellH = currentPosterFormatMode === '9x16_tall' ? 86 : 62;
-                const computedGridCardH = gridTopHeaderH + rows * cellH + (rows - 1) * cellGapY + gridBottomPad;
-                H = Math.max(1920, outerPad * 2 + headerH + sectionGap * 2 + computedGridCardH + footerH);
-            }
+            const H = 1920;
+            const cellGapY = rows > 20 ? 4 : rows > 12 ? 6 : rows > 10 ? 7 : 10;
+            const availableGridCardH = H - (outerPad * 2 + headerH + sectionGap * 2 + footerH);
+            const availableRowsH = availableGridCardH - gridTopHeaderH - gridBottomPad;
+            const cellH = Math.floor((availableRowsH - cellGapY * (rows - 1)) / rows);
 
             const gridCardH = H - (outerPad * 2 + headerH + sectionGap * 2 + footerH);
 
@@ -2113,8 +2250,7 @@
             if (dimInfo) {
                 const outputW = W * resolutionScale;
                 const outputH = H * resolutionScale;
-                const resolutionLabel = resolutionScale > 1 ? ' em alta resolução (2×)' : '';
-                dimInfo.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600 mr-1"></i> Imagem vertical <strong>9:16 (${outputW}×${outputH} px${resolutionLabel})</strong> com <strong>5 colunas largas</strong> e fundo 100% opaco — perfeita para ler no celular e imprimir.`;
+                dimInfo.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600 mr-1"></i> Imagem vertical <strong>9:16 (${outputW}×${outputH} px)</strong> em alta resolução <strong>2×</strong>, com <strong>${cols} colunas</strong> e fundo 100% opaco — perfeita para ler no celular e imprimir.`;
             }
 
             const canvas = document.createElement('canvas');
@@ -2123,9 +2259,12 @@
             const ctx = scalePosterFonts(canvas.getContext('2d', { alpha: false }), posterFontScale);
             ctx.scale(resolutionScale, resolutionScale);
 
-            ctx.fillStyle = '#ffffff';
-            ctx.fillRect(0, 0, W, H);
-            ctx.fillStyle = palette.bgMain;
+            const pageGradient = ctx.createLinearGradient(0, 0, W, H);
+            pageGradient.addColorStop(0, '#fff8df');
+            pageGradient.addColorStop(0.42, '#fff1f7');
+            pageGradient.addColorStop(0.72, '#eff8ff');
+            pageGradient.addColorStop(1, '#effff3');
+            ctx.fillStyle = pageGradient;
             ctx.fillRect(0, 0, W, H);
 
             ctx.fillStyle = palette.dotColor;
@@ -2140,14 +2279,22 @@
             const headerX = outerPad;
             const headerY = outerPad;
 
-            drawRoundedRect(ctx, headerX, headerY, contentW, headerH, 30, '#ffffff', palette.border, 3.5);
+            const headerGradient = ctx.createLinearGradient(headerX, headerY, headerX + contentW, headerY + headerH);
+            headerGradient.addColorStop(0, '#fffaf0');
+            headerGradient.addColorStop(0.48, '#fff4f8');
+            headerGradient.addColorStop(1, '#eff9ff');
+            drawRoundedRect(ctx, headerX, headerY, contentW, headerH, 30, headerGradient, '#f4c4d9', 4);
             drawNurseryBunting(ctx, headerX + 14, headerY + 3, contentW - 28);
 
             const innerX = headerX + 16;
             const innerY = headerY + 54;
             const innerW = contentW - 32;
             const innerH = headerH - 70;
-            drawRoundedRect(ctx, innerX, innerY, innerW, innerH, 24, palette.skyTop, palette.border, 2, [9, 6]);
+            const innerGradient = ctx.createLinearGradient(innerX, innerY, innerX + innerW, innerY + innerH);
+            innerGradient.addColorStop(0, '#fffef5');
+            innerGradient.addColorStop(0.52, '#fff7fb');
+            innerGradient.addColorStop(1, '#f0faff');
+            drawRoundedRect(ctx, innerX, innerY, innerW, innerH, 24, innerGradient, '#c6e8f7', 2.5, [9, 6]);
 
             drawRoundedRect(ctx, innerX + 18, innerY + 12, 600, 32, 16, palette.bgSoft, palette.border, 1.5);
             ctx.font = '800 15px "Nunito", sans-serif';
@@ -2164,7 +2311,7 @@
 
             const mascotCx = innerX + 108;
             const mascotCy = innerY + 128;
-            drawNurseryBearMascot(ctx, mascotCx, mascotCy, 66, palette);
+            drawNurseryBearMascot(ctx, mascotCx, mascotCy, 70, palette);
 
             const topInfoX = innerX + 206;
             const topInfoW = innerW - 224;
@@ -2208,7 +2355,11 @@
             let cardsY = innerY + 204;
 
             const prizeCardH = 88;
-            drawRoundedRect(ctx, cardsX, cardsY, cardsW, prizeCardH, 18, '#ffffff', palette.accent, 2.5, [8, 5]);
+            const prizeGradient = ctx.createLinearGradient(cardsX, cardsY, cardsX + cardsW, cardsY + prizeCardH);
+            prizeGradient.addColorStop(0, '#fff4c2');
+            prizeGradient.addColorStop(0.52, '#fffaf0');
+            prizeGradient.addColorStop(1, '#ffedf5');
+            drawRoundedRect(ctx, cardsX, cardsY, cardsW, prizeCardH, 18, prizeGradient, '#f2bd50', 2.5, [8, 5]);
             drawRoundedRect(ctx, cardsX + 12, cardsY + 12, 52, 52, 14, '#fef3c7', '#f59e0b', 2);
             ctx.font = '700 26px "Nunito", sans-serif';
             ctx.textAlign = 'center';
@@ -2221,7 +2372,8 @@
             ctx.fillText('PRÊMIOS ESPECIAIS DO SORTEIO', cardsX + 76, cardsY + 20);
 
             mCtx.font = '700 21px "Fredoka", "Quicksand", sans-serif';
-            const prizeLines = wrapCanvasText(mCtx, prize || DEFAULT_CONFIG.prize, cardsW - 92, 2);
+            const prizeTextW = cardsW - 260;
+            const prizeLines = wrapCanvasText(mCtx, prize || DEFAULT_CONFIG.prize, prizeTextW, 2);
             ctx.font = '700 21px "Fredoka", "Quicksand", sans-serif';
             ctx.fillStyle = palette.textPrimary;
             if (prizeLines.length === 1) {
@@ -2231,12 +2383,18 @@
                 ctx.fillText(prizeLines[0], cardsX + 76, cardsY + 42);
                 ctx.fillText(prizeLines[1], cardsX + 76, cardsY + 68);
             }
+            drawNurseryBearMascot(ctx, cardsX + cardsW - 178, cardsY + 44, 31, palette);
+            drawToyBlocks(ctx, cardsX + cardsW - 124, cardsY + 25, 42);
+            drawBabyFace(ctx, cardsX + cardsW - 58, cardsY + 43, 24);
 
             cardsY += prizeCardH + 10;
             const halfW = Math.floor((cardsW - 12) / 2);
             const bottomCardH = 82;
 
-            drawRoundedRect(ctx, cardsX, cardsY, halfW, bottomCardH, 18, '#ffffff', palette.border, 2);
+            const priceGradient = ctx.createLinearGradient(cardsX, cardsY, cardsX + halfW, cardsY + bottomCardH);
+            priceGradient.addColorStop(0, '#eaf7ff');
+            priceGradient.addColorStop(1, '#f0fff5');
+            drawRoundedRect(ctx, cardsX, cardsY, halfW, bottomCardH, 18, priceGradient, '#a9d8f1', 2);
             drawRoundedRect(ctx, cardsX + 12, cardsY + 15, 52, 52, 14, palette.bgSoft, palette.border, 1.5);
             ctx.font = '700 24px "Nunito", sans-serif';
             ctx.textAlign = 'center';
@@ -2265,7 +2423,10 @@
             ctx.fillText('🧷 Fraldas: Tam. P • Tam. M • Tam. G', cardsX + 74, cardsY + 66);
 
             const pixX = cardsX + halfW + 12;
-            drawRoundedRect(ctx, pixX, cardsY, halfW, bottomCardH, 18, '#fffbeb', '#fcd34d', 2);
+            const pixGradient = ctx.createLinearGradient(pixX, cardsY, pixX + halfW, cardsY + bottomCardH);
+            pixGradient.addColorStop(0, '#fff0f6');
+            pixGradient.addColorStop(1, '#fff8e6');
+            drawRoundedRect(ctx, pixX, cardsY, halfW, bottomCardH, 18, pixGradient, '#f2bfd2', 2);
             drawRoundedRect(ctx, pixX + 12, cardsY + 15, 52, 52, 14, '#fef3c7', '#f59e0b', 1.5);
             ctx.font = '700 24px "Nunito", sans-serif';
             ctx.textAlign = 'center';
@@ -2286,18 +2447,27 @@
             const gridCardX = outerPad;
             const gridCardY = headerY + headerH + sectionGap;
 
-            drawRoundedRect(ctx, gridCardX, gridCardY, contentW, gridCardH, 30, '#ffffff', palette.border, 3.5);
+            const gridGradient = ctx.createLinearGradient(gridCardX, gridCardY, gridCardX + contentW, gridCardY + gridCardH);
+            gridGradient.addColorStop(0, '#ffffff');
+            gridGradient.addColorStop(0.5, '#fffdf9');
+            gridGradient.addColorStop(1, '#f6fcff');
+            drawRoundedRect(ctx, gridCardX, gridCardY, contentW, gridCardH, 30, gridGradient, '#c7e7f4', 3.5);
 
             const bannerX = gridCardX + gridInnerPad;
             const bannerY = gridCardY + 14;
             const bannerW = contentW - gridInnerPad * 2;
-            drawRoundedRect(ctx, bannerX, bannerY, bannerW, 48, 16, palette.bgSoft, palette.border, 2, [7, 5]);
+            const bannerGradient = ctx.createLinearGradient(bannerX, bannerY, bannerX + bannerW, bannerY);
+            bannerGradient.addColorStop(0, '#fff1c8');
+            bannerGradient.addColorStop(0.34, '#ffeaf4');
+            bannerGradient.addColorStop(0.68, '#eaf6ff');
+            bannerGradient.addColorStop(1, '#eaffef');
+            drawRoundedRect(ctx, bannerX, bannerY, bannerW, 48, 16, bannerGradient, '#e8bfd4', 2, [7, 5]);
 
             ctx.textAlign = 'left';
             ctx.textBaseline = 'middle';
             ctx.font = '700 20px "Fredoka", "Quicksand", sans-serif';
             ctx.fillStyle = palette.textPrimary;
-            ctx.fillText('👣 Escolha seu Número da Sorte (Marcados com × já escolhidos)', bannerX + 16, bannerY + 24);
+            ctx.fillText('👣 Escolha seu Número da Sorte', bannerX + 16, bannerY + 24);
 
             const legendItems = [
                 { label: 'Livre', bg: '#ffffff', border: palette.border, text: palette.textPrimary },
@@ -2334,11 +2504,12 @@
                 const fNum = formatRaffleNumber(num);
 
                 if (status === 'paid') {
-                    drawRoundedRect(ctx, cx, cy, cellW, cellH, 14, '#ecfdf5', '#10b981', 2.2);
+                    drawRoundedRect(ctx, cx, cy, cellW, cellH, 14, '#dff8e8', '#42bd7a', 2.2);
                 } else if (status === 'pending') {
-                    drawRoundedRect(ctx, cx, cy, cellW, cellH, 14, '#fffbeb', '#f59e0b', 2.2);
+                    drawRoundedRect(ctx, cx, cy, cellW, cellH, 14, '#fff0c4', '#f2ad30', 2.2);
                 } else {
-                    drawRoundedRect(ctx, cx, cy, cellW, cellH, 14, '#ffffff', palette.border, 1.8, [5, 4]);
+                    const cellColors = ['#fff8df', '#fff0f6', '#edf8ff', '#effff3'];
+                    drawRoundedRect(ctx, cx, cy, cellW, cellH, 14, cellColors[idx % cellColors.length], '#d4cddd', 1.8, [5, 4]);
                 }
 
                 ctx.font = '700 10px "Nunito", sans-serif';
@@ -2347,20 +2518,28 @@
                 ctx.textBaseline = 'top';
                 ctx.fillText('✦', cx + 7, cy + 4);
 
-                if (status === 'paid' || status === 'pending') {
+                if ((status === 'paid' || status === 'pending') && cellH >= 48) {
                     const tagText = status === 'paid' ? '✓ PAGO' : '⏳ RES.';
                     ctx.font = '800 10px "Nunito", sans-serif';
                     ctx.fillStyle = status === 'paid' ? '#047857' : '#b45309';
                     ctx.textAlign = 'right';
                     ctx.fillText(tagText, cx + cellW - 7, cy + 5);
+                } else if (status === 'paid' || status === 'pending') {
+                    ctx.beginPath();
+                    ctx.arc(cx + cellW - 10, cy + 10, 4, 0, Math.PI * 2);
+                    ctx.fillStyle = status === 'paid' ? '#10b981' : '#f59e0b';
+                    ctx.fill();
                 }
 
                 const numCenterX = cx + cellW / 2;
                 const numCenterY = isCompactCell ? cy + Math.round(cellH * 0.36) : cy + 28;
+                let numberFontSize = Math.min(34, Math.max(12, Math.floor(cellH * 0.62 / posterFontScale)));
 
-                ctx.font = isCompactCell
-                    ? '700 28px "Fredoka", "Quicksand", sans-serif'
-                    : '700 34px "Fredoka", "Quicksand", sans-serif';
+                ctx.font = `700 ${numberFontSize}px "Fredoka", "Quicksand", sans-serif`;
+                while (numberFontSize > 12 && ctx.measureText(fNum).width > cellW - 14) {
+                    numberFontSize -= 1;
+                    ctx.font = `700 ${numberFontSize}px "Fredoka", "Quicksand", sans-serif`;
+                }
                 ctx.fillStyle = status === 'paid' ? '#065f46' : status === 'pending' ? '#92400e' : palette.textPrimary;
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
@@ -2378,7 +2557,9 @@
                     ctx.fillText('×', 0, 1);
                     ctx.restore();
 
-                    ctx.font = isCompactCell ? '800 13.5px "Nunito", sans-serif' : '800 15px "Nunito", sans-serif';
+                    ctx.font = cellH < 48
+                        ? '700 9px "Nunito", sans-serif'
+                        : isCompactCell ? '800 13.5px "Nunito", sans-serif' : '800 15px "Nunito", sans-serif';
                     ctx.fillStyle = status === 'paid' ? '#064e3b' : '#78350f';
                     const maxLinesForCell = isCompactCell ? 1 : 2;
                     const nameLines = wrapCanvasText(ctx, entry.name, cellW - 14, maxLinesForCell);
@@ -2391,17 +2572,23 @@
                         ctx.fillText(nameLines[1], numCenterX, cy + 73);
                     }
                 } else {
-                    ctx.font = isCompactCell ? '700 12px "Nunito", sans-serif' : '700 13px "Nunito", sans-serif';
-                    ctx.fillStyle = '#a8a29e';
-                    const freeY = isCompactCell ? cy + Math.round(cellH * 0.75) : cy + 62;
-                    ctx.fillText('Livre', numCenterX, freeY);
+                    if (cellH >= 46) {
+                        ctx.font = isCompactCell ? '700 12px "Nunito", sans-serif' : '700 13px "Nunito", sans-serif';
+                        ctx.fillStyle = '#a8a29e';
+                        const freeY = isCompactCell ? cy + Math.round(cellH * 0.78) : cy + 62;
+                        ctx.fillText('Livre', numCenterX, freeY);
+                    }
                 }
             }
 
             const footerX = outerPad;
             const footerY = gridCardY + gridCardH + sectionGap;
 
-            drawRoundedRect(ctx, footerX, footerY, contentW, footerH, 24, '#ffffff', palette.border, 3);
+            const footerGradient = ctx.createLinearGradient(footerX, footerY, footerX + contentW, footerY);
+            footerGradient.addColorStop(0, '#fff7dc');
+            footerGradient.addColorStop(0.5, '#fff2f8');
+            footerGradient.addColorStop(1, '#eaf8ff');
+            drawRoundedRect(ctx, footerX, footerY, contentW, footerH, 24, footerGradient, '#d7c9e8', 3);
             drawRoundedRect(ctx, footerX + 16, footerY + 13, 48, 48, 14, palette.bgSoft, palette.border, 1.5);
             ctx.font = '700 24px "Nunito", sans-serif';
             ctx.textAlign = 'center';
@@ -2423,9 +2610,7 @@
             ctx.textAlign = 'center';
             ctx.fillText('♥ Feito com Amor ★', footerX + contentW - 106, footerY + 37);
 
-            const modeSuffix = currentPosterFormatMode === '9x16_tall' ? '9x16_ampliado' : '9x16';
-            const resolutionSuffix = resolutionScale > 1 ? '_alta_resolucao_2x' : '';
-            lastGeneratedFileName = `rifa_${(babyName || 'bebe').toLowerCase().replace(/[^a-z0-9]/g, '_')}_${modeSuffix}${resolutionSuffix}.png`;
+            lastGeneratedFileName = `rifa_${(babyName || 'bebe').toLowerCase().replace(/[^a-z0-9]/g, '_')}_9x16_tela_cheia_alta_resolucao_2x.png`;
             lastGeneratedDataUrl = canvas.toDataURL('image/png', 1.0);
 
             const previewImg = document.getElementById('generatedRafflePreviewImg');
@@ -2645,7 +2830,7 @@
             setTheme, toggleConfigPanel, autoSaveConfigField, handleFormSubmit, handleNumberInputChange,
             pickRandomAvailableNumber, setFormPaymentStatus, releaseCurrentNumber, clearBookingForm,
             setGridFilter, selectNumberFromGrid, toggleEntryPaymentStatus, openDrawModal, closeDrawModal,
-            setDrawPool, runRaffleDraw, exportFullRafflePng, setPosterFormatMode, copyWhatsAppSummary, openResetModal, closeResetModal,
+            setDrawPool, runRaffleDraw, exportFullRafflePng, copyWhatsAppSummary, openResetModal, closeResetModal,
             clearAllEntries, loadDemoEntries, closeBookingModal, copyPixNotes,
             openImagePreviewModal, closeImagePreviewModal, downloadGeneratedRaffleImage,
             shareGeneratedRaffleImage, printGeneratedRaffleImage
