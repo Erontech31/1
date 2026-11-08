@@ -623,9 +623,9 @@
                                     <h1 id="displayRaffleTitle" class="font-kid text-2xl sm:text-4xl lg:text-[42px] font-bold tracking-tight leading-tight text-stone-800">
                                         Chá Rifa de Fraldas & Mimos
                                     </h1>
-                                    <p class="text-xs sm:text-sm font-semibold opacity-80 mt-1 flex items-center justify-center md:justify-start gap-1.5">
-                                        <i class="fa-solid fa-star text-amber-400"></i>
-                                        <span>Escolha seu número da sorte, cruze os dedos e comemore a chegada do nosso pacotinho de amor!</span>
+                                    <p class="text-xs sm:text-sm font-semibold opacity-80 mt-1 flex w-full max-w-full min-w-0 items-start justify-center md:justify-start gap-1.5">
+                                        <i class="fa-solid fa-star text-amber-400 shrink-0 mt-0.5"></i>
+                                        <span class="min-w-0 whitespace-normal break-words leading-relaxed">Escolha seu número da sorte, cruze os dedos e comemore a chegada do nosso pacotinho de amor!</span>
                                     </p>
                                 </div>
 
@@ -1951,11 +1951,11 @@
             ctx.restore();
         }
 
-        function drawToyBlocks(ctx, x, y, size) {
+        function drawToyBlocks(ctx, x, y, size, palette) {
             const blocks = [
-                { x, y: y + size * 0.48, color: '#f9a8d4', label: 'A' },
-                { x: x + size * 0.43, y: y + size * 0.48, color: '#93c5fd', label: 'B' },
-                { x: x + size * 0.22, y, color: '#fcd34d', label: 'C' }
+                { x, y: y + size * 0.48, color: palette.accent, label: 'A' },
+                { x: x + size * 0.43, y: y + size * 0.48, color: palette.ribbonBorder, label: 'B' },
+                { x: x + size * 0.22, y, color: palette.posterTint, label: 'C' }
             ];
             blocks.forEach((block) => {
                 drawRoundedRect(ctx, block.x, block.y, size * 0.42, size * 0.42, size * 0.08, block.color, '#ffffff', 2);
@@ -2013,8 +2013,8 @@
             ctx.restore();
         }
 
-        function drawNurseryBunting(ctx, startX, startY, totalWidth) {
-            const flagColors = ['#fde68a', '#fbcfe8', '#bae6fd', '#bbf7d0', '#fed7aa', '#e9d5ff'];
+        function drawNurseryBunting(ctx, startX, startY, totalWidth, palette) {
+            const flagColors = [palette.ribbonBg, palette.bgSoft, palette.posterWash, palette.posterTint];
             const count = 13;
             const flagW = totalWidth / count;
 
@@ -2023,7 +2023,7 @@
             ctx.moveTo(startX, startY + 5);
             ctx.quadraticCurveTo(startX + totalWidth * 0.25, startY + 18, startX + totalWidth * 0.5, startY + 8);
             ctx.quadraticCurveTo(startX + totalWidth * 0.75, startY + 18, startX + totalWidth, startY + 5);
-            ctx.strokeStyle = '#d4a373';
+            ctx.strokeStyle = palette.accent;
             ctx.lineWidth = 2.5;
             ctx.stroke();
 
@@ -2051,7 +2051,7 @@
                 ctx.fill();
 
                 if (i % 2 === 1 && i < count - 1) {
-                    drawStarShape(ctx, fx + fw + 4, fy + 26, 5, 5, 2.5, '#fbbf24');
+                    drawStarShape(ctx, fx + fw + 4, fy + 26, 5, 5, 2.5, palette.accent);
                 }
             }
             ctx.restore();
@@ -2091,7 +2091,7 @@
 
             ctx.beginPath();
             ctx.arc(-58, -50, 18, 0, Math.PI * 2);
-            ctx.fillStyle = '#93c5fd';
+            ctx.fillStyle = palette.accent;
             ctx.fill();
             ctx.beginPath();
             ctx.arc(-63, -56, 4.5, 0, Math.PI * 2);
@@ -2100,7 +2100,7 @@
 
             ctx.beginPath();
             ctx.arc(60, -52, 20, 0, Math.PI * 2);
-            ctx.fillStyle = '#f472b6';
+            ctx.fillStyle = palette.ribbonBorder;
             ctx.fill();
             ctx.beginPath();
             ctx.arc(54, -58, 5, 0, Math.PI * 2);
@@ -2133,7 +2133,7 @@
             ctx.lineTo(-21, -40);
             ctx.lineTo(21, -40);
             ctx.closePath();
-            ctx.fillStyle = '#60a5fa';
+            ctx.fillStyle = palette.accent;
             ctx.fill();
             ctx.lineWidth = 3;
             ctx.strokeStyle = '#ffffff';
@@ -2155,9 +2155,9 @@
             ctx.fillStyle = '#ffffff';
             ctx.fill();
             ctx.lineWidth = 2.5;
-            ctx.strokeStyle = '#bae6fd';
+            ctx.strokeStyle = palette.ribbonBorder;
             ctx.stroke();
-            drawHeartShape(ctx, 0, 36, 11, '#f472b6');
+            drawHeartShape(ctx, 0, 36, 11, palette.accent);
 
             ctx.beginPath();
             ctx.arc(0, -6, 37, 0, Math.PI * 2);
@@ -2244,7 +2244,7 @@
             const posterFontScale = 1.3;
             const mCtx = scalePosterFonts(measureCanvas.getContext('2d'), posterFontScale);
 
-            const headerH = 456;
+            const headerH = 486;
             const sectionGap = 14;
             const footerH = 74;
 
@@ -2301,7 +2301,7 @@
             headerGradient.addColorStop(0.5, palette.bgSoft);
             headerGradient.addColorStop(1, palette.posterTint);
             drawRoundedRect(ctx, headerX, headerY, contentW, headerH, 30, headerGradient, palette.accent, 4);
-            drawNurseryBunting(ctx, headerX + 14, headerY + 3, contentW - 28);
+            drawNurseryBunting(ctx, headerX + 14, headerY + 3, contentW - 28, palette);
 
             const innerX = headerX + 16;
             const innerY = headerY + 54;
@@ -2332,7 +2332,7 @@
 
             const topInfoX = innerX + 206;
             const topInfoW = innerW - 224;
-            let cursorY = innerY + 56;
+            let cursorY = innerY + 50;
 
             ctx.font = '800 18px "Nunito", sans-serif';
             const babyBadgeText = `👶 ${babyName || DEFAULT_CONFIG.babyName} ✨`;
@@ -2349,7 +2349,7 @@
             ctx.fillStyle = palette.textPrimary;
             ctx.fillText(dateText, dateBadgeX + dateBadgeW / 2, cursorY + 18);
 
-            cursorY += 60;
+            cursorY += 58;
             let titleFontSize = 42;
             ctx.font = `700 ${titleFontSize}px "Fredoka", "Quicksand", sans-serif`;
             while (titleFontSize > 32 && ctx.measureText(title || DEFAULT_CONFIG.title).width > topInfoW) {
@@ -2365,11 +2365,19 @@
             cursorY += 60;
             ctx.font = '700 17px "Nunito", sans-serif';
             ctx.fillStyle = palette.textSecondary;
-            ctx.fillText('★ Escolha seu número da sorte e celebre a chegada do nosso pacotinho de amor!', topInfoX, cursorY);
+            const subtitleLines = wrapCanvasText(
+                ctx,
+                '★ Escolha seu número da sorte, cruze os dedos e comemore a chegada do nosso pacotinho de amor!',
+                topInfoW,
+                2
+            );
+            subtitleLines.forEach((line, index) => {
+                ctx.fillText(line, topInfoX, cursorY + index * 24);
+            });
 
             const cardsX = innerX + 18;
             const cardsW = innerW - 36;
-            let cardsY = innerY + 204;
+            let cardsY = innerY + 232;
 
             const prizeCardH = 88;
             const prizeGradient = ctx.createLinearGradient(cardsX, cardsY, cardsX + cardsW, cardsY + prizeCardH);
@@ -2377,7 +2385,7 @@
             prizeGradient.addColorStop(0.52, palette.posterWash);
             prizeGradient.addColorStop(1, palette.bgSoft);
             drawRoundedRect(ctx, cardsX, cardsY, cardsW, prizeCardH, 18, prizeGradient, palette.accent, 2.5, [8, 5]);
-            drawRoundedRect(ctx, cardsX + 12, cardsY + 12, 52, 52, 14, '#fef3c7', '#f59e0b', 2);
+            drawRoundedRect(ctx, cardsX + 12, cardsY + 12, 52, 52, 14, palette.badgeBg, palette.ribbonBorder, 2);
             ctx.font = '700 26px "Nunito", sans-serif';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
@@ -2385,7 +2393,7 @@
 
             ctx.textAlign = 'left';
             ctx.font = '800 12px "Nunito", sans-serif';
-            ctx.fillStyle = '#92400e';
+            ctx.fillStyle = palette.accentDark;
             ctx.fillText('PRÊMIOS ESPECIAIS DO SORTEIO', cardsX + 76, cardsY + 20);
 
             mCtx.font = '700 21px "Fredoka", "Quicksand", sans-serif';
@@ -2401,7 +2409,7 @@
                 ctx.fillText(prizeLines[1], cardsX + 76, cardsY + 68);
             }
             drawNurseryBearMascot(ctx, cardsX + cardsW - 178, cardsY + 44, 31, palette);
-            drawToyBlocks(ctx, cardsX + cardsW - 124, cardsY + 25, 42);
+            drawToyBlocks(ctx, cardsX + cardsW - 124, cardsY + 25, 42, palette);
             drawBabyFace(ctx, cardsX + cardsW - 58, cardsY + 43, 24);
 
             cardsY += prizeCardH + 10;
@@ -2423,7 +2431,7 @@
             ctx.fillText('VALOR POR NÚMERO', cardsX + 74, cardsY + 19);
 
             ctx.font = '700 25px "Fredoka", "Quicksand", sans-serif';
-            ctx.fillStyle = '#047857';
+            ctx.fillStyle = palette.accentDark;
             const formattedPrice = formatCurrency(price);
             ctx.fillText(formattedPrice, cardsX + 74, cardsY + 43);
 
@@ -2444,18 +2452,18 @@
             pixGradient.addColorStop(0, palette.badgeBg);
             pixGradient.addColorStop(1, palette.posterWash);
             drawRoundedRect(ctx, pixX, cardsY, halfW, bottomCardH, 18, pixGradient, palette.border, 2);
-            drawRoundedRect(ctx, pixX + 12, cardsY + 15, 52, 52, 14, '#fef3c7', '#f59e0b', 1.5);
+            drawRoundedRect(ctx, pixX + 12, cardsY + 15, 52, 52, 14, palette.badgeBg, palette.ribbonBorder, 1.5);
             ctx.font = '700 24px "Nunito", sans-serif';
             ctx.textAlign = 'center';
             ctx.fillText('🔑', pixX + 38, cardsY + 42);
 
             ctx.textAlign = 'left';
             ctx.font = '800 11px "Nunito", sans-serif';
-            ctx.fillStyle = '#92400e';
+            ctx.fillStyle = palette.accentDark;
             ctx.fillText('CHAVE PIX / INSTRUÇÕES', pixX + 74, cardsY + 19);
 
             ctx.font = '800 15px "Nunito", sans-serif';
-            ctx.fillStyle = '#292524';
+            ctx.fillStyle = palette.textPrimary;
             const pixLines = wrapCanvasText(ctx, notes || DEFAULT_CONFIG.notes, halfW - 86, 2);
             pixLines.forEach((line, idx) => {
                 ctx.fillText(line, pixX + 74, cardsY + 42 + idx * 26);
