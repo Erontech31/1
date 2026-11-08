@@ -951,6 +951,9 @@
                 <button type="button" onclick="downloadGeneratedRaffleImage()" class="px-4 py-2.5 rounded-2xl bg-sky-600 hover:bg-sky-700 text-white font-extrabold text-xs sm:text-sm flex items-center gap-2 shadow-sm transition">
                     <i class="fa-solid fa-download"></i> Baixar PNG (9:16)
                 </button>
+                <button type="button" onclick="exportFullRafflePng(true, 2)" class="px-4 py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs sm:text-sm flex items-center gap-2 shadow-sm transition">
+                    <i class="fa-solid fa-expand"></i> Alta resolução (2×)
+                </button>
                 <button type="button" id="btnShareGeneratedImage" onclick="shareGeneratedRaffleImage()" class="px-4 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs sm:text-sm flex items-center gap-2 shadow-sm transition">
                     <i class="fa-solid fa-share-nodes"></i> Compartilhar no Celular
                 </button>
@@ -2035,19 +2038,19 @@
             exportFullRafflePng(false);
         }
 
-        function exportFullRafflePng(autoDownload = true) {
+        function exportFullRafflePng(autoDownload = true, resolutionScale = 1) {
             if (autoDownload) {
-                showToast('Gerando imagem vertical 9:16 para celular...', 'info');
+                showToast(resolutionScale > 1 ? 'Gerando PNG em alta resolução...' : 'Gerando imagem vertical 9:16 para celular...', 'info');
             }
 
             if (document.fonts && document.fonts.ready) {
-                document.fonts.ready.then(() => generatePosterCanvas(autoDownload)).catch(() => generatePosterCanvas(autoDownload));
+                document.fonts.ready.then(() => generatePosterCanvas(autoDownload, resolutionScale)).catch(() => generatePosterCanvas(autoDownload, resolutionScale));
             } else {
-                generatePosterCanvas(autoDownload);
+                generatePosterCanvas(autoDownload, resolutionScale);
             }
         }
 
-        function generatePosterCanvas(autoDownload) {
+        function generatePosterCanvas(autoDownload, resolutionScale = 1) {
             const palette = THEME_CANVAS_PALETTES[appState.theme] || THEME_CANVAS_PALETTES.neutral;
             const { title, babyName, prize, price, priceExtra, totalNumbers, drawDate, notes } = appState.config;
             const total = Number(totalNumbers) || 100;
@@ -2092,13 +2095,17 @@
 
             const dimInfo = document.getElementById('posterDimensionInfo');
             if (dimInfo) {
-                dimInfo.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600 mr-1"></i> Imagem vertical <strong>9:16 (${W}×${H} px)</strong> com <strong>5 colunas largas</strong> e fundo 100% opaco — perfeita para ler no celular e imprimir.`;
+                const outputW = W * resolutionScale;
+                const outputH = H * resolutionScale;
+                const resolutionLabel = resolutionScale > 1 ? ' em alta resolução (2×)' : '';
+                dimInfo.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600 mr-1"></i> Imagem vertical <strong>9:16 (${outputW}×${outputH} px${resolutionLabel})</strong> com <strong>5 colunas largas</strong> e fundo 100% opaco — perfeita para ler no celular e imprimir.`;
             }
 
             const canvas = document.createElement('canvas');
-            canvas.width = W;
-            canvas.height = H;
+            canvas.width = W * resolutionScale;
+            canvas.height = H * resolutionScale;
             const ctx = canvas.getContext('2d', { alpha: false });
+            ctx.scale(resolutionScale, resolutionScale);
 
             ctx.fillStyle = '#ffffff';
             ctx.fillRect(0, 0, W, H);
@@ -2396,7 +2403,8 @@
             ctx.fillText('♥ Feito com Amor ★', footerX + contentW - 106, footerY + 37);
 
             const modeSuffix = currentPosterFormatMode === '9x16_tall' ? '9x16_ampliado' : '9x16';
-            lastGeneratedFileName = `rifa_${(babyName || 'bebe').toLowerCase().replace(/[^a-z0-9]/g, '_')}_${modeSuffix}.png`;
+            const resolutionSuffix = resolutionScale > 1 ? '_alta_resolucao_2x' : '';
+            lastGeneratedFileName = `rifa_${(babyName || 'bebe').toLowerCase().replace(/[^a-z0-9]/g, '_')}_${modeSuffix}${resolutionSuffix}.png`;
             lastGeneratedDataUrl = canvas.toDataURL('image/png', 1.0);
 
             const previewImg = document.getElementById('generatedRafflePreviewImg');
@@ -2407,7 +2415,7 @@
             openImagePreviewModal();
             if (autoDownload) {
                 downloadGeneratedRaffleImage();
-                showToast('Imagem 9:16 criada com sucesso!', 'success');
+                showToast(resolutionScale > 1 ? 'PNG em alta resolução criado com sucesso!' : 'Imagem 9:16 criada com sucesso!', 'success');
             }
         }
 
