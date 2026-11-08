@@ -1,0 +1,1457 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chá Rifa do Bebê - Cartela & Controle Interativo</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Quicksand & Nunito -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- html2canvas para gerar imagens PNG perfeitas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <style>
+        :root {
+            --bg-main: #fdfbf7;
+            --bg-card: #ffffff;
+            --bg-soft: #f5ebe0;
+            --bg-accent: #d4a373;
+            --bg-accent-hover: #bc8a5f;
+            --text-primary: #4a3f35;
+            --text-secondary: #7f6e5d;
+            --border-color: #e6ccb2;
+            --badge-bg: #faedcd;
+            --badge-text: #8c6239;
+            --cell-avail-bg: #ffffff;
+            --cell-avail-border: #e6ccb2;
+            --cell-avail-hover: #faedcd;
+            --export-pattern-color: rgba(212, 163, 115, 0.14);
+        }
+
+        [data-theme="blue"] {
+            --bg-main: #f4f9fd;
+            --bg-card: #ffffff;
+            --bg-soft: #e1effe;
+            --bg-accent: #5fa8d3;
+            --bg-accent-hover: #428bca;
+            --text-primary: #1e3a5f;
+            --text-secondary: #52739c;
+            --border-color: #bae0fd;
+            --badge-bg: #dbeafe;
+            --badge-text: #1e40af;
+            --cell-avail-bg: #ffffff;
+            --cell-avail-border: #bae0fd;
+            --cell-avail-hover: #e0f2fe;
+            --export-pattern-color: rgba(95, 168, 211, 0.16);
+        }
+
+        [data-theme="pink"] {
+            --bg-main: #fff8fa;
+            --bg-card: #ffffff;
+            --bg-soft: #fce7f3;
+            --bg-accent: #ec839e;
+            --bg-accent-hover: #db6583;
+            --text-primary: #59253a;
+            --text-secondary: #8c4f66;
+            --border-color: #fbcfe8;
+            --badge-bg: #fce7f3;
+            --badge-text: #9d174d;
+            --cell-avail-bg: #ffffff;
+            --cell-avail-border: #fbcfe8;
+            --cell-avail-hover: #fdf2f8;
+            --export-pattern-color: rgba(236, 131, 158, 0.15);
+        }
+
+        [data-theme="mint"] {
+            --bg-main: #f4fbf8;
+            --bg-card: #ffffff;
+            --bg-soft: #d8f3dc;
+            --bg-accent: #52b788;
+            --bg-accent-hover: #40916c;
+            --text-primary: #1b4332;
+            --text-secondary: #40735b;
+            --border-color: #b7e4c7;
+            --badge-bg: #d8f3dc;
+            --badge-text: #1b4332;
+            --cell-avail-bg: #ffffff;
+            --cell-avail-border: #b7e4c7;
+            --cell-avail-hover: #e8f8f0;
+            --export-pattern-color: rgba(82, 183, 136, 0.16);
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            transition: background-color 0.3s ease, color 0.3s ease;
+            background-image: radial-gradient(var(--border-color) 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+
+        h1, h2, h3, .font-display {
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        .theme-card {
+            background-color: var(--bg-card);
+            border: 2px solid var(--border-color);
+            box-shadow: 0 8px 24px -6px rgba(0, 0, 0, 0.05);
+        }
+
+        .theme-soft-bg {
+            background-color: var(--bg-soft);
+        }
+
+        .theme-border {
+            border-color: var(--border-color);
+        }
+
+        .theme-btn-primary {
+            background-color: var(--bg-accent);
+            color: #ffffff;
+            transition: all 0.2s ease;
+        }
+
+        .theme-btn-primary:hover {
+            background-color: var(--bg-accent-hover);
+            transform: translateY(-1px);
+        }
+
+        .theme-badge {
+            background-color: var(--badge-bg);
+            color: var(--badge-text);
+        }
+
+        .raffle-cell {
+            transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+            user-select: none;
+            position: relative;
+        }
+
+        .raffle-cell:hover {
+            transform: translateY(-3px) scale(1.03);
+            z-index: 10;
+        }
+
+        .cell-available {
+            background-color: var(--cell-avail-bg);
+            border: 2px dashed var(--cell-avail-border);
+            color: var(--text-primary);
+        }
+
+        .cell-available:hover {
+            background-color: var(--cell-avail-hover);
+            border-style: solid;
+        }
+
+        .cell-pending {
+            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+            border: 2px solid #f59e0b;
+            color: #92400e;
+            box-shadow: 0 3px 10px rgba(245, 158, 11, 0.15);
+        }
+
+        .cell-paid {
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+            border: 2px solid #10b981;
+            color: #065f46;
+            box-shadow: 0 3px 10px rgba(16, 185, 129, 0.15);
+        }
+
+        .cell-selected {
+            outline: 3px solid var(--bg-accent);
+            outline-offset: 2px;
+            transform: scale(1.04);
+            z-index: 15;
+        }
+
+        /* Modo de Exportação PNG (Oculta tudo que não for o cabeçalho e a cartela) */
+        body.exporting-png .no-export {
+            display: none !important;
+        }
+        body.exporting-png {
+            background: var(--bg-main) !important;
+            background-image: none !important;
+        }
+        body.exporting-png #exportTargetContainer {
+            box-shadow: none !important;
+            border: none !important;
+            padding: 20px !important;
+            max-width: 1000px !important;
+            margin: 0 auto !important;
+            border-radius: 28px !important;
+            background-color: var(--bg-main) !important;
+            background-image:
+                radial-gradient(var(--export-pattern-color) 1.2px, transparent 1.2px),
+                linear-gradient(135deg, var(--bg-main), var(--bg-soft) 55%, var(--bg-main)) !important;
+            background-size: 18px 18px, 100% 100% !important;
+        }
+        body.exporting-png #raffleGrid .raffle-cell {
+            min-height: 76px !important;
+            height: auto !important;
+        }
+        body.exporting-png #raffleGrid .raffle-cell > span:last-child {
+            max-width: 100%;
+            overflow: visible;
+            text-overflow: clip;
+            white-space: normal;
+            overflow-wrap: anywhere;
+            line-height: 1.2;
+        }
+        body.exporting-png #raffleGrid .raffle-number {
+            position: relative;
+            z-index: 1;
+        }
+        body.exporting-png #raffleGrid .cell-paid .raffle-number::after,
+        body.exporting-png #raffleGrid .cell-pending .raffle-number::after {
+            content: "×";
+            position: absolute;
+            z-index: 4;
+            top: 50%;
+            left: 50%;
+            color: #dc2626;
+            font-size: 2rem;
+            font-weight: 900;
+            line-height: 1;
+            opacity: 0.9;
+            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.9);
+            transform: translate(-50%, -50%) rotate(-12deg);
+            pointer-events: none;
+        }
+        body.exporting-png #raffleGrid .raffle-name {
+            position: relative;
+            z-index: 5;
+        }
+        #bookingModalBackdrop {
+            z-index: 60;
+        }
+        body.booking-modal-open {
+            overflow: hidden;
+        }
+        body.booking-modal-open #bookingPanel {
+            position: fixed !important;
+            z-index: 61 !important;
+            inset: 50% auto auto 50%;
+            width: min(480px, calc(100vw - 24px));
+            max-height: calc(100vh - 24px);
+            max-height: calc(100dvh - 24px);
+            overflow-y: auto;
+            margin: 0 !important;
+            transform: translate(-50%, -50%);
+        }
+        body.booking-modal-open #closeBookingModal {
+            display: flex;
+        }
+        @media (max-width: 640px) {
+            body.exporting-png #displayPrizeRow > span {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+                text-align: center;
+                width: 100%;
+            }
+            body.exporting-png #displayPrize {
+                flex-basis: 100%;
+            }
+            body.exporting-png #exportDetailsRow > span {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+                text-align: center;
+                max-width: 100%;
+                box-sizing: border-box;
+            }
+        }
+
+        @keyframes floatSlow {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-6px); }
+        }
+        .animate-float {
+            animation: floatSlow 4s ease-in-out infinite;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(212, 163, 115, 0.4); }
+            50% { transform: scale(1.02); box-shadow: 0 0 25px 8px rgba(212, 163, 115, 0.6); }
+        }
+        .animate-winner {
+            animation: pulseGlow 0.8s ease-in-out infinite;
+        }
+
+        @keyframes drawNumberPulse {
+            to { transform: scale(1.08); }
+        }
+        #drawDisplayBox.is-drawing #drawRollingNumber {
+            animation: drawNumberPulse 0.35s ease-in-out infinite alternate;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            #drawDisplayBox.is-drawing #drawRollingNumber {
+                animation: none;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen pb-16" data-theme="neutral">
+
+    <!-- Canvas para Confetes do Sorteador -->
+    <canvas id="confettiCanvas" class="fixed inset-0 pointer-events-none z-50 hidden"></canvas>
+
+    <!-- Barra Superior Fixa -->
+    <div class="no-export sticky top-0 z-30 backdrop-blur-md bg-white/90 border-b theme-border px-4 py-2.5 shadow-sm">
+        <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+            <div class="flex flex-wrap items-center gap-2">
+                <span class="text-xs font-bold uppercase tracking-wider opacity-75 flex items-center gap-1.5">
+                    <i class="fa-solid fa-palette"></i> Tema:
+                </span>
+                <div class="flex items-center gap-1 bg-stone-100 p-1 rounded-full border border-stone-200">
+                    <button onclick="setTheme('neutral')" id="themeBtn-neutral" class="px-2.5 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 transition-all">
+                        <span class="w-3 h-3 rounded-full bg-[#d4a373] inline-block"></span> Neutro
+                    </button>
+                    <button onclick="setTheme('blue')" id="themeBtn-blue" class="px-2.5 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 transition-all">
+                        <span class="w-3 h-3 rounded-full bg-[#5fa8d3] inline-block"></span> Azul
+                    </button>
+                    <button onclick="setTheme('pink')" id="themeBtn-pink" class="px-2.5 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 transition-all">
+                        <span class="w-3 h-3 rounded-full bg-[#ec839e] inline-block"></span> Rosa
+                    </button>
+                    <button onclick="setTheme('mint')" id="themeBtn-mint" class="px-2.5 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 transition-all">
+                        <span class="w-3 h-3 rounded-full bg-[#52b788] inline-block"></span> Menta
+                    </button>
+                </div>
+
+                <div id="topStorageBadge" role="status" aria-live="polite" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-amber-50 text-amber-800 border border-amber-200 shadow-sm" title="Conectando ao Firebase">
+                    <i id="topStorageIcon" class="fa-solid fa-cloud-arrow-up"></i>
+                    <span id="topStorageText">Conectando Firebase...</span>
+                </div>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                <button onclick="openDrawModal()" class="px-3.5 py-1.5 rounded-full text-xs font-extrabold bg-amber-500 hover:bg-amber-600 text-white flex items-center gap-1.5 transition shadow-sm">
+                    <i class="fa-solid fa-trophy"></i> Sortear Número
+                </button>
+
+                <button onclick="exportFullRafflePng()" class="px-3.5 py-1.5 rounded-full text-xs font-extrabold bg-sky-600 hover:bg-sky-700 text-white flex items-center gap-1.5 transition shadow-sm" title="Baixar imagem PNG limpa (Apenas Cabeçalho e Cartela)">
+                    <i class="fa-solid fa-image"></i> Baixar Rifa em PNG
+                </button>
+
+                <button onclick="copyWhatsAppSummary()" class="px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-1.5 transition shadow-sm">
+                    <i class="fa-brands fa-whatsapp text-sm"></i> Resumo WhatsApp
+                </button>
+
+                <button onclick="openResetModal()" class="px-2.5 py-1.5 rounded-full text-xs font-bold text-stone-600 hover:bg-stone-100 border border-stone-200 flex items-center gap-1 transition" title="Opções de Limpeza">
+                    <i class="fa-solid fa-sliders"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Container Principal (Alvo para Exportação PNG: Contém Cabeçalho e Cartela) -->
+    <div id="exportTargetContainer" class="max-w-7xl mx-auto px-4 sm:px-6 pt-6 space-y-6">
+
+        <!-- CABEÇALHO DA RIFA -->
+        <header class="theme-card rounded-3xl p-6 sm:p-8 relative overflow-hidden">
+            <div class="absolute -top-4 -left-4 opacity-10 pointer-events-none">
+                <svg class="w-36 h-36" viewBox="0 0 100 100" fill="currentColor">
+                    <path d="M25,65 C15,65 10,55 15,45 C12,32 25,25 35,30 C42,18 62,18 68,30 C80,28 88,38 85,50 C90,58 82,65 72,65 Z"/>
+                </svg>
+            </div>
+            <div class="absolute -bottom-8 -right-6 opacity-10 pointer-events-none">
+                <svg class="w-40 h-40" viewBox="0 0 100 100" fill="currentColor">
+                    <circle cx="30" cy="30" r="14"/>
+                    <circle cx="70" cy="30" r="14"/>
+                    <circle cx="50" cy="55" r="28"/>
+                </svg>
+            </div>
+
+            <div class="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-6">
+                <div class="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-5 flex-1">
+                    <div class="relative shrink-0">
+                        <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-3xl theme-soft-bg border-2 theme-border flex items-center justify-center shadow-inner animate-float">
+                            <svg class="w-20 h-20" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="16" cy="18" r="8" fill="#d4a373"/>
+                                <circle cx="16" cy="18" r="4.5" fill="#faedcd"/>
+                                <circle cx="48" cy="18" r="8" fill="#d4a373"/>
+                                <circle cx="48" cy="18" r="4.5" fill="#faedcd"/>
+                                <circle cx="32" cy="34" r="20" fill="#e6b88a"/>
+                                <ellipse cx="32" cy="39" rx="8.5" ry="6.5" fill="#fdfbf7"/>
+                                <ellipse cx="32" cy="36.5" rx="3.2" ry="2.2" fill="#4a3f35"/>
+                                <path d="M32 38.7V42M32 42C30 43.5 28 42.5 28 42M32 42C34 43.5 36 42.5 36 42" stroke="#4a3f35" stroke-width="1.8" stroke-linecap="round"/>
+                                <circle cx="24" cy="30" r="2.2" fill="#4a3f35"/>
+                                <circle cx="40" cy="30" r="2.2" fill="#4a3f35"/>
+                                <ellipse cx="20" cy="35" rx="3" ry="1.8" fill="#f4a298" opacity="0.7"/>
+                                <ellipse cx="44" cy="35" rx="3" ry="1.8" fill="#f4a298" opacity="0.7"/>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2.5 flex-1">
+                        <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+                            <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider theme-badge">
+                                <i class="fa-solid fa-star text-amber-500"></i>
+                                <span id="displayBabyName">Bebê Noah</span>
+                                <i class="fa-solid fa-baby-carriage ml-0.5"></i>
+                            </div>
+                            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-stone-100 text-stone-700 border border-stone-200">
+                                <i class="fa-regular fa-calendar-check text-amber-600"></i>
+                                <span>Sorteio: <strong id="displayDrawDate">20/12/2026 às 19h</strong></span>
+                            </div>
+                        </div>
+
+                        <h1 id="displayRaffleTitle" class="text-2xl sm:text-4xl font-bold tracking-tight">
+                            Chá Rifa de Fraldas & Mimos
+                        </h1>
+
+                        <p id="displayPrizeRow" class="text-sm sm:text-base opacity-90">
+                            <span class="inline-flex items-center gap-1.5 font-semibold">
+                                <i class="fa-solid fa-gift text-amber-500"></i>
+                                <strong class="font-bold">Prêmios:</strong>
+                                <span id="displayPrize">1º Prêmio: R$ 200,00 no PIX | 2º Prêmio: Cesta Especial</span>
+                            </span>
+                        </p>
+
+                        <div id="exportDetailsRow" class="pt-1 flex flex-wrap items-center justify-center sm:justify-start gap-2.5 text-xs sm:text-sm">
+                            <span class="px-3.5 py-1.5 rounded-xl theme-soft-bg font-bold border theme-border inline-flex items-center gap-1.5">
+                                <i class="fa-solid fa-tag opacity-75"></i>
+                                Valor por Número: <strong id="displayPrice" class="text-base">R$ 15,00</strong>
+                                <span id="displayPriceExtra" class="text-xs font-semibold opacity-80">(+ 1 Pacote de Fralda)</span>
+                            </span>
+                            <span class="px-3.5 py-1.5 rounded-xl bg-amber-50/90 text-amber-900 font-semibold border border-amber-200 inline-flex items-center gap-1.5">
+                                <i class="fa-solid fa-key text-amber-600"></i>
+                                <span id="displayNotes">PIX: (11) 99999-9999 • Envie o comprovante no WhatsApp</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="no-export shrink-0 flex flex-col items-center sm:items-end gap-2">
+                    <button onclick="toggleConfigPanel()" class="px-4 py-2.5 rounded-2xl border-2 theme-border bg-white hover:bg-stone-50 font-bold text-sm flex items-center gap-2 shadow-sm transition">
+                        <i class="fa-solid fa-gear text-amber-600"></i>
+                        <span>Configurar Rifa</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- PAINEL DE CONFIGURAÇÕES -->
+            <div id="configPanel" class="no-export hidden mt-6 pt-6 border-t-2 border-dashed theme-border">
+                <div class="flex items-center justify-between gap-2 mb-4">
+                    <h3 class="font-bold text-base sm:text-lg flex items-center gap-2">
+                        <i class="fa-solid fa-sliders text-amber-600"></i> Configurações da Rifa
+                    </h3>
+                    <button onclick="toggleConfigPanel()" class="px-3 py-1 rounded-xl bg-stone-100 text-xs font-bold">Fechar</button>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="sm:col-span-2">
+                        <label class="block text-xs font-bold uppercase opacity-75 mb-1">Título da Rifa</label>
+                        <input type="text" id="cfgTitle" oninput="autoSaveConfigField()" class="w-full px-3 py-2 rounded-xl border theme-border bg-white text-sm font-semibold">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase opacity-75 mb-1">Nome do Bebê</label>
+                        <input type="text" id="cfgBabyName" oninput="autoSaveConfigField()" class="w-full px-3 py-2 rounded-xl border theme-border bg-white text-sm font-semibold">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase opacity-75 mb-1">Data do Sorteio</label>
+                        <input type="text" id="cfgDrawDate" oninput="autoSaveConfigField()" class="w-full px-3 py-2 rounded-xl border theme-border bg-white text-sm font-semibold">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase opacity-75 mb-1">Valor do Número (R$)</label>
+                        <input type="number" step="0.50" id="cfgPrice" oninput="autoSaveConfigField()" class="w-full px-3 py-2 rounded-xl border theme-border bg-white text-sm font-semibold">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase opacity-75 mb-1">Complemento Fralda</label>
+                        <input type="text" id="cfgPriceExtra" oninput="autoSaveConfigField()" class="w-full px-3 py-2 rounded-xl border theme-border bg-white text-sm font-semibold">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase opacity-75 mb-1">Total de Números</label>
+                        <select id="cfgTotalNumbers" onchange="autoSaveConfigField()" class="w-full px-3 py-2 rounded-xl border theme-border bg-white text-sm font-semibold">
+                            <option value="50">50 Números (01-50)</option>
+                            <option value="100">100 Números (01-100)</option>
+                            <option value="150">150 Números (001-150)</option>
+                            <option value="200">200 Números (001-200)</option>
+                            <option value="300">300 Números (001-300)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase opacity-75 mb-1">Tema de Cores</label>
+                        <select id="cfgThemeSelect" onchange="setTheme(this.value)" class="w-full px-3 py-2 rounded-xl border theme-border bg-white text-sm font-semibold">
+                            <option value="neutral">Ursinho Neutro</option>
+                            <option value="blue">Azul Bebê</option>
+                            <option value="pink">Rosa Bebê</option>
+                            <option value="mint">Verde Menta</option>
+                        </select>
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label class="block text-xs font-bold uppercase opacity-75 mb-1">Prêmios</label>
+                        <input type="text" id="cfgPrize" oninput="autoSaveConfigField()" class="w-full px-3 py-2 rounded-xl border theme-border bg-white text-sm font-semibold">
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label class="block text-xs font-bold uppercase opacity-75 mb-1">Chave PIX / Instruções</label>
+                        <input type="text" id="cfgNotes" oninput="autoSaveConfigField()" class="w-full px-3 py-2 rounded-xl border theme-border bg-white text-sm font-semibold">
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- CARTELA INTERATIVA DE NÚMEROS -->
+        <main class="theme-card rounded-3xl p-5 sm:p-6 space-y-5">
+            <div class="no-export flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b theme-border pb-4">
+                <div>
+                    <h2 class="text-xl font-bold flex items-center gap-2">
+                        <i class="fa-solid fa-grip text-amber-500"></i> Cartela de Números
+                    </h2>
+                    <p class="text-xs opacity-75">Clique em qualquer número para marcar, editar ou verificar dados.</p>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-2 text-xs font-bold">
+                    <button onclick="setGridFilter('all')" id="gridFilter-all" class="px-3 py-1.5 rounded-xl border theme-border bg-stone-800 text-white transition">Todos</button>
+                    <button onclick="setGridFilter('available')" id="gridFilter-available" class="px-3 py-1.5 rounded-xl border border-stone-300 bg-white transition">Disponíveis</button>
+                    <button onclick="setGridFilter('pending')" id="gridFilter-pending" class="px-3 py-1.5 rounded-xl border border-amber-400 bg-amber-50 text-amber-900 transition">Não Pagos</button>
+                    <button onclick="setGridFilter('paid')" id="gridFilter-paid" class="px-3 py-1.5 rounded-xl border border-emerald-500 bg-emerald-50 text-emerald-900 transition">Pagos</button>
+                </div>
+            </div>
+
+            <!-- Grade de Números -->
+            <div id="raffleGrid" class="grid grid-cols-5 sm:grid-cols-8 md:grid-cols-10 gap-2 sm:gap-2.5"></div>
+        </main>
+    </div>
+
+    <!-- PAINEL DE CONTROLE / ESTATÍSTICAS (Oculto no Modo PNG) -->
+    <div class="no-export max-w-7xl mx-auto px-4 sm:px-6 mt-6 space-y-6">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            <!-- Formulário de Marcação -->
+            <aside id="bookingPanel" aria-labelledby="bookingModalTitle" tabindex="-1" class="lg:col-span-4 theme-card rounded-3xl p-5 sm:p-6 space-y-5">
+                <div class="flex items-center justify-between border-b theme-border pb-3">
+                    <div class="flex items-center gap-2.5">
+                        <span class="w-9 h-9 rounded-xl theme-soft-bg flex items-center justify-center font-bold">
+                            <i class="fa-solid fa-user-check"></i>
+                        </span>
+                        <div>
+                            <h2 id="bookingModalTitle" class="text-lg font-bold leading-tight">Marcar Número</h2>
+                            <p class="text-xs opacity-75">Selecione o nº e o participante</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span id="formModeBadge" class="px-2.5 py-1 rounded-full text-[11px] font-bold theme-badge">Novo</span>
+                        <button type="button" id="closeBookingModal" onclick="closeBookingModal()" aria-label="Fechar formulário" title="Fechar" class="hidden w-9 h-9 shrink-0 rounded-full bg-white hover:bg-stone-100 border theme-border items-center justify-center font-bold">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <form id="raffleForm" onsubmit="handleFormSubmit(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wide opacity-80 mb-1.5">1. Número Escolhido</label>
+                        <div class="flex items-center gap-2">
+                            <input type="number" id="inputNumber" min="1" max="300" required oninput="handleNumberInputChange(this.value)" class="w-full px-4 py-3 rounded-2xl border-2 theme-border text-lg font-extrabold bg-white">
+                            <button type="button" onclick="pickRandomAvailableNumber()" class="px-3.5 py-3 rounded-2xl border-2 theme-border bg-stone-50 text-xs font-bold shrink-0">Surpresa</button>
+                        </div>
+                        <p id="numberStatusHelper" class="mt-1.5 text-xs font-semibold text-stone-500">Clique em um número na cartela.</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wide opacity-80 mb-1.5">2. Nome da Pessoa</label>
+                        <input type="text" id="inputName" required maxlength="50" class="w-full px-4 py-2.5 rounded-2xl border-2 theme-border text-sm font-bold bg-white" placeholder="Ex: Tia Maria">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wide opacity-80 mb-1.5">3. Telefone / Observação</label>
+                        <input type="text" id="inputNote" maxlength="60" class="w-full px-4 py-2.5 rounded-2xl border-2 theme-border text-sm font-semibold bg-white" placeholder="Ex: Fralda M">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wide opacity-80 mb-2">4. Status do Pagamento</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <button type="button" id="btnStatusPaid" onclick="setFormPaymentStatus('paid')" class="py-3 px-3 rounded-2xl border-2 font-bold text-sm flex flex-col items-center justify-center gap-1">
+                                <i class="fa-solid fa-circle-check text-xl"></i> PAGO
+                            </button>
+                            <button type="button" id="btnStatusPending" onclick="setFormPaymentStatus('pending')" class="py-3 px-3 rounded-2xl border-2 font-bold text-sm flex flex-col items-center justify-center gap-1">
+                                <i class="fa-solid fa-clock text-xl"></i> NÃO PAGO
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="pt-2 space-y-2">
+                        <button type="submit" class="w-full py-3.5 px-5 rounded-2xl theme-btn-primary font-extrabold text-sm shadow-md">
+                            <span id="submitBtnText">Salvar Marcação</span>
+                        </button>
+                        <div class="flex gap-2">
+                            <button type="button" id="btnReleaseNumber" onclick="releaseCurrentNumber()" class="hidden flex-1 py-2 rounded-xl bg-rose-50 text-rose-700 text-xs font-bold">Liberar</button>
+                            <button type="button" onclick="clearBookingForm()" class="flex-1 py-2 rounded-xl bg-stone-100 text-stone-700 text-xs font-bold">Limpar</button>
+                        </div>
+                    </div>
+                </form>
+            </aside>
+
+            <!-- Tabela de Participantes -->
+            <main class="lg:col-span-8 theme-card rounded-3xl p-5 sm:p-6 space-y-5">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b theme-border pb-4">
+                    <h2 class="text-xl font-bold flex items-center gap-2">
+                        <i class="fa-solid fa-clipboard-list text-amber-500"></i> Participantes & Pagamentos
+                    </h2>
+                    <input type="text" id="searchInput" oninput="renderParticipantsList()" placeholder="Buscar participante..." class="px-3 py-1.5 rounded-xl border theme-border text-xs font-semibold">
+                </div>
+                <div class="overflow-x-auto max-h-[450px] overflow-y-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="border-b theme-border text-[11px] font-extrabold uppercase opacity-70">
+                                <th class="py-3 px-3">Nº</th>
+                                <th class="py-3 px-3">Nome</th>
+                                <th class="py-3 px-3">Obs</th>
+                                <th class="py-3 px-3">Status</th>
+                                <th class="py-3 px-3 text-right">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="participantsTableBody" class="divide-y divide-stone-200/60 text-sm"></tbody>
+                    </table>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <div id="bookingModalBackdrop" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden" aria-hidden="true" onclick="closeBookingModal()"></div>
+
+    <!-- MODAL DE SORTEIO -->
+    <div id="drawModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-md hidden items-center justify-center p-4">
+        <div role="dialog" aria-modal="true" aria-labelledby="drawModalTitle" class="theme-card rounded-3xl max-w-xl w-full max-h-[calc(100vh-2rem)] overflow-y-auto p-0 relative text-center shadow-2xl">
+            <div class="theme-soft-bg px-5 sm:px-7 py-5 flex items-center justify-between gap-4 border-b theme-border">
+                <div class="flex items-center gap-3 text-left">
+                    <span class="w-12 h-12 shrink-0 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center shadow-sm">
+                        <i class="fa-solid fa-trophy text-xl"></i>
+                    </span>
+                    <div>
+                        <p class="text-[10px] font-extrabold uppercase tracking-wider opacity-65">Sorteio oficial</p>
+                        <h3 id="drawModalTitle" class="font-display text-lg sm:text-xl font-extrabold leading-tight">Chá Rifa do Bebê</h3>
+                    </div>
+                </div>
+                <button onclick="closeDrawModal()" aria-label="Fechar sorteador" title="Fechar" class="w-10 h-10 shrink-0 rounded-full bg-white hover:bg-stone-100 border theme-border flex items-center justify-center font-bold transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="p-5 sm:p-7 space-y-6">
+                <div class="space-y-2.5">
+                    <p class="text-xs font-extrabold uppercase tracking-wide opacity-70">Quem participa?</p>
+                    <div class="grid grid-cols-2 gap-2.5">
+                        <button type="button" id="drawPoolPaidBtn" onclick="setDrawPool('paid')" aria-pressed="true" class="flex items-center justify-center gap-2 rounded-xl border-2 border-emerald-500 bg-emerald-50 px-3 py-3 text-xs font-extrabold text-emerald-900 shadow-sm transition">
+                            <i class="fa-solid fa-circle-check"></i><span>Apenas pagos</span>
+                        </button>
+                        <button type="button" id="drawPoolAllBtn" onclick="setDrawPool('all')" aria-pressed="false" class="flex items-center justify-center gap-2 rounded-xl border-2 border-stone-200 bg-white px-3 py-3 text-xs font-bold text-stone-600 transition hover:border-amber-300 hover:bg-amber-50">
+                            <i class="fa-solid fa-users"></i><span>Todos escolhidos</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="drawDisplayBox" aria-live="polite" class="min-h-[250px] rounded-3xl theme-soft-bg border-2 theme-border px-5 py-7 sm:px-8 sm:py-8 flex flex-col items-center justify-center gap-2.5 text-center shadow-inner relative overflow-hidden">
+                    <p class="text-[10px] font-extrabold uppercase tracking-[0.18em] text-amber-700">Número sorteado</p>
+                    <div id="drawRollingNumber" class="text-7xl sm:text-8xl leading-none font-extrabold tabular-nums text-amber-600 font-display">?</div>
+                    <div id="drawWinnerName" class="max-w-full break-words text-xl sm:text-2xl font-extrabold text-stone-800 [overflow-wrap:anywhere]">Pronto para sortear!</div>
+                    <div id="drawWinnerDetails" class="max-w-full text-xs sm:text-sm opacity-75 font-semibold">Clique no botão abaixo para iniciar o suspense.</div>
+                </div>
+
+                <button type="button" id="btnStartDraw" onclick="runRaffleDraw()" class="w-full min-h-14 px-5 py-4 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-sm sm:text-base shadow-lg transition flex items-center justify-center gap-2.5">
+                    <i class="fa-solid fa-wand-magic-sparkles text-lg"></i><span>Girar sorteio agora</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE GERENCIAMENTO / RESET -->
+    <div id="resetModal" class="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="theme-card rounded-3xl max-w-md w-full p-6 space-y-4">
+            <h3 class="text-lg font-bold">Gerenciar Dados da Rifa</h3>
+            <div class="space-y-2.5 pt-2">
+                <button onclick="loadDemoEntries()" class="w-full py-2.5 rounded-2xl bg-amber-50 text-amber-900 font-bold text-xs border border-amber-200">Carregar Exemplos de Teste</button>
+                <button onclick="clearAllEntries()" class="w-full py-3 rounded-2xl bg-rose-600 text-white font-bold text-xs">Limpar Todos os Números</button>
+                <button onclick="closeResetModal()" class="w-full py-2.5 rounded-2xl bg-stone-100 text-stone-600 font-bold text-xs">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Container de Toasts -->
+    <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- LÓGICA JAVASCRIPT & FIREBASE -->
+    <script type="module">
+        import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
+
+        // Configuração Firebase embutida diretamente
+        const FIREBASE_CONFIG = {
+            apiKey: "AIzaSyCHYsmHgYZMOE0BagrKgAuj9TirDB52yWo",
+            authDomain: "rifa-66a15.firebaseapp.com",
+            databaseURL: "https://rifa-66a15-default-rtdb.firebaseio.com",
+            projectId: "rifa-66a15",
+            storageBucket: "rifa-66a15.firebasestorage.app",
+            messagingSenderId: "728418964346",
+            appId: "1:728418964346:web:289a843ae052eb7d15bcc3"
+        };
+        const RAFFLE_ROOM_ID = "cha-rifa-bebe-01";
+        const STORAGE_KEY = 'cha_rifa_bebe_complete';
+
+        const DEFAULT_CONFIG = {
+            title: 'Chá Rifa de Fraldas & Mimos',
+            babyName: 'Bebê Noah',
+            prize: '1º Prêmio: R$ 200,00 no PIX | 2º Prêmio: Cesta Especial',
+            price: 15.00,
+            priceExtra: '+ 1 Pacote de Fralda',
+            totalNumbers: 100,
+            drawDate: '20/12/2026 às 19h',
+            notes: 'PIX: (11) 99999-9999 • Envie o comprovante no WhatsApp'
+        };
+
+        let appState = {
+            theme: 'neutral',
+            config: { ...DEFAULT_CONFIG },
+            entries: {}
+        };
+
+        let db = null;
+        let auth = null;
+        let unsubscribeSnapshot = null;
+        let isApplyingRemoteUpdate = false;
+        let cloudSaveTimer = null;
+        let isCloudReady = false;
+
+        let currentFormStatus = 'paid';
+        let selectedNumber = null;
+        let currentGridFilter = 'all';
+        let currentDrawPool = 'paid';
+        let isDrawing = false;
+
+        async function initApp() {
+            loadStateFromStorage();
+            applyTheme(appState.theme || 'neutral');
+            syncConfigInputs();
+            setFormPaymentStatus('paid');
+            renderAll();
+            setCloudStatus('connecting');
+            document.addEventListener('keydown', handleBookingModalKeydown);
+
+            try {
+                const app = !getApps().length ? initializeApp(FIREBASE_CONFIG) : getApps()[0];
+                auth = getAuth(app);
+                db = getDatabase(app, FIREBASE_CONFIG.databaseURL);
+                await signInAnonymously(auth);
+                subscribeToRealtimeDatabase();
+            } catch (err) {
+                console.warn('Erro ao conectar ao Firebase, operando localmente:', err);
+                const requiresAnonymousAuth = [
+                    'auth/configuration-not-found',
+                    'auth/admin-restricted-operation',
+                    'auth/operation-not-allowed'
+                ].includes(err.code);
+                const detail = requiresAnonymousAuth
+                    ? 'No projeto rifa-66a15, inicialize Authentication e habilite o provedor Anonymous.'
+                    : err.message;
+                setCloudStatus(requiresAnonymousAuth ? 'authRequired' : 'error', detail);
+            }
+        }
+
+        function setCloudStatus(status, detail = '') {
+            const badge = document.getElementById('topStorageBadge');
+            const text = document.getElementById('topStorageText');
+            const icon = document.getElementById('topStorageIcon');
+            if (!badge || !text || !icon) return;
+
+            const states = {
+                connecting: ['Conectando Firebase...', 'bg-amber-50 text-amber-800 border-amber-200', 'fa-cloud-arrow-up'],
+                saving: ['Salvando na nuvem...', 'bg-sky-50 text-sky-800 border-sky-200', 'fa-cloud-arrow-up'],
+                connected: ['Firebase sincronizado', 'bg-emerald-50 text-emerald-700 border-emerald-200', 'fa-cloud-check'],
+                authRequired: ['Ative login anônimo', 'bg-amber-50 text-amber-800 border-amber-200', 'fa-triangle-exclamation'],
+                error: ['Firebase indisponível', 'bg-rose-50 text-rose-700 border-rose-200', 'fa-triangle-exclamation']
+            };
+            const [label, classes, iconClass] = states[status] || states.error;
+            badge.className = `inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold border shadow-sm ${classes}`;
+            text.textContent = label;
+            icon.className = `fa-solid ${iconClass}`;
+            badge.title = detail || label;
+        }
+
+        function getRaffleRef() {
+            if (!db) return null;
+            return ref(db, `artifacts/cha-rifa-global-app/public/data/rooms/${RAFFLE_ROOM_ID}`);
+        }
+
+        function subscribeToRealtimeDatabase() {
+            const raffleRef = getRaffleRef();
+            if (!raffleRef) return;
+            unsubscribeSnapshot = onValue(raffleRef, (snapshot) => {
+                if (!snapshot.exists()) {
+                    isCloudReady = true;
+                    pushStateToCloud();
+                    return;
+                }
+                const data = snapshot.val();
+                isApplyingRemoteUpdate = true;
+                try {
+                    appState.theme = data.theme || 'neutral';
+                    appState.config = { ...DEFAULT_CONFIG, ...(data.config || {}) };
+                    appState.entries = data.entries || {};
+                    applyTheme(appState.theme);
+                    syncConfigInputs();
+                    renderAll();
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+                    isCloudReady = true;
+                    setCloudStatus('connected');
+                } finally {
+                    isApplyingRemoteUpdate = false;
+                }
+            }, (err) => {
+                console.error('Erro ao acompanhar dados do Firebase:', err);
+                isCloudReady = false;
+                setCloudStatus('error', err.message);
+            });
+        }
+
+        async function pushStateToCloud() {
+            if (!db || isApplyingRemoteUpdate || !isCloudReady) return;
+            const raffleRef = getRaffleRef();
+            if (!raffleRef) return;
+            setCloudStatus('saving');
+            try {
+                await set(raffleRef, {
+                    theme: appState.theme,
+                    config: appState.config,
+                    entries: appState.entries,
+                    updatedAt: Date.now()
+                });
+                setCloudStatus('connected');
+            } catch (e) {
+                console.error('Erro ao salvar na nuvem:', e);
+                setCloudStatus('error', e.message);
+            }
+        }
+
+        function scheduleCloudSave() {
+            if (cloudSaveTimer) clearTimeout(cloudSaveTimer);
+            cloudSaveTimer = setTimeout(() => { pushStateToCloud(); }, 400);
+        }
+
+        function loadStateFromStorage() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    appState.theme = parsed.theme || 'neutral';
+                    appState.config = { ...DEFAULT_CONFIG, ...(parsed.config || {}) };
+                    appState.entries = parsed.entries || {};
+                }
+            } catch (e) {}
+        }
+
+        function saveStateToStorage() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+            } catch (e) {}
+            scheduleCloudSave();
+        }
+
+        function formatRaffleNumber(num) {
+            const total = Number(appState.config.totalNumbers) || 100;
+            return String(num).padStart(total > 100 ? 3 : 2, '0');
+        }
+
+        function formatCurrency(val) {
+            return Number(val || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
+
+        function getShortName(fullName) {
+            if (!fullName) return '';
+            const parts = fullName.trim().split(/\s+/);
+            return (parts[0] + (parts[1] ? ' ' + parts[1][0] + '.' : '')).slice(0, 12);
+        }
+
+        function setTheme(t) {
+            appState.theme = t;
+            applyTheme(t);
+            saveStateToStorage();
+        }
+
+        function applyTheme(t) {
+            document.body.setAttribute('data-theme', t);
+            ['neutral', 'blue', 'pink', 'mint'].forEach(name => {
+                const btn = document.getElementById('themeBtn-' + name);
+                if (btn) {
+                    btn.className = name === t 
+                        ? 'px-2.5 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 transition-all bg-stone-800 text-white shadow-sm' 
+                        : 'px-2.5 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 transition-all text-slate-600 hover:bg-white';
+                }
+            });
+            const sel = document.getElementById('cfgThemeSelect');
+            if (sel) sel.value = t;
+        }
+
+        function toggleConfigPanel() {
+            const p = document.getElementById('configPanel');
+            p.classList.toggle('hidden');
+            if (!p.classList.contains('hidden')) syncConfigInputs();
+        }
+
+        function syncConfigInputs() {
+            document.getElementById('cfgTitle').value = appState.config.title || '';
+            document.getElementById('cfgBabyName').value = appState.config.babyName || '';
+            document.getElementById('cfgPrize').value = appState.config.prize || '';
+            document.getElementById('cfgPrice').value = appState.config.price ?? 15;
+            document.getElementById('cfgPriceExtra').value = appState.config.priceExtra || '';
+            document.getElementById('cfgTotalNumbers').value = String(appState.config.totalNumbers || 100);
+            document.getElementById('cfgDrawDate').value = appState.config.drawDate || '';
+            document.getElementById('cfgNotes').value = appState.config.notes || '';
+            document.getElementById('cfgThemeSelect').value = appState.theme || 'neutral';
+        }
+
+        function autoSaveConfigField() {
+            appState.config = {
+                title: document.getElementById('cfgTitle').value.trim() || DEFAULT_CONFIG.title,
+                babyName: document.getElementById('cfgBabyName').value.trim() || DEFAULT_CONFIG.babyName,
+                prize: document.getElementById('cfgPrize').value.trim() || DEFAULT_CONFIG.prize,
+                price: parseFloat(document.getElementById('cfgPrice').value) || 15,
+                priceExtra: document.getElementById('cfgPriceExtra').value.trim(),
+                totalNumbers: parseInt(document.getElementById('cfgTotalNumbers').value, 10) || 100,
+                drawDate: document.getElementById('cfgDrawDate').value.trim() || 'A definir',
+                notes: document.getElementById('cfgNotes').value.trim() || ''
+            };
+            saveStateToStorage();
+            renderAll();
+        }
+
+        function renderAll() {
+            const { title, babyName, prize, price, priceExtra, totalNumbers, drawDate, notes } = appState.config;
+            document.getElementById('displayRaffleTitle').textContent = title;
+            document.getElementById('displayBabyName').textContent = babyName;
+            document.getElementById('displayPrize').textContent = prize;
+            document.getElementById('displayPrice').textContent = formatCurrency(price);
+            document.getElementById('displayPriceExtra').textContent = priceExtra ? `(${priceExtra})` : '';
+            document.getElementById('displayDrawDate').textContent = drawDate;
+            document.getElementById('displayNotes').textContent = notes;
+            document.getElementById('inputNumber').max = totalNumbers;
+
+            renderRaffleGrid();
+            renderParticipantsList();
+        }
+
+        function renderRaffleGrid() {
+            const grid = document.getElementById('raffleGrid');
+            const total = Number(appState.config.totalNumbers) || 100;
+            grid.innerHTML = '';
+
+            for (let num = 1; num <= total; num++) {
+                const entry = appState.entries[String(num)];
+                const status = entry ? entry.status : 'available';
+
+                if (currentGridFilter !== 'all' && currentGridFilter !== status) continue;
+
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.dataset.number = String(num);
+                btn.onclick = () => selectNumberFromGrid(num);
+
+                let statusClass = 'cell-available';
+                let badgeIcon = '';
+                if (status === 'paid') {
+                    statusClass = 'cell-paid';
+                    badgeIcon = '<span class="absolute top-1 right-1 text-[10px] text-emerald-600"><i class="fa-solid fa-circle-check"></i></span>';
+                } else if (status === 'pending') {
+                    statusClass = 'cell-pending';
+                    badgeIcon = '<span class="absolute top-1 right-1 text-[10px] text-amber-600"><i class="fa-solid fa-clock"></i></span>';
+                }
+                if (selectedNumber === num) statusClass += ' cell-selected';
+
+                btn.className = `raffle-cell ${statusClass} rounded-2xl p-2 min-h-[64px] flex flex-col items-center justify-center text-center shadow-sm`;
+                btn.innerHTML = `
+                    ${badgeIcon}
+                    <span class="raffle-number relative inline-block font-display font-extrabold text-base sm:text-lg leading-none">${formatRaffleNumber(num)}</span>
+                    <span class="raffle-name mt-1 text-[11px] font-bold truncate max-w-full px-1 leading-tight" data-full-name="${entry ? escapeHtml(entry.name) : ''}">${entry ? escapeHtml(getShortName(entry.name)) : '<span class="opacity-35 text-[10px]">Livre</span>'}</span>
+                `;
+                grid.appendChild(btn);
+            }
+        }
+
+        function setGridFilter(f) {
+            currentGridFilter = f;
+            ['all', 'available', 'pending', 'paid'].forEach(name => {
+                const el = document.getElementById('gridFilter-' + name);
+                if (el) {
+                    el.className = name === f 
+                        ? 'px-3 py-1.5 rounded-xl border theme-border bg-stone-800 text-white transition' 
+                        : 'px-3 py-1.5 rounded-xl border theme-border bg-white transition';
+                }
+            });
+            renderRaffleGrid();
+        }
+
+        function setFormPaymentStatus(status) {
+            currentFormStatus = status;
+            const p = document.getElementById('btnStatusPaid');
+            const pend = document.getElementById('btnStatusPending');
+            if (status === 'paid') {
+                p.className = 'py-3 px-3 rounded-2xl border-2 border-emerald-500 bg-emerald-50 text-emerald-900 font-extrabold text-sm flex flex-col items-center gap-1 shadow-sm';
+                pend.className = 'py-3 px-3 rounded-2xl border-2 border-stone-200 bg-white text-stone-500 font-bold text-sm flex flex-col items-center gap-1';
+            } else {
+                pend.className = 'py-3 px-3 rounded-2xl border-2 border-amber-500 bg-amber-50 text-amber-900 font-extrabold text-sm flex flex-col items-center gap-1 shadow-sm';
+                p.className = 'py-3 px-3 rounded-2xl border-2 border-stone-200 bg-white text-stone-500 font-bold text-sm flex flex-col items-center gap-1';
+            }
+        }
+
+        function selectNumberFromGrid(num) {
+            selectedNumber = Number(num);
+            document.getElementById('inputNumber').value = selectedNumber;
+            populateFormForNumber(selectedNumber);
+            renderRaffleGrid();
+            openBookingModal();
+        }
+
+        function openBookingModal() {
+            const panel = document.getElementById('bookingPanel');
+            panel.setAttribute('role', 'dialog');
+            panel.setAttribute('aria-modal', 'true');
+            document.body.classList.add('booking-modal-open');
+            document.getElementById('bookingModalBackdrop').classList.remove('hidden');
+            document.getElementById('inputName').focus();
+        }
+
+        function closeBookingModal() {
+            const panel = document.getElementById('bookingPanel');
+            document.body.classList.remove('booking-modal-open');
+            document.getElementById('bookingModalBackdrop').classList.add('hidden');
+            panel.removeAttribute('role');
+            panel.removeAttribute('aria-modal');
+            const numberCell = document.querySelector(`#raffleGrid [data-number="${selectedNumber}"]`);
+            if (numberCell) numberCell.focus();
+        }
+
+        function handleBookingModalKeydown(event) {
+            if (!document.body.classList.contains('booking-modal-open')) return;
+            if (event.key === 'Escape') {
+                event.preventDefault();
+                closeBookingModal();
+                return;
+            }
+            if (event.key !== 'Tab') return;
+
+            const panel = document.getElementById('bookingPanel');
+            const focusable = [...panel.querySelectorAll('button:not(:disabled), input:not(:disabled)')]
+                .filter(element => element.offsetParent !== null);
+            const first = focusable[0];
+            const last = focusable[focusable.length - 1];
+            if (event.shiftKey && document.activeElement === first) {
+                event.preventDefault();
+                last.focus();
+            } else if (!event.shiftKey && document.activeElement === last) {
+                event.preventDefault();
+                first.focus();
+            }
+        }
+
+        function handleNumberInputChange(val) {
+            const num = parseInt(val, 10);
+            const total = Number(appState.config.totalNumbers) || 100;
+            if (!num || num < 1 || num > total) {
+                selectedNumber = null;
+                document.getElementById('numberStatusHelper').textContent = 'Digite um número válido.';
+                document.getElementById('btnReleaseNumber').classList.add('hidden');
+                renderRaffleGrid();
+                return;
+            }
+            selectedNumber = num;
+            populateFormForNumber(num, false);
+            renderRaffleGrid();
+        }
+
+        function populateFormForNumber(num, overwrite = true) {
+            const entry = appState.entries[String(num)];
+            const helper = document.getElementById('numberStatusHelper');
+            const badge = document.getElementById('formModeBadge');
+            const releaseBtn = document.getElementById('btnReleaseNumber');
+            const submitText = document.getElementById('submitBtnText');
+
+            if (entry) {
+                if (overwrite) {
+                    document.getElementById('inputName').value = entry.name || '';
+                    document.getElementById('inputNote').value = entry.note || '';
+                }
+                setFormPaymentStatus(entry.status || 'pending');
+                helper.innerHTML = `Nº <strong>${formatRaffleNumber(num)}</strong> marcado para <strong>${escapeHtml(entry.name)}</strong>.`;
+                badge.textContent = `Editando Nº ${formatRaffleNumber(num)}`;
+                submitText.textContent = `Atualizar Nº ${formatRaffleNumber(num)}`;
+                releaseBtn.classList.remove('hidden');
+            } else {
+                if (overwrite) {
+                    document.getElementById('inputName').value = '';
+                    document.getElementById('inputNote').value = '';
+                }
+                helper.innerHTML = `Nº <strong>${formatRaffleNumber(num)}</strong> está livre.`;
+                badge.textContent = `Novo`;
+                submitText.textContent = `Salvar Nº ${formatRaffleNumber(num)}`;
+                releaseBtn.classList.add('hidden');
+            }
+        }
+
+        function handleFormSubmit(e) {
+            e.preventDefault();
+            const total = Number(appState.config.totalNumbers) || 100;
+            const num = parseInt(document.getElementById('inputNumber').value, 10);
+            const name = document.getElementById('inputName').value.trim();
+            const note = document.getElementById('inputNote').value.trim();
+
+            if (!num || num < 1 || num > total || !name) {
+                showToast('Preencha o número e o nome do participante corretamente.', 'error');
+                return;
+            }
+
+            appState.entries[String(num)] = {
+                name,
+                note,
+                status: currentFormStatus,
+                updatedAt: new Date().toLocaleDateString('pt-BR')
+            };
+
+            saveStateToStorage();
+            renderAll();
+            populateFormForNumber(num, true);
+            closeBookingModal();
+            showToast(`Número ${formatRaffleNumber(num)} salvo com sucesso!`, 'success');
+        }
+
+        function releaseCurrentNumber() {
+            const num = parseInt(document.getElementById('inputNumber').value, 10);
+            if (!num || !appState.entries[String(num)]) return;
+            delete appState.entries[String(num)];
+            saveStateToStorage();
+            clearBookingForm();
+            renderAll();
+            closeBookingModal();
+            showToast(`Número ${formatRaffleNumber(num)} liberado!`, 'info');
+        }
+
+        function clearBookingForm() {
+            selectedNumber = null;
+            document.getElementById('inputNumber').value = '';
+            document.getElementById('inputName').value = '';
+            document.getElementById('inputNote').value = '';
+            document.getElementById('formModeBadge').textContent = 'Novo';
+            document.getElementById('submitBtnText').textContent = 'Salvar Marcação';
+            document.getElementById('btnReleaseNumber').classList.add('hidden');
+            document.getElementById('numberStatusHelper').textContent = 'Clique em um número na cartela.';
+            setFormPaymentStatus('paid');
+            renderRaffleGrid();
+        }
+
+        function pickRandomAvailableNumber() {
+            const total = Number(appState.config.totalNumbers) || 100;
+            const available = [];
+            for (let i = 1; i <= total; i++) {
+                if (!appState.entries[String(i)]) available.push(i);
+            }
+            if (available.length === 0) {
+                showToast('Todos os números já foram escolhidos!', 'error');
+                return;
+            }
+            const rand = available[Math.floor(Math.random() * available.length)];
+            selectNumberFromGrid(rand);
+            showToast(`Número livre ${formatRaffleNumber(rand)} sorteado!`, 'success');
+        }
+
+        function renderParticipantsList() {
+            const tbody = document.getElementById('participantsTableBody');
+            const q = (document.getElementById('searchInput').value || '').toLowerCase();
+            const total = Number(appState.config.totalNumbers) || 100;
+            tbody.innerHTML = '';
+
+            for (let i = 1; i <= total; i++) {
+                const entry = appState.entries[String(i)];
+                if (!entry) continue;
+
+                const fNum = formatRaffleNumber(i);
+                if (q && !fNum.includes(q) && !entry.name.toLowerCase().includes(q) && !entry.note.toLowerCase().includes(q)) continue;
+
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-stone-50 transition';
+                const isPaid = entry.status === 'paid';
+                tr.innerHTML = `
+                    <td class="py-3 px-3 font-bold">${fNum}</td>
+                    <td class="py-3 px-3 font-semibold text-stone-800">${escapeHtml(entry.name)}</td>
+                    <td class="py-3 px-3 text-xs text-stone-500">${escapeHtml(entry.note || '—')}</td>
+                    <td class="py-3 px-3">
+                        <button onclick="toggleEntryPaymentStatus(${i})" class="px-2.5 py-1 rounded-lg text-xs font-bold ${isPaid ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-900'}">
+                            ${isPaid ? 'PAGO' : 'NÃO PAGO'}
+                        </button>
+                    </td>
+                    <td class="py-3 px-3 text-right">
+                        <button onclick="selectNumberFromGrid(${i})" class="px-2 py-1 bg-stone-100 rounded text-xs font-bold"><i class="fa-solid fa-pen"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            }
+        }
+
+        function toggleEntryPaymentStatus(num) {
+            const entry = appState.entries[String(num)];
+            if (!entry) return;
+            entry.status = entry.status === 'paid' ? 'pending' : 'paid';
+            saveStateToStorage();
+            renderAll();
+            if (selectedNumber === num) populateFormForNumber(num, false);
+            showToast(`Status do número ${formatRaffleNumber(num)} alterado.`, 'success');
+        }
+
+        // --- SORTEADOR CAPRICHADO E REALISTA ---
+        function openDrawModal() {
+            document.getElementById('drawModal').classList.remove('hidden');
+            document.getElementById('drawModal').classList.add('flex');
+            setDrawPool(currentDrawPool);
+            resetDrawDisplay();
+        }
+
+        function closeDrawModal() {
+            document.getElementById('drawModal').classList.add('hidden');
+            document.getElementById('drawModal').classList.remove('flex');
+        }
+
+        function setDrawPool(pool) {
+            currentDrawPool = pool;
+            const paidBtn = document.getElementById('drawPoolPaidBtn');
+            const allBtn = document.getElementById('drawPoolAllBtn');
+            const activeClass = 'flex items-center justify-center gap-2 rounded-xl border-2 px-3 py-3 text-xs font-extrabold shadow-sm transition';
+            const inactiveClass = 'flex items-center justify-center gap-2 rounded-xl border-2 border-stone-200 bg-white px-3 py-3 text-xs font-bold text-stone-600 transition hover:border-amber-300 hover:bg-amber-50';
+            if (pool === 'paid') {
+                paidBtn.className = `${activeClass} border-emerald-500 bg-emerald-50 text-emerald-900`;
+                allBtn.className = inactiveClass;
+            } else {
+                allBtn.className = `${activeClass} border-amber-500 bg-amber-50 text-amber-900`;
+                paidBtn.className = inactiveClass;
+            }
+            paidBtn.setAttribute('aria-pressed', String(pool === 'paid'));
+            allBtn.setAttribute('aria-pressed', String(pool === 'all'));
+        }
+
+        function resetDrawDisplay() {
+            document.getElementById('drawRollingNumber').textContent = '?';
+            document.getElementById('drawWinnerName').textContent = 'Pronto para sortear!';
+            document.getElementById('drawWinnerDetails').textContent = 'Clique no botão abaixo para iniciar o suspense.';
+            const box = document.getElementById('drawDisplayBox');
+            box.classList.remove('animate-winner');
+        }
+
+        function runRaffleDraw() {
+            if (isDrawing) return;
+            const total = Number(appState.config.totalNumbers) || 100;
+            const candidates = [];
+
+            for (let i = 1; i <= total; i++) {
+                const entry = appState.entries[String(i)];
+                if (!entry) continue;
+                if (currentDrawPool === 'paid' && entry.status !== 'paid') continue;
+                candidates.push({ num: i, ...entry });
+            }
+
+            if (candidates.length === 0) {
+                showToast(currentDrawPool === 'paid' ? 'Não há números marcados como PAGOS para sortear.' : 'Nenhum número escolhido na cartela.', 'error');
+                return;
+            }
+
+            isDrawing = true;
+            const rollingEl = document.getElementById('drawRollingNumber');
+            const nameEl = document.getElementById('drawWinnerName');
+            const detailsEl = document.getElementById('drawWinnerDetails');
+            const box = document.getElementById('drawDisplayBox');
+            const btn = document.getElementById('btnStartDraw');
+
+            btn.disabled = true;
+            btn.classList.add('opacity-50');
+            box.classList.remove('animate-winner');
+
+            nameEl.textContent = 'Girando a sorte... 🥁';
+            detailsEl.textContent = `Concorrendo entre ${candidates.length} participante(s)`;
+
+            let step = 0;
+            const maxSteps = 32;
+            let delay = 50;
+
+            function rollStep() {
+                const randomCandidate = candidates[Math.floor(Math.random() * candidates.length)];
+                rollingEl.textContent = formatRaffleNumber(randomCandidate.num);
+                nameEl.textContent = randomCandidate.name;
+                step++;
+
+                if (step < maxSteps) {
+                    delay += 10; // Efeito desacelerando
+                    setTimeout(rollStep, delay);
+                } else {
+                    // VENCEDOR FINAL DEFINIDO
+                    const winner = candidates[Math.floor(Math.random() * candidates.length)];
+                    rollingEl.textContent = formatRaffleNumber(winner.num);
+                    nameEl.textContent = `🎉 ${winner.name} 🎉`;
+                    detailsEl.innerHTML = `Número Sorteado com Sucesso!<br><strong>${winner.note ? winner.note : 'Participante Oficial'}</strong>`;
+                    
+                    box.classList.add('animate-winner');
+                    isDrawing = false;
+                    btn.disabled = false;
+                    btn.classList.remove('opacity-50');
+                    launchConfetti();
+                    showToast(`Parabéns ao ganhador do Número ${formatRaffleNumber(winner.num)} (${winner.name})!`, 'success');
+                }
+            }
+            rollStep();
+        }
+
+        // --- EXPORTAR PNG APENAS DO CABEÇALHO E CARTELA ---
+        async function exportFullRafflePng() {
+            showToast('Preparando imagem limpa em alta resolução...', 'info');
+            const previousGridFilter = currentGridFilter;
+            setGridFilter('all');
+            const target = document.getElementById('exportTargetContainer');
+            target.querySelectorAll('.raffle-name[data-full-name]').forEach((name) => {
+                name.textContent = name.dataset.fullName;
+            });
+            document.body.classList.add('exporting-png');
+
+            try {
+                await document.fonts.ready;
+                await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+                const targetRect = target.getBoundingClientRect();
+                const contentBottom = [...target.querySelectorAll('*')].reduce((bottom, element) => {
+                    return Math.max(bottom, element.getBoundingClientRect().bottom - targetRect.top);
+                }, targetRect.height);
+                const width = target.scrollWidth;
+                const height = Math.max(target.scrollHeight, Math.ceil(contentBottom + 20));
+                const maxCanvasDimension = 16000;
+                const scale = Math.min(2, maxCanvasDimension / Math.max(width, height));
+                const canvas = await html2canvas(target, {
+                    scale,
+                    useCORS: true,
+                    backgroundColor: null,
+                    logging: false,
+                    width,
+                    height,
+                    scrollX: 0,
+                    scrollY: 0
+                });
+
+                const link = document.createElement('a');
+                link.download = `rifa_${(appState.config.babyName || 'bebe').toLowerCase().replace(/[^a-z0-9]/g, '_')}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                showToast('Imagem PNG baixada com sucesso!', 'success');
+            } catch (err) {
+                console.error(err);
+                showToast('Erro ao gerar imagem PNG.', 'error');
+            } finally {
+                document.body.classList.remove('exporting-png');
+                setGridFilter(previousGridFilter);
+                renderRaffleGrid();
+            }
+        }
+
+        function copyWhatsAppSummary() {
+            const { title, babyName, prize, price, priceExtra, totalNumbers, drawDate, notes } = appState.config;
+            let paidList = [], freeCount = 0;
+
+            for (let i = 1; i <= totalNumbers; i++) {
+                const e = appState.entries[String(i)];
+                const fNum = formatRaffleNumber(i);
+                if (!e) freeCount++;
+                else if (e.status === 'paid') paidList.push(`✅ ${fNum} - ${e.name}`);
+            }
+
+            const text = [
+                `🍼 *${title.toUpperCase()} - ${babyName.toUpperCase()}* 🧸`,
+                `🎁 *Prêmios:* ${prize}`,
+                `💰 *Valor:* ${formatCurrency(price)} ${priceExtra ? '(' + priceExtra + ')' : ''}`,
+                `📅 *Sorteio:* ${drawDate}`,
+                `📌 *PIX:* ${notes}`,
+                ``,
+                paidList.length > 0 ? `*Confirmados (Pagos):*\n${paidList.join('\n')}` : '',
+                `✨ *Total de números livres:* ${freeCount} disponíveis!`
+            ].filter(Boolean).join('\n');
+
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+            showToast('Resumo copiado para o WhatsApp!', 'success');
+        }
+
+        function launchConfetti() {
+            const canvas = document.getElementById('confettiCanvas');
+            canvas.classList.remove('hidden');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const colors = ['#f59e0b', '#10b981', '#5fa8d3', '#ec839e', '#a855f7'];
+            const pieces = Array.from({ length: 100 }, () => ({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height - canvas.height,
+                r: Math.random() * 6 + 4,
+                color: colors[Math.floor(Math.random() * colors.length)],
+                vy: Math.random() * 3 + 3,
+                vx: (Math.random() - 0.5) * 3,
+                angle: Math.random() * Math.PI * 2
+            }));
+
+            let frame = 0;
+            function draw() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                pieces.forEach(p => {
+                    p.y += p.vy;
+                    p.x += p.vx;
+                    p.angle += 0.08;
+                    ctx.save();
+                    ctx.translate(p.x, p.y);
+                    ctx.rotate(p.angle);
+                    ctx.fillStyle = p.color;
+                    ctx.fillRect(-p.r/2, -p.r/2, p.r, p.r * 1.5);
+                    ctx.restore();
+                });
+                frame++;
+                if (frame < 180) requestAnimationFrame(draw);
+                else { ctx.clearRect(0, 0, canvas.width, canvas.height); canvas.classList.add('hidden'); }
+            }
+            draw();
+        }
+
+        function openResetModal() { document.getElementById('resetModal').classList.remove('hidden'); document.getElementById('resetModal').classList.add('flex'); }
+        function closeResetModal() { document.getElementById('resetModal').classList.add('hidden'); document.getElementById('resetModal').classList.remove('flex'); }
+        function clearAllEntries() { appState.entries = {}; saveStateToStorage(); clearBookingForm(); renderAll(); closeResetModal(); showToast('Todos os números foram limpos.', 'info'); }
+        function loadDemoEntries() {
+            appState.entries = {
+                "1": { name: "Vovó Helena", note: "Fralda M", status: "paid", updatedAt: "08/11/2026" },
+                "7": { name: "Tia Camila", note: "Fralda G", status: "paid", updatedAt: "08/11/2026" }
+            };
+            saveStateToStorage(); clearBookingForm(); renderAll(); closeResetModal(); showToast('Exemplos carregados!', 'success');
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `${type === 'success' ? 'bg-emerald-600' : type === 'error' ? 'bg-rose-600' : 'bg-stone-800'} text-white px-4 py-3 rounded-2xl shadow-lg text-xs font-bold flex items-center gap-2.5`;
+            toast.innerHTML = `<i class="fa-solid ${type === 'success' ? 'fa-circle-check' : 'fa-circle-info'} text-sm"></i> <span>${escapeHtml(message)}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 3000);
+        }
+
+        Object.assign(window, {
+            setTheme, toggleConfigPanel, autoSaveConfigField, handleFormSubmit, handleNumberInputChange,
+            pickRandomAvailableNumber, setFormPaymentStatus, releaseCurrentNumber, clearBookingForm,
+            setGridFilter, selectNumberFromGrid, toggleEntryPaymentStatus, openDrawModal, closeDrawModal,
+            setDrawPool, runRaffleDraw, exportFullRafflePng, copyWhatsAppSummary, openResetModal, closeResetModal,
+            clearAllEntries, loadDemoEntries, closeBookingModal
+        });
+
+        window.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
