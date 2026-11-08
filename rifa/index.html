@@ -363,8 +363,8 @@
                     <i class="fa-solid fa-trophy"></i> Sortear Número
                 </button>
 
-                <button onclick="exportFullRafflePng()" class="px-3.5 py-1.5 rounded-full text-xs font-extrabold bg-sky-600 hover:bg-sky-700 text-white flex items-center gap-1.5 transition shadow-sm" title="Cria uma imagem exclusiva com o Cabeçalho e a Cartela (Não é print da tela)">
-                    <i class="fa-solid fa-wand-magic-sparkles"></i> Criar Imagem da Rifa (PNG)
+                <button onclick="exportFullRafflePng(true)" class="px-3.5 py-1.5 rounded-full text-xs font-extrabold bg-sky-600 hover:bg-sky-700 text-white flex items-center gap-1.5 transition shadow-sm" title="Cria uma imagem vertical 9:16 exclusiva com o Cabeçalho e a Cartela">
+                    <i class="fa-solid fa-mobile-screen-button"></i> Imagem 9:16 Celular (PNG)
                 </button>
 
                 <button onclick="copyWhatsAppSummary()" class="px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-1.5 transition shadow-sm">
@@ -1067,43 +1067,54 @@
 
     <!-- MODAL DA IMAGEM GERADA (CARTAZ OFICIAL CRIADO DO ZERO, SEM PRINT DE TELA) -->
     <div id="imagePreviewModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-md hidden items-center justify-center p-3 sm:p-5">
-        <div role="dialog" aria-modal="true" aria-labelledby="imagePreviewModalTitle" class="theme-card rounded-3xl max-w-4xl w-full max-h-[calc(100vh-1.5rem)] flex flex-col overflow-hidden shadow-2xl">
-            <div class="theme-soft-bg px-4 sm:px-6 py-4 flex items-center justify-between gap-3 border-b theme-border shrink-0">
+        <div role="dialog" aria-modal="true" aria-labelledby="imagePreviewModalTitle" class="theme-card rounded-3xl max-w-3xl w-full max-h-[calc(100vh-1.5rem)] flex flex-col overflow-hidden shadow-2xl">
+            <div class="theme-soft-bg px-4 sm:px-6 py-3.5 flex flex-wrap items-center justify-between gap-3 border-b theme-border shrink-0">
                 <div class="flex items-center gap-3">
                     <span class="w-10 h-10 rounded-2xl bg-sky-100 text-sky-700 flex items-center justify-center shadow-sm shrink-0">
-                        <i class="fa-solid fa-image text-lg"></i>
+                        <i class="fa-solid fa-mobile-screen-button text-lg"></i>
                     </span>
                     <div>
-                        <p class="text-[10px] font-extrabold uppercase tracking-wider text-sky-800">Arte Oficial Gerada em Alta Definição</p>
+                        <p class="text-[10px] font-extrabold uppercase tracking-wider text-sky-800">Proporção Vertical 9:16 • Alta Visibilidade no Celular</p>
                         <h3 id="imagePreviewModalTitle" class="font-kid text-base sm:text-lg font-bold leading-tight text-stone-800">
-                            Cartaz do Cabeçalho + Cartela de Números
+                            Cartaz Vertical (Cabeçalho + Cartela 5 Colunas)
                         </h3>
                     </div>
                 </div>
-                <button type="button" onclick="closeImagePreviewModal()" aria-label="Fechar visualização" class="w-9 h-9 rounded-full bg-white hover:bg-stone-100 border theme-border flex items-center justify-center font-bold">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
+
+                <div class="flex items-center gap-2">
+                    <div class="inline-flex items-center bg-white p-1 rounded-xl border theme-border text-xs font-bold shadow-sm">
+                        <button type="button" id="posterModeBtn-9x16" onclick="setPosterFormatMode('9x16')" class="px-2.5 py-1 rounded-lg bg-sky-600 text-white font-extrabold transition">
+                            📱 9:16 Tela Cheia
+                        </button>
+                        <button type="button" id="posterModeBtn-9x16_tall" onclick="setPosterFormatMode('9x16_tall')" class="px-2.5 py-1 rounded-lg text-stone-600 hover:bg-stone-100 font-bold transition">
+                            🔎 9:16 Ampliado
+                        </button>
+                    </div>
+                    <button type="button" onclick="closeImagePreviewModal()" aria-label="Fechar visualização" class="w-9 h-9 rounded-full bg-white hover:bg-stone-100 border theme-border flex items-center justify-center font-bold">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
             </div>
 
             <div class="p-3 sm:p-5 overflow-y-auto flex-1 bg-stone-100/80 flex flex-col items-center gap-3">
-                <p class="text-xs font-bold text-stone-600 text-center">
+                <p id="posterDimensionInfo" class="text-xs font-bold text-stone-600 text-center">
                     <i class="fa-solid fa-circle-check text-emerald-600 mr-1"></i>
-                    Imagem criada com layout fixo de 10 colunas e fundo 100% opaco (pronta para imprimir pelo celular ou compartilhar no WhatsApp).
+                    Formato vertical <strong>9:16 (1080×1920 px)</strong> com 5 colunas largas e fundo 100% opaco — ideal para tela de celular e impressão vertical.
                 </p>
-                <div class="w-full bg-white p-2 sm:p-3 rounded-2xl border theme-border shadow-inner flex justify-center">
-                    <img id="generatedRafflePreviewImg" alt="Imagem gerada da Rifa com Cabeçalho e Cartela" class="max-w-full h-auto rounded-xl border border-stone-200" />
+                <div class="w-full max-w-md bg-white p-2 sm:p-3 rounded-2xl border theme-border shadow-inner flex justify-center">
+                    <img id="generatedRafflePreviewImg" alt="Imagem vertical 9:16 gerada da Rifa com Cabeçalho e Cartela" class="w-full h-auto rounded-xl border border-stone-200 shadow-sm" />
                 </div>
             </div>
 
             <div class="px-4 sm:px-6 py-3.5 bg-white border-t theme-border flex flex-wrap items-center justify-end gap-2 shrink-0">
                 <button type="button" onclick="downloadGeneratedRaffleImage()" class="px-4 py-2.5 rounded-2xl bg-sky-600 hover:bg-sky-700 text-white font-extrabold text-xs sm:text-sm flex items-center gap-2 shadow-sm transition">
-                    <i class="fa-solid fa-download"></i> Baixar Imagem PNG
+                    <i class="fa-solid fa-download"></i> Baixar PNG (9:16)
                 </button>
                 <button type="button" id="btnShareGeneratedImage" onclick="shareGeneratedRaffleImage()" class="px-4 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs sm:text-sm flex items-center gap-2 shadow-sm transition">
                     <i class="fa-solid fa-share-nodes"></i> Compartilhar no Celular
                 </button>
                 <button type="button" onclick="printGeneratedRaffleImage()" class="px-4 py-2.5 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-xs sm:text-sm flex items-center gap-2 shadow-sm transition">
-                    <i class="fa-solid fa-print"></i> Imprimir Cartaz
+                    <i class="fa-solid fa-print"></i> Imprimir na Vertical
                 </button>
                 <button type="button" onclick="closeImagePreviewModal()" class="px-4 py-2.5 rounded-2xl bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold text-xs sm:text-sm transition">
                     Fechar
@@ -1222,7 +1233,8 @@
         };
 
         let lastGeneratedDataUrl = '';
-        let lastGeneratedFileName = 'rifa_bebe.png';
+        let lastGeneratedFileName = 'rifa_bebe_9x16.png';
+        let currentPosterFormatMode = '9x16'; // '9x16' (1080x1920 exato) ou '9x16_tall' (1080px com células extra altas)
 
         let appState = {
             theme: 'neutral',
@@ -1976,24 +1988,24 @@
 
         function drawNurseryBunting(ctx, startX, startY, totalWidth) {
             const flagColors = ['#fde68a', '#fbcfe8', '#bae6fd', '#bbf7d0', '#fed7aa', '#e9d5ff'];
-            const count = 16;
+            const count = 13;
             const flagW = totalWidth / count;
 
             ctx.save();
             // Cordão superior
             ctx.beginPath();
-            ctx.moveTo(startX, startY + 6);
-            ctx.quadraticCurveTo(startX + totalWidth * 0.25, startY + 22, startX + totalWidth * 0.5, startY + 10);
-            ctx.quadraticCurveTo(startX + totalWidth * 0.75, startY + 22, startX + totalWidth, startY + 6);
+            ctx.moveTo(startX, startY + 5);
+            ctx.quadraticCurveTo(startX + totalWidth * 0.25, startY + 18, startX + totalWidth * 0.5, startY + 8);
+            ctx.quadraticCurveTo(startX + totalWidth * 0.75, startY + 18, startX + totalWidth, startY + 5);
             ctx.strokeStyle = '#d4a373';
-            ctx.lineWidth = 3;
+            ctx.lineWidth = 2.5;
             ctx.stroke();
 
             for (let i = 0; i < count; i++) {
-                const fx = startX + i * flagW + 6;
-                const fw = flagW - 12;
-                const fy = startY + 8 + Math.sin((i / count) * Math.PI * 2) * 3;
-                const fh = 52;
+                const fx = startX + i * flagW + 4;
+                const fw = flagW - 8;
+                const fy = startY + 6 + Math.sin((i / count) * Math.PI * 2) * 2.5;
+                const fh = 42;
                 const color = flagColors[i % flagColors.length];
 
                 ctx.beginPath();
@@ -2003,30 +2015,33 @@
                 ctx.closePath();
                 ctx.fillStyle = color;
                 ctx.fill();
-                ctx.lineWidth = 2.5;
+                ctx.lineWidth = 2;
                 ctx.strokeStyle = '#ffffff';
                 ctx.stroke();
 
                 // Bolinha branca decorativa no centro da bandeirinha
                 ctx.beginPath();
-                ctx.arc(fx + fw / 2, fy + 18, 4.5, 0, Math.PI * 2);
+                ctx.arc(fx + fw / 2, fy + 14, 3.8, 0, Math.PI * 2);
                 ctx.fillStyle = '#ffffff';
                 ctx.fill();
 
                 // Estrelinha pendurada entre bandeirinhas pares
                 if (i % 2 === 1 && i < count - 1) {
-                    drawStarShape(ctx, fx + fw + 6, fy + 32, 5, 6, 3, '#fbbf24');
+                    drawStarShape(ctx, fx + fw + 4, fy + 26, 5, 5, 2.5, '#fbbf24');
                 }
             }
             ctx.restore();
         }
 
         function drawNurseryBearMascot(ctx, cx, cy, radius, palette) {
+            const s = radius / 102;
             ctx.save();
+            ctx.translate(cx, cy);
+            ctx.scale(s, s);
 
             // Moldura circular externa do mascote
             ctx.beginPath();
-            ctx.arc(cx, cy, radius + 6, 0, Math.PI * 2);
+            ctx.arc(0, 0, 108, 0, Math.PI * 2);
             ctx.fillStyle = '#ffffff';
             ctx.fill();
             ctx.lineWidth = 3;
@@ -2037,7 +2052,7 @@
 
             // Fundo suave interno
             ctx.beginPath();
-            ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+            ctx.arc(0, 0, 102, 0, Math.PI * 2);
             ctx.fillStyle = palette.bgSoft;
             ctx.fill();
 
@@ -2046,46 +2061,46 @@
             ctx.setLineDash([4, 4]);
             ctx.strokeStyle = '#b08968';
             ctx.lineWidth = 2;
-            ctx.moveTo(cx - 56, cy - 30);
-            ctx.quadraticCurveTo(cx - 45, cy, cx - 32, cy + 25);
-            ctx.moveTo(cx + 58, cy - 34);
-            ctx.quadraticCurveTo(cx + 46, cy, cx + 32, cy + 25);
+            ctx.moveTo(-56, -30);
+            ctx.quadraticCurveTo(-45, 0, -32, 25);
+            ctx.moveTo(58, -34);
+            ctx.quadraticCurveTo(46, 0, 32, 25);
             ctx.stroke();
             ctx.setLineDash([]);
 
             // Balão esquerdo (azul pastel)
             ctx.beginPath();
-            ctx.arc(cx - 58, cy - 50, 18, 0, Math.PI * 2);
+            ctx.arc(-58, -50, 18, 0, Math.PI * 2);
             ctx.fillStyle = '#93c5fd';
             ctx.fill();
             ctx.beginPath();
-            ctx.arc(cx - 63, cy - 56, 4.5, 0, Math.PI * 2);
+            ctx.arc(-63, -56, 4.5, 0, Math.PI * 2);
             ctx.fillStyle = 'rgba(255,255,255,0.65)';
             ctx.fill();
 
             // Balão direito (rosa pastel)
             ctx.beginPath();
-            ctx.arc(cx + 60, cy - 52, 20, 0, Math.PI * 2);
+            ctx.arc(60, -52, 20, 0, Math.PI * 2);
             ctx.fillStyle = '#f472b6';
             ctx.fill();
             ctx.beginPath();
-            ctx.arc(cx + 54, cy - 58, 5, 0, Math.PI * 2);
+            ctx.arc(54, -58, 5, 0, Math.PI * 2);
             ctx.fillStyle = 'rgba(255,255,255,0.65)';
             ctx.fill();
 
             // Nuvem fofinha na base
             ctx.fillStyle = '#ffffff';
             ctx.beginPath();
-            ctx.ellipse(cx, cy + 68, 56, 15, 0, 0, Math.PI * 2);
+            ctx.ellipse(0, 68, 56, 15, 0, 0, Math.PI * 2);
             ctx.fill();
             ctx.beginPath();
-            ctx.arc(cx - 36, cy + 63, 15, 0, Math.PI * 2);
-            ctx.arc(cx + 36, cy + 63, 15, 0, Math.PI * 2);
+            ctx.arc(-36, 63, 15, 0, Math.PI * 2);
+            ctx.arc(36, 63, 15, 0, Math.PI * 2);
             ctx.fill();
 
             // Orelhinhas do Ursinho
-            const earY = cy - 32;
-            [cx - 33, cx + 33].forEach((ex) => {
+            const earY = -32;
+            [-33, 33].forEach((ex) => {
                 ctx.beginPath();
                 ctx.arc(ex, earY, 19, 0, Math.PI * 2);
                 ctx.fillStyle = '#d4a373';
@@ -2098,9 +2113,9 @@
 
             // Chapeuzinho de Festa Infantil
             ctx.beginPath();
-            ctx.moveTo(cx, cy - 80);
-            ctx.lineTo(cx - 21, cy - 40);
-            ctx.lineTo(cx + 21, cy - 40);
+            ctx.moveTo(0, -80);
+            ctx.lineTo(-21, -40);
+            ctx.lineTo(21, -40);
             ctx.closePath();
             ctx.fillStyle = '#60a5fa';
             ctx.fill();
@@ -2110,63 +2125,63 @@
 
             // Pompom do chapéu
             ctx.beginPath();
-            ctx.arc(cx, cy - 82, 8, 0, Math.PI * 2);
+            ctx.arc(0, -82, 8, 0, Math.PI * 2);
             ctx.fillStyle = '#fbbf24';
             ctx.fill();
 
             // Corpinho do Ursinho
             ctx.beginPath();
-            ctx.ellipse(cx, cy + 42, 34, 27, 0, 0, Math.PI * 2);
+            ctx.ellipse(0, 42, 34, 27, 0, 0, Math.PI * 2);
             ctx.fillStyle = '#e6b88a';
             ctx.fill();
 
             // Babadorzinho branco
             ctx.beginPath();
-            ctx.arc(cx, cy + 32, 22, 0, Math.PI);
+            ctx.arc(0, 32, 22, 0, Math.PI);
             ctx.closePath();
             ctx.fillStyle = '#ffffff';
             ctx.fill();
             ctx.lineWidth = 2.5;
             ctx.strokeStyle = '#bae6fd';
             ctx.stroke();
-            drawHeartShape(ctx, cx, cy + 36, 11, '#f472b6');
+            drawHeartShape(ctx, 0, 36, 11, '#f472b6');
 
             // Cabecinha do Ursinho
             ctx.beginPath();
-            ctx.arc(cx, cy - 6, 37, 0, Math.PI * 2);
+            ctx.arc(0, -6, 37, 0, Math.PI * 2);
             ctx.fillStyle = '#e6b88a';
             ctx.fill();
 
             // Bochechas rosadas
             ctx.fillStyle = 'rgba(244, 140, 152, 0.7)';
             ctx.beginPath();
-            ctx.ellipse(cx - 24, cy + 1, 8, 5, 0, 0, Math.PI * 2);
+            ctx.ellipse(-24, 1, 8, 5, 0, 0, Math.PI * 2);
             ctx.fill();
             ctx.beginPath();
-            ctx.ellipse(cx + 24, cy + 1, 8, 5, 0, 0, Math.PI * 2);
+            ctx.ellipse(24, 1, 8, 5, 0, 0, Math.PI * 2);
             ctx.fill();
 
             // Olhinhos brilhantes
-            [cx - 16, cx + 16].forEach((ox) => {
+            [-16, 16].forEach((ox) => {
                 ctx.beginPath();
-                ctx.arc(ox, cy - 12, 5, 0, Math.PI * 2);
+                ctx.arc(ox, -12, 5, 0, Math.PI * 2);
                 ctx.fillStyle = '#3d2c20';
                 ctx.fill();
                 ctx.beginPath();
-                ctx.arc(ox - 1.8, cy - 13.8, 2, 0, Math.PI * 2);
+                ctx.arc(ox - 1.8, -13.8, 2, 0, Math.PI * 2);
                 ctx.fillStyle = '#ffffff';
                 ctx.fill();
             });
 
             // Focinho claro
             ctx.beginPath();
-            ctx.ellipse(cx, cy + 3, 16, 12.5, 0, 0, Math.PI * 2);
+            ctx.ellipse(0, 3, 16, 12.5, 0, 0, Math.PI * 2);
             ctx.fillStyle = '#fffdf9';
             ctx.fill();
 
             // Narizinho e sorriso
             ctx.beginPath();
-            ctx.ellipse(cx, cy - 2, 6.2, 4.2, 0, 0, Math.PI * 2);
+            ctx.ellipse(0, -2, 6.2, 4.2, 0, 0, Math.PI * 2);
             ctx.fillStyle = '#4a3f35';
             ctx.fill();
 
@@ -2174,22 +2189,22 @@
             ctx.strokeStyle = '#4a3f35';
             ctx.lineWidth = 2.6;
             ctx.lineCap = 'round';
-            ctx.moveTo(cx, cy + 2);
-            ctx.lineTo(cx, cy + 8);
-            ctx.moveTo(cx - 8, cy + 7);
-            ctx.quadraticCurveTo(cx - 4, cy + 11, cx, cy + 8);
-            ctx.moveTo(cx + 8, cy + 7);
-            ctx.quadraticCurveTo(cx + 4, cy + 11, cx, cy + 8);
+            ctx.moveTo(0, 2);
+            ctx.lineTo(0, 8);
+            ctx.moveTo(-8, 7);
+            ctx.quadraticCurveTo(-4, 11, 0, 8);
+            ctx.moveTo(8, 7);
+            ctx.quadraticCurveTo(4, 11, 0, 8);
             ctx.stroke();
 
             // Patinhas e pezinhos
-            [cx - 24, cx + 24].forEach((px) => {
+            [-24, 24].forEach((px) => {
                 ctx.beginPath();
-                ctx.arc(px, cy + 60, 12, 0, Math.PI * 2);
+                ctx.arc(px, 60, 12, 0, Math.PI * 2);
                 ctx.fillStyle = '#d4a373';
                 ctx.fill();
                 ctx.beginPath();
-                ctx.arc(px, cy + 61, 6.5, 0, Math.PI * 2);
+                ctx.arc(px, 61, 6.5, 0, Math.PI * 2);
                 ctx.fillStyle = '#faedcd';
                 ctx.fill();
             });
@@ -2197,8 +2212,26 @@
             ctx.restore();
         }
 
-        async function exportFullRafflePng() {
-            showToast('Criando imagem oficial com cabeçalho e cartela...', 'info');
+        function setPosterFormatMode(mode) {
+            currentPosterFormatMode = mode === '9x16_tall' ? '9x16_tall' : '9x16';
+            const btnStandard = document.getElementById('posterModeBtn-9x16');
+            const btnTall = document.getElementById('posterModeBtn-9x16_tall');
+            if (btnStandard && btnTall) {
+                if (currentPosterFormatMode === '9x16') {
+                    btnStandard.className = 'px-2.5 py-1 rounded-lg bg-sky-600 text-white font-extrabold transition';
+                    btnTall.className = 'px-2.5 py-1 rounded-lg text-stone-600 hover:bg-stone-100 font-bold transition';
+                } else {
+                    btnTall.className = 'px-2.5 py-1 rounded-lg bg-sky-600 text-white font-extrabold transition';
+                    btnStandard.className = 'px-2.5 py-1 rounded-lg text-stone-600 hover:bg-stone-100 font-bold transition';
+                }
+            }
+            exportFullRafflePng(false);
+        }
+
+        async function exportFullRafflePng(autoDownload = true) {
+            if (autoDownload) {
+                showToast('Gerando imagem vertical 9:16 para celular...', 'info');
+            }
 
             if (document.fonts && document.fonts.ready) {
                 try { await document.fonts.ready; } catch (e) {}
@@ -2208,36 +2241,54 @@
             const { title, babyName, prize, price, priceExtra, totalNumbers, drawDate, notes } = appState.config;
             const total = Number(totalNumbers) || 100;
 
-            // Dimensões fixas de cartaz profissional (independente se gerado no celular ou PC)
-            const W = 1600;
-            const outerPad = 40;
-            const contentW = W - outerPad * 2; // 1520px
+            // LARGURA FIXA 1080px (Padrão Full HD Vertical 9:16 de Smartphones)
+            const W = 1080;
+            const outerPad = 22;
+            const contentW = W - outerPad * 2; // 1036px
 
             // Canvas auxiliar para medir quebras de linha dos textos do cabeçalho
             const measureCanvas = document.createElement('canvas');
             const mCtx = measureCanvas.getContext('2d');
 
-            mCtx.font = '700 24px "Fredoka", "Quicksand", sans-serif';
-            const prizeLines = wrapCanvasText(mCtx, prize || DEFAULT_CONFIG.prize, 1020, 2);
+            const headerH = 436;
+            const sectionGap = 14;
+            const footerH = 74;
 
-            mCtx.font = '800 20px "Nunito", sans-serif';
-            const pixLines = wrapCanvasText(mCtx, notes || DEFAULT_CONFIG.notes, 500, 3);
-
-            // Cálculo dinâmico das alturas das seções
-            const headerH = 520;
-            const sectionGap = 28;
-
-            const cols = 10;
+            // 5 Colunas Largas (Cada célula fica com ~190px de largura para máxima leitura no celular!)
+            const cols = 5;
             const rows = Math.ceil(total / cols);
-            const gridInnerPad = 34;
-            const cellGap = 12;
-            const cellW = Math.floor((contentW - gridInnerPad * 2 - cellGap * (cols - 1)) / cols);
-            const cellH = 102;
-            const gridTopHeaderH = 112;
-            const gridCardH = gridTopHeaderH + rows * cellH + (rows - 1) * cellGap + gridInnerPad;
+            const gridInnerPad = 20;
+            const gridTopHeaderH = 74;
+            const gridBottomPad = 18;
+            const cellGapX = 10;
+            const cellW = Math.floor((contentW - gridInnerPad * 2 - cellGapX * (cols - 1)) / cols);
 
-            const footerH = 104;
-            const H = outerPad + headerH + sectionGap + gridCardH + sectionGap + footerH + outerPad;
+            // Cálculo da altura das células para caber em 1080x1920 (9:16 exato) ou modo ampliado
+            let H = 1920;
+            let cellGapY = 7;
+            let cellH = 56;
+
+            if (currentPosterFormatMode === '9x16' && total <= 100) {
+                H = 1920; // Proporção 9:16 exata (1080 x 1920)
+                const availableGridCardH = H - (outerPad * 2 + headerH + sectionGap * 2 + footerH);
+                const availableRowsH = availableGridCardH - gridTopHeaderH - gridBottomPad;
+                cellGapY = rows <= 10 ? 10 : 7;
+                cellH = Math.floor((availableRowsH - cellGapY * (rows - 1)) / rows);
+            } else {
+                // Modo 9:16 Ampliado ou rifas com 150/200/300 números
+                cellGapY = 10;
+                cellH = currentPosterFormatMode === '9x16_tall' ? 86 : 62;
+                const computedGridCardH = gridTopHeaderH + rows * cellH + (rows - 1) * cellGapY + gridBottomPad;
+                H = Math.max(1920, outerPad * 2 + headerH + sectionGap * 2 + computedGridCardH + footerH);
+            }
+
+            const gridCardH = H - (outerPad * 2 + headerH + sectionGap * 2 + footerH);
+
+            // Atualiza texto informativo no modal
+            const dimInfo = document.getElementById('posterDimensionInfo');
+            if (dimInfo) {
+                dimInfo.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600 mr-1"></i> Imagem vertical <strong>9:16 (${W}×${H} px)</strong> com <strong>5 colunas largas</strong> e fundo 100% opaco — perfeita para ler no celular e imprimir.`;
+            }
 
             // Criação do Canvas Principal 100% Opaco (alpha: false impede fundo preto na impressora do celular)
             const canvas = document.createElement('canvas');
@@ -2252,324 +2303,334 @@
             ctx.fillRect(0, 0, W, H);
 
             ctx.fillStyle = palette.dotColor;
-            for (let py = 20; py < H; py += 32) {
-                for (let px = 20; px < W; px += 32) {
+            for (let py = 18; py < H; py += 28) {
+                for (let px = 18; px < W; px += 28) {
                     ctx.beginPath();
-                    ctx.arc(px, py, 2.2, 0, Math.PI * 2);
+                    ctx.arc(px, py, 2, 0, Math.PI * 2);
                     ctx.fill();
                 }
             }
 
             // =====================================================================
-            // 2. DESENHO DO CABEÇALHO INFANTIL (HEADER CARD)
+            // 2. DESENHO DO CABEÇALHO INFANTIL VERTICAL (OTIMIZADO PARA 1080PX)
             // =====================================================================
             const headerX = outerPad;
             const headerY = outerPad;
 
-            // Cartão externo do cabeçalho
-            drawRoundedRect(ctx, headerX, headerY, contentW, headerH, 36, '#ffffff', palette.border, 4);
+            drawRoundedRect(ctx, headerX, headerY, contentW, headerH, 30, '#ffffff', palette.border, 3.5);
 
             // Varal de bandeirinhas coloridas no topo do cabeçalho
-            drawNurseryBunting(ctx, headerX + 18, headerY + 4, contentW - 36);
+            drawNurseryBunting(ctx, headerX + 14, headerY + 3, contentW - 28);
 
             // Moldura tracejada interna estilo convite de chá de bebê
-            const innerX = headerX + 24;
-            const innerY = headerY + 72;
-            const innerW = contentW - 48;
-            const innerH = headerH - 94;
-            drawRoundedRect(ctx, innerX, innerY, innerW, innerH, 28, palette.skyTop, palette.border, 2.5, [10, 7]);
+            const innerX = headerX + 16;
+            const innerY = headerY + 54;
+            const innerW = contentW - 32;
+            const innerH = headerH - 70;
+            drawRoundedRect(ctx, innerX, innerY, innerW, innerH, 24, palette.skyTop, palette.border, 2, [9, 6]);
 
             // Faixa superior de boas-vindas dentro da moldura
-            drawRoundedRect(ctx, innerX + 28, innerY + 18, 490, 38, 19, palette.bgSoft, palette.border, 2);
-            ctx.font = '800 15px "Nunito", sans-serif';
+            drawRoundedRect(ctx, innerX + 18, innerY + 12, 430, 32, 16, palette.bgSoft, palette.border, 1.5);
+            ctx.font = '800 13px "Nunito", sans-serif';
             ctx.fillStyle = palette.textPrimary;
             ctx.textAlign = 'left';
             ctx.textBaseline = 'middle';
-            ctx.fillText('✨ CHÁ RIFA ESPECIAL • VENHA CELEBRAR CONOSCO 🧸', innerX + 46, innerY + 37);
+            ctx.fillText('✨ CHÁ RIFA ESPECIAL • VENHA CELEBRAR CONOSCO 🧸', innerX + 32, innerY + 28);
 
             // Selo direito superior na moldura
-            drawRoundedRect(ctx, innerX + innerW - 310, innerY + 18, 282, 38, 19, '#ffffff', palette.border, 2);
-            ctx.font = '800 15px "Nunito", sans-serif';
+            drawRoundedRect(ctx, innerX + innerW - 258, innerY + 12, 240, 32, 16, '#ffffff', palette.border, 1.5);
+            ctx.font = '800 13px "Nunito", sans-serif';
             ctx.fillStyle = palette.accentDark;
             ctx.textAlign = 'center';
-            ctx.fillText('🍼  🧸  🧷  👣   Mimos & Amor', innerX + innerW - 169, innerY + 37);
+            ctx.fillText('🍼 🧸 🧷 👣  Mimos & Amor', innerX + innerW - 138, innerY + 28);
 
-            // Ilustração do Mascote Ursinho Bebê à esquerda
-            const mascotCx = innerX + 165;
-            const mascotCy = innerY + 215;
-            drawNurseryBearMascot(ctx, mascotCx, mascotCy, 102, palette);
+            // Mascote Ursinho Bebê à esquerda do topo + Título e Badges à direita
+            const mascotCx = innerX + 108;
+            const mascotCy = innerY + 128;
+            drawNurseryBearMascot(ctx, mascotCx, mascotCy, 66, palette);
 
-            // Selinho abaixo do mascote
-            drawRoundedRect(ctx, mascotCx - 115, mascotCy + 122, 230, 34, 17, '#ffffff', palette.border, 2);
-            ctx.font = '800 14px "Nunito", sans-serif';
-            ctx.fillStyle = palette.textPrimary;
-            ctx.textAlign = 'center';
-            ctx.fillText('🐾 Cartela Oficial do Bebê ♥', mascotCx, mascotCy + 139);
-
-            // Coluna Direita do Cabeçalho: Badges, Título e 3 Cartões de Destaque
-            const infoX = innerX + 330;
-            const infoW = innerW - 358;
-            let cursorY = innerY + 76;
+            // Bloco Superior Direito (Badges + Título Grande)
+            const topInfoX = innerX + 206;
+            const topInfoW = innerW - 224;
+            let cursorY = innerY + 56;
 
             // Pílula Nome do Bebê
-            ctx.font = '800 18px "Nunito", sans-serif';
-            const babyBadgeText = `👶  ${babyName || DEFAULT_CONFIG.babyName}  ✨`;
-            const babyBadgeW = Math.max(210, ctx.measureText(babyBadgeText).width + 44);
-            drawRoundedRect(ctx, infoX, cursorY, babyBadgeW, 42, 21, palette.ribbonBg, palette.ribbonBorder, 2.5);
+            ctx.font = '800 16px "Nunito", sans-serif';
+            const babyBadgeText = `👶 ${babyName || DEFAULT_CONFIG.babyName} ✨`;
+            const babyBadgeW = Math.min(320, Math.max(180, ctx.measureText(babyBadgeText).width + 34));
+            drawRoundedRect(ctx, topInfoX, cursorY, babyBadgeW, 36, 18, palette.ribbonBg, palette.ribbonBorder, 2);
             ctx.fillStyle = palette.ribbonText;
             ctx.textAlign = 'center';
-            ctx.fillText(babyBadgeText, infoX + babyBadgeW / 2, cursorY + 21);
+            ctx.fillText(babyBadgeText, topInfoX + babyBadgeW / 2, cursorY + 18);
 
             // Pílula Data do Sorteio
-            const dateBadgeX = infoX + babyBadgeW + 14;
+            const dateBadgeX = topInfoX + babyBadgeW + 10;
             const dateText = `📅 Sorteio: ${drawDate || DEFAULT_CONFIG.drawDate}`;
-            const dateBadgeW = Math.max(300, ctx.measureText(dateText).width + 44);
-            drawRoundedRect(ctx, dateBadgeX, cursorY, dateBadgeW, 42, 21, '#ffffff', palette.border, 2.5);
+            const dateBadgeW = Math.min(topInfoW - babyBadgeW - 10, Math.max(240, ctx.measureText(dateText).width + 32));
+            drawRoundedRect(ctx, dateBadgeX, cursorY, dateBadgeW, 36, 18, '#ffffff', palette.border, 2);
             ctx.fillStyle = palette.textPrimary;
-            ctx.fillText(dateText, dateBadgeX + dateBadgeW / 2, cursorY + 21);
+            ctx.fillText(dateText, dateBadgeX + dateBadgeW / 2, cursorY + 18);
 
-            // Título Principal da Rifa
-            cursorY += 60;
-            ctx.font = '700 44px "Fredoka", "Quicksand", sans-serif';
+            // Título Principal Infantil em destaque
+            cursorY += 46;
+            ctx.font = '700 36px "Fredoka", "Quicksand", sans-serif';
             ctx.fillStyle = palette.textPrimary;
             ctx.textAlign = 'left';
             ctx.textBaseline = 'top';
-            const titleLines = wrapCanvasText(ctx, title || DEFAULT_CONFIG.title, infoW, 1);
-            ctx.fillText(titleLines[0], infoX, cursorY);
+            const titleLines = wrapCanvasText(ctx, title || DEFAULT_CONFIG.title, topInfoW, 1);
+            ctx.fillText(titleLines[0], topInfoX, cursorY);
 
-            cursorY += 52;
-            ctx.font = '700 17px "Nunito", sans-serif';
+            cursorY += 42;
+            ctx.font = '700 15px "Nunito", sans-serif';
             ctx.fillStyle = palette.textSecondary;
-            ctx.fillText('★ Escolha seu número da sorte e comemore conosco a chegada do nosso pacotinho de amor!', infoX, cursorY);
+            ctx.fillText('★ Escolha seu número da sorte e celebre a chegada do nosso pacotinho de amor!', topInfoX, cursorY);
 
-            // Cartão 1: Prêmios Especiais do Sorteio (Largura total da coluna de informações)
-            cursorY += 34;
-            const prizeCardH = 88;
-            drawRoundedRect(ctx, infoX, cursorY, infoW, prizeCardH, 22, '#ffffff', palette.accent, 2.5, [8, 5]);
-            drawRoundedRect(ctx, infoX + 16, cursorY + 16, 56, 56, 16, '#fef3c7', '#f59e0b', 2);
-            ctx.font = '700 28px "Nunito", sans-serif';
+            // =====================================================================
+            // VITRINE DE CARTÕES EM LARGURA TOTAL (PRÊMIOS + VALOR/FRALDAS + PIX)
+            // =====================================================================
+            const cardsX = innerX + 18;
+            const cardsW = innerW - 36;
+            let cardsY = innerY + 184;
+
+            // Cartão 1: Prêmios Especiais do Sorteio (Largura Total)
+            const prizeCardH = 76;
+            drawRoundedRect(ctx, cardsX, cardsY, cardsW, prizeCardH, 18, '#ffffff', palette.accent, 2.5, [8, 5]);
+            drawRoundedRect(ctx, cardsX + 12, cardsY + 12, 52, 52, 14, '#fef3c7', '#f59e0b', 2);
+            ctx.font = '700 26px "Nunito", sans-serif';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            ctx.fillText('🎁', infoX + 44, cursorY + 45);
-
-            ctx.textAlign = 'left';
-            ctx.font = '800 13px "Nunito", sans-serif';
-            ctx.fillStyle = '#92400e';
-            ctx.fillText('PRÊMIOS ESPECIAIS DO SORTEIO', infoX + 88, cursorY + 24);
-
-            ctx.font = '700 23px "Fredoka", "Quicksand", sans-serif';
-            ctx.fillStyle = palette.textPrimary;
-            prizeLines.forEach((line, idx) => {
-                ctx.fillText(line, infoX + 88, cursorY + 50 + idx * 24);
-            });
-
-            // Cartões 2 e 3 lado a lado: Valor por Número + Chave PIX
-            cursorY += prizeCardH + 14;
-            const halfCardW = Math.floor((infoW - 16) / 2);
-            const bottomCardH = 98;
-
-            // Cartão 2: Valor por Número & Sugestão de Fraldas
-            drawRoundedRect(ctx, infoX, cursorY, halfCardW, bottomCardH, 22, '#ffffff', palette.border, 2.5);
-            drawRoundedRect(ctx, infoX + 14, cursorY + 14, 48, 48, 14, palette.bgSoft, palette.border, 1.5);
-            ctx.font = '700 23px "Nunito", sans-serif';
-            ctx.textAlign = 'center';
-            ctx.fillText('🎟️', infoX + 38, cursorY + 39);
+            ctx.fillText('🎁', cardsX + 38, cardsY + 39);
 
             ctx.textAlign = 'left';
             ctx.font = '800 12px "Nunito", sans-serif';
-            ctx.fillStyle = palette.textSecondary;
-            ctx.fillText('VALOR POR NÚMERO', infoX + 74, cursorY + 22);
+            ctx.fillStyle = '#92400e';
+            ctx.fillText('PRÊMIOS ESPECIAIS DO SORTEIO', cardsX + 76, cardsY + 20);
 
-            ctx.font = '700 28px "Fredoka", "Quicksand", sans-serif';
-            ctx.fillStyle = '#047857';
-            const formattedPrice = formatCurrency(price);
-            ctx.fillText(formattedPrice, infoX + 74, cursorY + 48);
-
-            const priceWidth = ctx.measureText(formattedPrice).width;
-            if (priceExtra) {
-                ctx.font = '800 15px "Nunito", sans-serif';
-                ctx.fillStyle = palette.accentDark;
-                ctx.fillText(`(${priceExtra})`, infoX + 84 + priceWidth, cursorY + 49);
+            mCtx.font = '700 21px "Fredoka", "Quicksand", sans-serif';
+            const prizeLines = wrapCanvasText(mCtx, prize || DEFAULT_CONFIG.prize, cardsW - 92, 2);
+            ctx.font = '700 21px "Fredoka", "Quicksand", sans-serif';
+            ctx.fillStyle = palette.textPrimary;
+            if (prizeLines.length === 1) {
+                ctx.fillText(prizeLines[0], cardsX + 76, cardsY + 47);
+            } else {
+                ctx.font = '700 18px "Fredoka", "Quicksand", sans-serif';
+                ctx.fillText(prizeLines[0], cardsX + 76, cardsY + 40);
+                ctx.fillText(prizeLines[1], cardsX + 76, cardsY + 60);
             }
 
-            ctx.font = '800 13px "Nunito", sans-serif';
-            ctx.fillStyle = palette.textSecondary;
-            ctx.fillText('🧷 Sugestão de Fraldas: Tam. P • Tam. M • Tam. G', infoX + 74, cursorY + 78);
+            // Cartões 2 e 3 lado a lado com letras grandes: Valor por Número + Chave PIX
+            cardsY += prizeCardH + 10;
+            const halfW = Math.floor((cardsW - 12) / 2);
+            const bottomCardH = 82;
 
-            // Cartão 3: Como Pagar / Chave PIX
-            const pixCardX = infoX + halfCardW + 16;
-            drawRoundedRect(ctx, pixCardX, cursorY, halfCardW, bottomCardH, 22, '#fffbeb', '#fcd34d', 2.5);
-            drawRoundedRect(ctx, pixCardX + 14, cursorY + 14, 48, 48, 14, '#fef3c7', '#f59e0b', 1.5);
-            ctx.font = '700 23px "Nunito", sans-serif';
+            // Cartão 2: Valor por Número & Sugestão de Fraldas
+            drawRoundedRect(ctx, cardsX, cardsY, halfW, bottomCardH, 18, '#ffffff', palette.border, 2);
+            drawRoundedRect(ctx, cardsX + 12, cardsY + 15, 52, 52, 14, palette.bgSoft, palette.border, 1.5);
+            ctx.font = '700 24px "Nunito", sans-serif';
             ctx.textAlign = 'center';
-            ctx.fillText('🔑', pixCardX + 38, cursorY + 39);
+            ctx.fillText('🎟️', cardsX + 38, cardsY + 42);
 
             ctx.textAlign = 'left';
-            ctx.font = '800 12px "Nunito", sans-serif';
-            ctx.fillStyle = '#92400e';
-            ctx.fillText('COMO PAGAR / CHAVE PIX', pixCardX + 74, cursorY + 22);
+            ctx.font = '800 11px "Nunito", sans-serif';
+            ctx.fillStyle = palette.textSecondary;
+            ctx.fillText('VALOR POR NÚMERO', cardsX + 74, cardsY + 19);
 
-            ctx.font = '800 17px "Nunito", sans-serif';
+            ctx.font = '700 25px "Fredoka", "Quicksand", sans-serif';
+            ctx.fillStyle = '#047857';
+            const formattedPrice = formatCurrency(price);
+            ctx.fillText(formattedPrice, cardsX + 74, cardsY + 43);
+
+            const priceW = ctx.measureText(formattedPrice).width;
+            if (priceExtra) {
+                ctx.font = '800 14px "Nunito", sans-serif';
+                ctx.fillStyle = palette.accentDark;
+                const extraLines = wrapCanvasText(ctx, `(${priceExtra})`, halfW - (82 + priceW), 1);
+                ctx.fillText(extraLines[0], cardsX + 82 + priceW, cardsY + 44);
+            }
+
+            ctx.font = '800 12px "Nunito", sans-serif';
+            ctx.fillStyle = palette.textSecondary;
+            ctx.fillText('🧷 Fraldas: Tam. P • Tam. M • Tam. G', cardsX + 74, cardsY + 66);
+
+            // Cartão 3: Como Pagar / Chave PIX
+            const pixX = cardsX + halfW + 12;
+            drawRoundedRect(ctx, pixX, cardsY, halfW, bottomCardH, 18, '#fffbeb', '#fcd34d', 2);
+            drawRoundedRect(ctx, pixX + 12, cardsY + 15, 52, 52, 14, '#fef3c7', '#f59e0b', 1.5);
+            ctx.font = '700 24px "Nunito", sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('🔑', pixX + 38, cardsY + 42);
+
+            ctx.textAlign = 'left';
+            ctx.font = '800 11px "Nunito", sans-serif';
+            ctx.fillStyle = '#92400e';
+            ctx.fillText('CHAVE PIX / INSTRUÇÕES', pixX + 74, cardsY + 19);
+
+            ctx.font = '800 15px "Nunito", sans-serif';
             ctx.fillStyle = '#292524';
-            pixLines.slice(0, 2).forEach((line, idx) => {
-                ctx.fillText(line, pixCardX + 74, cursorY + 46 + idx * 22);
+            const pixLines = wrapCanvasText(ctx, notes || DEFAULT_CONFIG.notes, halfW - 86, 2);
+            pixLines.forEach((line, idx) => {
+                ctx.fillText(line, pixX + 74, cardsY + 42 + idx * 20);
             });
 
             // =====================================================================
-            // 3. DESENHO DA CARTELA DE NÚMEROS (SEMPRE 10 COLUNAS FIXAS)
+            // 3. DESENHO DA CARTELA DE NÚMEROS VERTICAL (5 COLUNAS LARGAS)
             // =====================================================================
             const gridCardX = outerPad;
             const gridCardY = headerY + headerH + sectionGap;
 
-            drawRoundedRect(ctx, gridCardX, gridCardY, contentW, gridCardH, 36, '#ffffff', palette.border, 4);
+            drawRoundedRect(ctx, gridCardX, gridCardY, contentW, gridCardH, 30, '#ffffff', palette.border, 3.5);
 
-            // Barra de título e legenda da cartela
+            // Faixa de Título e Legenda da Cartela
             const bannerX = gridCardX + gridInnerPad;
-            const bannerY = gridCardY + 24;
+            const bannerY = gridCardY + 14;
             const bannerW = contentW - gridInnerPad * 2;
-            drawRoundedRect(ctx, bannerX, bannerY, bannerW, 66, 20, palette.bgSoft, palette.border, 2, [8, 6]);
+            drawRoundedRect(ctx, bannerX, bannerY, bannerW, 48, 16, palette.bgSoft, palette.border, 2, [7, 5]);
 
             ctx.textAlign = 'left';
             ctx.textBaseline = 'middle';
-            ctx.font = '700 24px "Fredoka", "Quicksand", sans-serif';
+            ctx.font = '700 20px "Fredoka", "Quicksand", sans-serif';
             ctx.fillStyle = palette.textPrimary;
-            ctx.fillText('👣 Escolha seu Número da Sorte na Cartela', bannerX + 24, bannerY + 25);
+            ctx.fillText('👣 Escolha seu Número da Sorte (Marcados com × já escolhidos)', bannerX + 16, bannerY + 24);
 
-            ctx.font = '700 14px "Nunito", sans-serif';
-            ctx.fillStyle = palette.textSecondary;
-            ctx.fillText('Números marcados com × vermelho já estão reservados ou pagos', bannerX + 24, bannerY + 48);
-
-            // Pílulas de legenda à direita da faixa
+            // Pílulas de legenda à direita
             const legendItems = [
                 { label: 'Livre', bg: '#ffffff', border: palette.border, text: palette.textPrimary },
                 { label: 'Reservado', bg: '#fef3c7', border: '#f59e0b', text: '#92400e' },
                 { label: 'Pago', bg: '#d1fae5', border: '#10b981', text: '#065f46' }
             ];
-            let legendRightX = bannerX + bannerW - 20;
+            let legendRightX = bannerX + bannerW - 12;
             for (let i = legendItems.length - 1; i >= 0; i--) {
                 const item = legendItems[i];
-                const pillW = 118;
+                const pillW = 96;
                 const pillX = legendRightX - pillW;
-                drawRoundedRect(ctx, pillX, bannerY + 15, pillW, 36, 18, item.bg, item.border, 2);
-                ctx.font = '800 14px "Nunito", sans-serif';
+                drawRoundedRect(ctx, pillX, bannerY + 9, pillW, 30, 15, item.bg, item.border, 1.8);
+                ctx.font = '800 12px "Nunito", sans-serif';
                 ctx.fillStyle = item.text;
                 ctx.textAlign = 'center';
-                ctx.fillText(item.label, pillX + pillW / 2, bannerY + 33);
-                legendRightX = pillX - 10;
+                ctx.fillText(item.label, pillX + pillW / 2, bannerY + 24);
+                legendRightX = pillX - 8;
             }
 
-            // Grade de células (1 a totalNumbers)
+            // Desenho dos Números em 5 Colunas Largas (~191px de largura por célula!)
             const startGridX = gridCardX + gridInnerPad;
             const startGridY = gridCardY + gridTopHeaderH;
+            const isCompactCell = cellH < 68;
 
             for (let num = 1; num <= total; num++) {
                 const idx = num - 1;
                 const col = idx % cols;
                 const row = Math.floor(idx / cols);
 
-                const cx = startGridX + col * (cellW + cellGap);
-                const cy = startGridY + row * (cellH + cellGap);
+                const cx = startGridX + col * (cellW + cellGapX);
+                const cy = startGridY + row * (cellH + cellGapY);
 
                 const entry = appState.entries[String(num)];
                 const status = entry ? entry.status : 'available';
                 const fNum = formatRaffleNumber(num);
 
                 if (status === 'paid') {
-                    drawRoundedRect(ctx, cx, cy, cellW, cellH, 18, '#ecfdf5', '#10b981', 2.5);
+                    drawRoundedRect(ctx, cx, cy, cellW, cellH, 14, '#ecfdf5', '#10b981', 2.2);
                 } else if (status === 'pending') {
-                    drawRoundedRect(ctx, cx, cy, cellW, cellH, 18, '#fffbeb', '#f59e0b', 2.5);
+                    drawRoundedRect(ctx, cx, cy, cellW, cellH, 14, '#fffbeb', '#f59e0b', 2.2);
                 } else {
-                    drawRoundedRect(ctx, cx, cy, cellW, cellH, 18, '#ffffff', palette.border, 2, [6, 4]);
+                    drawRoundedRect(ctx, cx, cy, cellW, cellH, 14, '#ffffff', palette.border, 1.8, [5, 4]);
                 }
 
-                // Estrelinha sutil no canto superior esquerdo da célula
-                ctx.font = '700 11px "Nunito", sans-serif';
+                // Estrelinha decorativa no canto superior esquerdo
+                ctx.font = '700 10px "Nunito", sans-serif';
                 ctx.fillStyle = palette.accent;
                 ctx.textAlign = 'left';
                 ctx.textBaseline = 'top';
-                ctx.fillText('✦', cx + 8, cy + 6);
+                ctx.fillText('✦', cx + 7, cy + 4);
 
-                // Selo de status no canto superior direito se escolhido
+                // Etiqueta de Status no canto superior direito
                 if (status === 'paid' || status === 'pending') {
-                    const tagText = status === 'paid' ? '✓ PAGO' : '⏳ RESERV.';
+                    const tagText = status === 'paid' ? '✓ PAGO' : '⏳ RES.';
                     ctx.font = '800 10px "Nunito", sans-serif';
                     ctx.fillStyle = status === 'paid' ? '#047857' : '#b45309';
                     ctx.textAlign = 'right';
-                    ctx.fillText(tagText, cx + cellW - 8, cy + 7);
+                    ctx.fillText(tagText, cx + cellW - 7, cy + 5);
                 }
 
-                // Número centralizado
                 const numCenterX = cx + cellW / 2;
-                const numCenterY = cy + 36;
-                ctx.font = '700 28px "Fredoka", "Quicksand", sans-serif';
+                const numCenterY = isCompactCell ? cy + Math.round(cellH * 0.36) : cy + 28;
+
+                // Número da Rifa grande e legível
+                ctx.font = isCompactCell
+                    ? '700 23px "Fredoka", "Quicksand", sans-serif'
+                    : '700 28px "Fredoka", "Quicksand", sans-serif';
                 ctx.fillStyle = status === 'paid' ? '#065f46' : status === 'pending' ? '#92400e' : palette.textPrimary;
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
                 ctx.fillText(fNum, numCenterX, numCenterY);
 
-                // Se ocupado, desenha o "×" vermelho sobre o número e o nome completo abaixo
                 if (entry) {
+                    // Marca "×" vermelha sobre o número escolhido
                     ctx.save();
                     ctx.translate(numCenterX, numCenterY);
                     ctx.rotate(-0.18);
-                    ctx.font = '900 40px "Nunito", sans-serif';
+                    ctx.font = isCompactCell ? '900 30px "Nunito", sans-serif' : '900 38px "Nunito", sans-serif';
                     ctx.strokeStyle = '#ffffff';
-                    ctx.lineWidth = 4;
+                    ctx.lineWidth = 3.5;
                     ctx.strokeText('×', 0, 1);
                     ctx.fillStyle = '#dc2626';
                     ctx.fillText('×', 0, 1);
                     ctx.restore();
 
-                    // Nome do participante em até 2 linhas
-                    ctx.font = '800 13px "Nunito", sans-serif';
+                    // Nome completo do participante aproveitando os ~191px de largura da coluna
+                    ctx.font = isCompactCell ? '800 13.5px "Nunito", sans-serif' : '800 15px "Nunito", sans-serif';
                     ctx.fillStyle = status === 'paid' ? '#064e3b' : '#78350f';
-                    const nameLines = wrapCanvasText(ctx, entry.name, cellW - 14, 2);
+                    const maxLinesForCell = isCompactCell ? 1 : 2;
+                    const nameLines = wrapCanvasText(ctx, entry.name, cellW - 14, maxLinesForCell);
+
                     if (nameLines.length === 1) {
-                        ctx.fillText(nameLines[0], numCenterX, cy + 76);
+                        const nameY = isCompactCell ? cy + Math.round(cellH * 0.76) : cy + 62;
+                        ctx.fillText(nameLines[0], numCenterX, nameY);
                     } else {
-                        ctx.fillText(nameLines[0], numCenterX, cy + 69);
-                        ctx.fillText(nameLines[1], numCenterX, cy + 85);
+                        ctx.fillText(nameLines[0], numCenterX, cy + 56);
+                        ctx.fillText(nameLines[1], numCenterX, cy + 73);
                     }
                 } else {
-                    ctx.font = '700 13px "Nunito", sans-serif';
+                    ctx.font = isCompactCell ? '700 12px "Nunito", sans-serif' : '700 13px "Nunito", sans-serif';
                     ctx.fillStyle = '#a8a29e';
-                    ctx.fillText('Livre', numCenterX, cy + 74);
+                    const freeY = isCompactCell ? cy + Math.round(cellH * 0.75) : cy + 62;
+                    ctx.fillText('Livre', numCenterX, freeY);
                 }
             }
 
             // =====================================================================
-            // 4. RODAPÉ COMEMORATIVO DE AGRADECIMENTO
+            // 4. RODAPÉ COMEMORATIVO DE AGRADECIMENTO (COMPACTO VERTICAL)
             // =====================================================================
             const footerX = outerPad;
             const footerY = gridCardY + gridCardH + sectionGap;
 
-            drawRoundedRect(ctx, footerX, footerY, contentW, footerH, 28, '#ffffff', palette.border, 3);
-            drawRoundedRect(ctx, footerX + 22, footerY + 20, 64, 64, 18, palette.bgSoft, palette.border, 2);
-            ctx.font = '700 32px "Nunito", sans-serif';
+            drawRoundedRect(ctx, footerX, footerY, contentW, footerH, 24, '#ffffff', palette.border, 3);
+            drawRoundedRect(ctx, footerX + 16, footerY + 13, 48, 48, 14, palette.bgSoft, palette.border, 1.5);
+            ctx.font = '700 24px "Nunito", sans-serif';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            ctx.fillText('🍼', footerX + 54, footerY + 53);
+            ctx.fillText('🍼', footerX + 40, footerY + 38);
 
             ctx.textAlign = 'left';
-            ctx.font = '700 22px "Fredoka", "Quicksand", sans-serif';
+            ctx.font = '700 18px "Fredoka", "Quicksand", sans-serif';
             ctx.fillStyle = palette.textPrimary;
-            ctx.fillText(`Obrigado pelo carinho e por celebrar a chegada de ${babyName || DEFAULT_CONFIG.babyName}! 💕`, footerX + 104, footerY + 38);
+            ctx.fillText(`Obrigado por celebrar a chegada de ${babyName || DEFAULT_CONFIG.babyName}! 💕`, footerX + 78, footerY + 26);
 
-            ctx.font = '700 15px "Nunito", sans-serif';
+            ctx.font = '700 13px "Nunito", sans-serif';
             ctx.fillStyle = palette.textSecondary;
-            ctx.fillText('Cada número escolhido é um gesto de amor para o enxoval do nosso bebê. Boa sorte no sorteio!', footerX + 104, footerY + 68);
+            ctx.fillText('Cada número escolhido é um gesto de amor para o enxoval do nosso bebê. Boa sorte!', footerX + 78, footerY + 50);
 
-            // Selo direito no rodapé
-            drawRoundedRect(ctx, footerX + contentW - 250, footerY + 28, 224, 48, 24, palette.badgeBg, palette.border, 2);
-            ctx.font = '800 15px "Nunito", sans-serif';
+            drawRoundedRect(ctx, footerX + contentW - 196, footerY + 18, 180, 38, 19, palette.badgeBg, palette.border, 1.8);
+            ctx.font = '800 13px "Nunito", sans-serif';
             ctx.fillStyle = palette.badgeText;
             ctx.textAlign = 'center';
-            ctx.fillText('♥ Feito com Amor ★', footerX + contentW - 138, footerY + 52);
+            ctx.fillText('♥ Feito com Amor ★', footerX + contentW - 106, footerY + 37);
 
             // =====================================================================
             // 5. EXPORTAÇÃO E ABERTURA DO MODAL DE VISUALIZAÇÃO / IMPRESSÃO
             // =====================================================================
-            lastGeneratedFileName = `rifa_${(babyName || 'bebe').toLowerCase().replace(/[^a-z0-9]/g, '_')}.png`;
+            const modeSuffix = currentPosterFormatMode === '9x16_tall' ? '9x16_ampliado' : '9x16';
+            lastGeneratedFileName = `rifa_${(babyName || 'bebe').toLowerCase().replace(/[^a-z0-9]/g, '_')}_${modeSuffix}.png`;
             lastGeneratedDataUrl = canvas.toDataURL('image/png', 1.0);
 
             const previewImg = document.getElementById('generatedRafflePreviewImg');
@@ -2578,59 +2639,19 @@
             }
 
             openImagePreviewModal();
-            downloadGeneratedRaffleImage();
-            showToast('Imagem oficial criada com sucesso! (Sem print de tela)', 'success');
+            if (autoDownload) {
+                downloadGeneratedRaffleImage();
+                showToast('Imagem 9:16 criada com sucesso!', 'success');
+            }
         }
 
         function openImagePreviewModal() {
-            const modal = document.getElementById('imagePreviewModal');
-            if (!modal) return;
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-        }
-
-        function closeImagePreviewModal() {
-            const modal = document.getElementById('imagePreviewModal');
-            if (!modal) return;
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-        }
-
-        function downloadGeneratedRaffleImage() {
-            if (!lastGeneratedDataUrl) return;
-            const link = document.createElement('a');
-            link.download = lastGeneratedFileName;
-            link.href = lastGeneratedDataUrl;
-            link.click();
-        }
-
-        async function shareGeneratedRaffleImage() {
-            if (!lastGeneratedDataUrl) return;
-            try {
-                const res = await fetch(lastGeneratedDataUrl);
-                const blob = await res.blob();
-                const file = new File([blob], lastGeneratedFileName, { type: 'image/png' });
-                if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                    await navigator.share({
-                        title: appState.config.title || 'Chá Rifa do Bebê',
-                        text: `Cartela atualizada - ${appState.config.babyName || 'Bebê'}`,
-                        files: [file]
-                    });
-                    return;
-                }
-            } catch (err) {
-                console.warn('Compartilhamento nativo cancelado ou indisponível:', err);
-            }
-            downloadGeneratedRaffleImage();
-            showToast('Imagem baixada! Você já pode enviá-la pelo WhatsApp.', 'info');
-        }
-
+// ... existing code ... -->
         function printGeneratedRaffleImage() {
             if (!lastGeneratedDataUrl) {
-                exportFullRafflePng();
-                return;
+                exportFullRafflePng(false);
             }
-            // Cria uma área de impressão exclusiva apenas com a imagem gerada (sem print da página)
+            // Cria uma área de impressão exclusiva em modo Retrato (Vertical) apenas com a imagem 9:16 gerada
             let printFrame = document.getElementById('rafflePosterPrintFrame');
             if (!printFrame) {
                 printFrame = document.createElement('iframe');
@@ -2652,10 +2673,12 @@
     <meta charset="UTF-8">
     <title>${escapeHtml(appState.config.title || 'Chá Rifa')}</title>
     <style>
-        @page { margin: 8mm; }
+        @page { size: portrait; margin: 5mm; }
         html, body {
             margin: 0;
             padding: 0;
+            width: 100%;
+            height: 100%;
             background: #ffffff;
             text-align: center;
             -webkit-print-color-adjust: exact;
@@ -2663,7 +2686,10 @@
         }
         img {
             max-width: 100%;
+            max-height: 98vh;
+            width: auto;
             height: auto;
+            object-fit: contain;
             display: block;
             margin: 0 auto;
         }
@@ -2677,105 +2703,12 @@
         }
 
         function copyWhatsAppSummary() {
-            const { title, babyName, prize, price, priceExtra, totalNumbers, drawDate, notes } = appState.config;
-            let paidList = [], freeCount = 0;
-
-            for (let i = 1; i <= totalNumbers; i++) {
-                const e = appState.entries[String(i)];
-                const fNum = formatRaffleNumber(i);
-                if (!e) freeCount++;
-                else if (e.status === 'paid') paidList.push(`✅ ${fNum} - ${e.name}`);
-            }
-
-            const text = [
-                `🍼 *${title.toUpperCase()} - ${babyName.toUpperCase()}* 🧸`,
-                `🎁 *Prêmios:* ${prize}`,
-                `💰 *Valor:* ${formatCurrency(price)} ${priceExtra ? '(' + priceExtra + ')' : ''}`,
-                `📅 *Sorteio:* ${drawDate}`,
-                `📌 *PIX:* ${notes}`,
-                ``,
-                paidList.length > 0 ? `*Confirmados (Pagos):*\n${paidList.join('\n')}` : '',
-                `✨ *Total de números livres:* ${freeCount} disponíveis!`
-            ].filter(Boolean).join('\n');
-
-            const ta = document.createElement('textarea');
-            ta.value = text;
-            document.body.appendChild(ta);
-            ta.select();
-            document.execCommand('copy');
-            document.body.removeChild(ta);
-            showToast('Resumo copiado para o WhatsApp!', 'success');
-        }
-
-        function launchConfetti() {
-            const canvas = document.getElementById('confettiCanvas');
-            canvas.classList.remove('hidden');
-            const ctx = canvas.getContext('2d');
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-
-            const colors = ['#f59e0b', '#10b981', '#5fa8d3', '#ec839e', '#a855f7'];
-            const pieces = Array.from({ length: 100 }, () => ({
-                x: Math.random() * canvas.width,
-                y: Math.random() * canvas.height - canvas.height,
-                r: Math.random() * 6 + 4,
-                color: colors[Math.floor(Math.random() * colors.length)],
-                vy: Math.random() * 3 + 3,
-                vx: (Math.random() - 0.5) * 3,
-                angle: Math.random() * Math.PI * 2
-            }));
-
-            let frame = 0;
-            function draw() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                pieces.forEach(p => {
-                    p.y += p.vy;
-                    p.x += p.vx;
-                    p.angle += 0.08;
-                    ctx.save();
-                    ctx.translate(p.x, p.y);
-                    ctx.rotate(p.angle);
-                    ctx.fillStyle = p.color;
-                    ctx.fillRect(-p.r/2, -p.r/2, p.r, p.r * 1.5);
-                    ctx.restore();
-                });
-                frame++;
-                if (frame < 180) requestAnimationFrame(draw);
-                else { ctx.clearRect(0, 0, canvas.width, canvas.height); canvas.classList.add('hidden'); }
-            }
-            draw();
-        }
-
-        function openResetModal() { document.getElementById('resetModal').classList.remove('hidden'); document.getElementById('resetModal').classList.add('flex'); }
-        function closeResetModal() { document.getElementById('resetModal').classList.add('hidden'); document.getElementById('resetModal').classList.remove('flex'); }
-        function clearAllEntries() { appState.entries = {}; saveStateToStorage(); clearBookingForm(); renderAll(); closeResetModal(); showToast('Todos os números foram limpos.', 'info'); }
-        function loadDemoEntries() {
-            appState.entries = {
-                "1": { name: "Vovó Helena", note: "Fralda M", status: "paid", updatedAt: "08/11/2026" },
-                "7": { name: "Tia Camila", note: "Fralda G", status: "paid", updatedAt: "08/11/2026" }
-            };
-            saveStateToStorage(); clearBookingForm(); renderAll(); closeResetModal(); showToast('Exemplos carregados!', 'success');
-        }
-
-        function escapeHtml(str) {
-            if (!str) return '';
-            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-        }
-
-        function showToast(message, type = 'info') {
-            const container = document.getElementById('toastContainer');
-            const toast = document.createElement('div');
-            toast.className = `${type === 'success' ? 'bg-emerald-600' : type === 'error' ? 'bg-rose-600' : 'bg-stone-800'} text-white px-4 py-3 rounded-2xl shadow-lg text-xs font-bold flex items-center gap-2.5`;
-            toast.innerHTML = `<i class="fa-solid ${type === 'success' ? 'fa-circle-check' : 'fa-circle-info'} text-sm"></i> <span>${escapeHtml(message)}</span>`;
-            container.appendChild(toast);
-            setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 3000);
-        }
-
+// ... existing code ... -->
         Object.assign(window, {
             setTheme, toggleConfigPanel, autoSaveConfigField, handleFormSubmit, handleNumberInputChange,
             pickRandomAvailableNumber, setFormPaymentStatus, releaseCurrentNumber, clearBookingForm,
             setGridFilter, selectNumberFromGrid, toggleEntryPaymentStatus, openDrawModal, closeDrawModal,
-            setDrawPool, runRaffleDraw, exportFullRafflePng, copyWhatsAppSummary, openResetModal, closeResetModal,
+            setDrawPool, runRaffleDraw, exportFullRafflePng, setPosterFormatMode, copyWhatsAppSummary, openResetModal, closeResetModal,
             clearAllEntries, loadDemoEntries, closeBookingModal, copyPixNotes,
             openImagePreviewModal, closeImagePreviewModal, downloadGeneratedRaffleImage,
             shareGeneratedRaffleImage, printGeneratedRaffleImage
