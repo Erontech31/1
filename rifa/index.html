@@ -1717,6 +1717,7 @@
                         </button>
                     </td>
                     <td class="py-3 px-3 text-right">
+                        ${isPaid ? `<button type="button" onclick="downloadPaymentReceipt(${i})" class="mr-1 px-2 py-1 bg-emerald-100 hover:bg-emerald-200 text-emerald-800 rounded text-xs font-bold" aria-label="Baixar comprovante do número ${fNum}"><i class="fa-solid fa-download"></i><span class="hidden sm:inline ml-1">Comprovante</span></button>` : ''}
                         <button onclick="selectNumberFromGrid(${i})" class="px-2 py-1 bg-stone-100 rounded text-xs font-bold"><i class="fa-solid fa-pen"></i></button>
                     </td>
                 `;
@@ -1728,6 +1729,7 @@
             const entry = appState.entries[String(num)];
             if (!entry) return;
             entry.status = entry.status === 'paid' ? 'pending' : 'paid';
+            entry.updatedAt = new Date().toLocaleDateString('pt-BR');
             saveStateToStorage();
             renderAll();
             if (selectedNumber === num) populateFormForNumber(num, false);
@@ -2217,6 +2219,96 @@
             });
 
             ctx.restore();
+        }
+
+        function downloadPaymentReceipt(num) {
+            const entry = appState.entries[String(num)];
+            if (!entry || entry.status !== 'paid') {
+                showToast('O comprovante fica disponível para números pagos.', 'error');
+                return;
+            }
+
+            try {
+                const palette = THEME_CANVAS_PALETTES[appState.theme] || THEME_CANVAS_PALETTES.neutral;
+                const width = 1080;
+                const height = 1350;
+                const scale = 2;
+                const canvas = document.createElement('canvas');
+                canvas.width = width * scale;
+                canvas.height = height * scale;
+                const ctx = canvas.getContext('2d');
+                if (!ctx) throw new Error('Não foi possível criar a imagem do comprovante.');
+                ctx.scale(scale, scale);
+
+                const background = ctx.createLinearGradient(0, 0, width, height);
+                background.addColorStop(0, palette.posterWash);
+                background.addColorStop(0.52, palette.bgSoft);
+                background.addColorStop(1, palette.posterTint);
+                ctx.fillStyle = background;
+                ctx.fillRect(0, 0, width, height);
+
+                for (let i = 0; i < 34; i++) {
+                    const x = 38 + ((i * 197) % 1004);
+                    const y = 60 + ((i * 131) % 1220);
+                    drawStarShape(ctx, x, y, 5, i % 3 === 0 ? 10 : 6, 3, palette.accent);
+                }
+
+                drawRoundedRect(ctx, 42, 42, 996, 1266, 46, '#ffffff', palette.accent, 5);
+                drawRoundedRect(ctx, 66, 66, 948, 1218, 36, palette.skyTop, palette.border, 3, [12, 8]);
+                drawNurseryBunting(ctx, 94, 88, 892, palette);
+
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillStyle = palette.accentDark;
+                ctx.font = '800 25px "Nunito", sans-serif';
+                ctx.fillText('UM MIMO CHEIO DE CARINHO', width / 2, 190);
+
+                drawNurseryBearMascot(ctx, width / 2, 350, 104, palette);
+
+                drawRoundedRect(ctx, 180, 492, 720, 94, 34, palette.badgeBg, palette.ribbonBorder, 3);
+                ctx.fillStyle = palette.ribbonText;
+                ctx.font = '800 38px "Fredoka", "Quicksand", sans-serif';
+                ctx.fillText('✓ PAGAMENTO CONFIRMADO', width / 2, 539);
+
+                ctx.fillStyle = palette.textSecondary;
+                ctx.font = '700 27px "Nunito", sans-serif';
+                ctx.fillText(appState.config.title || 'Chá Rifa do Bebê', width / 2, 646);
+
+                drawRoundedRect(ctx, 250, 696, 580, 206, 38, palette.bgSoft, palette.border, 3);
+                ctx.fillStyle = palette.textSecondary;
+                ctx.font = '800 25px "Nunito", sans-serif';
+                ctx.fillText('SEU NÚMERO DA SORTE', width / 2, 740);
+                ctx.fillStyle = palette.accentDark;
+                ctx.font = '700 108px "Fredoka", "Quicksand", sans-serif';
+                ctx.fillText(formatRaffleNumber(num), width / 2, 826);
+
+                ctx.fillStyle = palette.textSecondary;
+                ctx.font = '800 24px "Nunito", sans-serif';
+                ctx.fillText('PARTICIPANTE', width / 2, 958);
+                ctx.fillStyle = palette.textPrimary;
+                ctx.font = '700 48px "Fredoka", "Quicksand", sans-serif';
+                const nameLines = wrapCanvasText(ctx, entry.name, 840, 2);
+                nameLines.forEach((line, index) => ctx.fillText(line, width / 2, 1018 + index * 58));
+
+                ctx.fillStyle = palette.textSecondary;
+                ctx.font = '700 25px "Nunito", sans-serif';
+                ctx.fillText(`Valor: ${formatCurrency(appState.config.price)}  •  Confirmado em ${entry.updatedAt || new Date().toLocaleDateString('pt-BR')}`, width / 2, 1150);
+
+                drawRoundedRect(ctx, 116, 1190, 848, 68, 28, palette.ribbonBg, palette.ribbonBorder, 2);
+                ctx.fillStyle = palette.ribbonText;
+                ctx.font = '700 25px "Nunito", sans-serif';
+                ctx.fillText(`Muito obrigado, ${getShortName(entry.name)}! Seu carinho é muito especial. 💕`, width / 2, 1224);
+
+                const safeName = entry.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
+                const link = document.createElement('a');
+                link.download = `comprovante_rifa_${formatRaffleNumber(num)}_${safeName || 'participante'}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                showToast('Comprovante em PNG baixado com sucesso!', 'success');
+            } catch (err) {
+                console.error('Erro ao gerar comprovante de pagamento:', err);
+                showToast('Não foi possível gerar o comprovante. Tente novamente.', 'error');
+            }
         }
 
         function exportFullRafflePng(autoDownload = true, resolutionScale = 2) {
@@ -2856,7 +2948,7 @@
             setGridFilter, selectNumberFromGrid, toggleEntryPaymentStatus, openDrawModal, closeDrawModal,
             setDrawPool, runRaffleDraw, exportFullRafflePng, copyWhatsAppSummary, openResetModal, closeResetModal,
             clearAllEntries, loadDemoEntries, closeBookingModal, copyPixNotes,
-            openImagePreviewModal, closeImagePreviewModal, downloadGeneratedRaffleImage,
+            openImagePreviewModal, closeImagePreviewModal, downloadGeneratedRaffleImage, downloadPaymentReceipt,
             shareGeneratedRaffleImage, printGeneratedRaffleImage
         });
 
