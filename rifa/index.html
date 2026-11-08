@@ -149,7 +149,6 @@
             color: var(--badge-text);
         }
 
-        /* Estilo Infantil do Novo Cabeçalho */
         .nursery-header {
             background: linear-gradient(180deg, var(--header-sky-top) 0%, #ffffff 55%, var(--header-sky-top) 100%);
             border: 3px solid var(--border-color);
@@ -247,7 +246,6 @@
             z-index: 15;
         }
 
-        /* Suporte nativo para Impressão direta: imprime apenas o cartaz gerado quando disponível */
         @media print {
             * {
                 -webkit-print-color-adjust: exact !important;
@@ -261,17 +259,6 @@
             }
             .no-export, #bookingModalBackdrop, #drawModal, #resetModal, #imagePreviewModal, #toastContainer, #confettiCanvas {
                 display: none !important;
-            }
-            #exportTargetContainer {
-                max-width: 100% !important;
-                padding: 8px !important;
-                margin: 0 !important;
-                background: #ffffff !important;
-                box-shadow: none !important;
-            }
-            .theme-card, .nursery-header {
-                box-shadow: none !important;
-                break-inside: avoid;
             }
         }
 
@@ -327,7 +314,6 @@
 </head>
 <body class="min-h-screen pb-16" data-theme="neutral">
 
-    <!-- Canvas para Confetes do Sorteador -->
     <canvas id="confettiCanvas" class="fixed inset-0 pointer-events-none z-50 hidden"></canvas>
 
     <!-- Barra Superior Fixa -->
@@ -378,18 +364,14 @@
         </div>
     </div>
 
-    <!-- Container Principal (Alvo para Exportação PNG: Contém Cabeçalho Infantil e Cartela) -->
+    <!-- Container Principal -->
     <div id="exportTargetContainer" class="max-w-7xl mx-auto px-4 sm:px-6 pt-6 space-y-6">
 
-        <!-- CABEÇALHO DA RIFA (PAPELARIA INFANTIL RICA & DELICADA DE CHÁ DE BEBÊ) -->
+        <!-- CABEÇALHO DA RIFA -->
         <header class="nursery-header rounded-3xl relative overflow-hidden">
-
-            <!-- Varal de Bandeirinhas Infantil no Topo com Costurinhas e Pingentes (SVG) -->
             <div class="w-full overflow-hidden pointer-events-none select-none">
                 <svg class="w-full h-11 sm:h-14" viewBox="0 0 1200 78" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-                    <!-- Cordão das bandeirinhas -->
                     <path d="M0,6 Q150,24 300,8 T600,10 T900,8 T1200,6" fill="none" stroke="#d4a373" stroke-width="3" opacity="0.7"/>
-                    <!-- Bandeirinhas coloridas em tons pastéis -->
                     <polygon points="20,7 95,12 58,62" fill="#fde68a" stroke="#ffffff" stroke-width="2.5"/>
                     <polygon points="105,12 180,14 142,64" fill="#fbcfe8" stroke="#ffffff" stroke-width="2.5"/>
                     <polygon points="190,14 265,10 227,60" fill="#bae6fd" stroke="#ffffff" stroke-width="2.5"/>
@@ -404,7 +386,6 @@
                     <polygon points="955,13 1030,16 992,65" fill="#e9d5ff" stroke="#ffffff" stroke-width="2.5"/>
                     <polygon points="1040,15 1115,11 1077,61" fill="#fde68a" stroke="#ffffff" stroke-width="2.5"/>
                     <polygon points="1125,10 1190,6 1157,58" fill="#fbcfe8" stroke="#ffffff" stroke-width="2.5"/>
-                    <!-- Detalhes de corações e bolinhas brancas nas bandeirinhas -->
                     <circle cx="58" cy="28" r="4.5" fill="#ffffff" opacity="0.9"/>
                     <circle cx="142" cy="30" r="4.5" fill="#ffffff" opacity="0.9"/>
                     <circle cx="227" cy="28" r="4.5" fill="#ffffff" opacity="0.9"/>
@@ -419,7 +400,6 @@
                     <circle cx="992" cy="30" r="4.5" fill="#ffffff" opacity="0.9"/>
                     <circle cx="1077" cy="28" r="4.5" fill="#ffffff" opacity="0.9"/>
                     <circle cx="1157" cy="26" r="4.5" fill="#ffffff" opacity="0.9"/>
-                    <!-- Estrelinhas penduradas entre as bandeirinhas -->
                     <circle cx="100" cy="42" r="3" fill="#fbbf24"/>
                     <circle cx="270" cy="40" r="3" fill="#f472b6"/>
                     <circle cx="440" cy="44" r="3" fill="#38bdf8"/>
@@ -430,71 +410,8 @@
                 </svg>
             </div>
 
-            <!-- Elementos Decorativos Infantis de Fundo (Arco-Íris, Nuvem Sorridente, Mamadeira, Chocalho e Pezinhos) -->
-            <div class="absolute top-12 left-3 sm:left-6 opacity-50 pointer-events-none select-none">
-                <svg class="w-28 h-20 sm:w-36 sm:h-24" viewBox="0 0 150 95" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <!-- Arco-íris pastel -->
-                    <path d="M25 78 A48 48 0 0 1 121 78" stroke="#fbcfe8" stroke-width="8" stroke-linecap="round"/>
-                    <path d="M34 78 A39 39 0 0 1 112 78" stroke="#fde68a" stroke-width="8" stroke-linecap="round"/>
-                    <path d="M43 78 A30 30 0 0 1 103 78" stroke="#bae6fd" stroke-width="8" stroke-linecap="round"/>
-                    <path d="M52 78 A21 21 0 0 1 94 78" stroke="#bbf7d0" stroke-width="7" stroke-linecap="round"/>
-                    <!-- Nuvem esquerda -->
-                    <circle cx="26" cy="76" r="13" fill="#ffffff"/>
-                    <circle cx="39" cy="74" r="15" fill="#ffffff"/>
-                    <circle cx="15" cy="79" r="10" fill="#ffffff"/>
-                    <!-- Nuvem direita -->
-                    <circle cx="106" cy="74" r="15" fill="#ffffff"/>
-                    <circle cx="119" cy="76" r="13" fill="#ffffff"/>
-                    <circle cx="129" cy="79" r="10" fill="#ffffff"/>
-                </svg>
-            </div>
-
-            <!-- Ilustração Decorativa Direita Superior: Lua, Nuvem Fofa e Estrelas -->
-            <div class="absolute top-11 right-4 sm:right-8 opacity-45 pointer-events-none select-none hidden md:block">
-                <svg class="w-32 h-24" viewBox="0 0 130 95" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <!-- Lua Crescente Pastel -->
-                    <path d="M92 18 C78 22, 72 38, 80 52 C88 64, 104 66, 114 58 C102 60, 92 50, 92 36 C92 28, 95 22, 92 18 Z" fill="#fde68a"/>
-                    <!-- Nuvem com rostinho -->
-                    <path d="M22,74 C12,74 8,65 14,57 C12,46 23,39 33,43 C40,32 58,32 65,43 C76,41 84,50 81,60 C86,67 79,74 68,74 Z" fill="#ffffff"/>
-                    <circle cx="40" cy="57" r="2" fill="#7f6e5d"/>
-                    <circle cx="54" cy="57" r="2" fill="#7f6e5d"/>
-                    <ellipse cx="36" cy="60" rx="3" ry="1.8" fill="#f48c98" opacity="0.6"/>
-                    <ellipse cx="58" cy="60" rx="3" ry="1.8" fill="#f48c98" opacity="0.6"/>
-                    <path d="M44 60 Q47 63 50 60" stroke="#7f6e5d" stroke-width="1.6" stroke-linecap="round"/>
-                    <!-- Estrelinhas -->
-                    <polygon points="22,18 24,23 30,24 25,28 27,33 22,30 17,33 19,28 14,24 20,23" fill="#fbbf24"/>
-                    <polygon points="114,22 116,26 120,26 117,29 118,33 114,30 110,33 111,29 108,26 112,26" fill="#f472b6"/>
-                </svg>
-            </div>
-
-            <!-- Ilustração Decorativa Inferior: Mamadeira, Chupeta e Chocalho -->
-            <div class="absolute bottom-3 right-5 opacity-35 pointer-events-none select-none hidden lg:block">
-                <svg class="w-36 h-24" viewBox="0 0 150 95" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <!-- Mamadeira fofa inclinada -->
-                    <g transform="rotate(-14 45 55)">
-                        <rect x="30" y="34" width="28" height="44" rx="10" fill="#ffffff" stroke="#d4a373" stroke-width="2.5"/>
-                        <rect x="34" y="48" width="20" height="26" rx="6" fill="#fef3c7"/>
-                        <rect x="28" y="27" width="32" height="8" rx="4" fill="#bae6fd" stroke="#5fa8d3" stroke-width="2"/>
-                        <path d="M38 27 C38 16, 50 16, 50 27" fill="#fde68a" stroke="#d4a373" stroke-width="2"/>
-                        <line x1="36" y1="44" x2="42" y2="44" stroke="#d4a373" stroke-width="2" stroke-linecap="round"/>
-                        <line x1="36" y1="52" x2="44" y2="52" stroke="#d4a373" stroke-width="2" stroke-linecap="round"/>
-                        <line x1="36" y1="60" x2="42" y2="60" stroke="#d4a373" stroke-width="2" stroke-linecap="round"/>
-                    </g>
-                    <!-- Chocalho infantil -->
-                    <g transform="rotate(18 105 52)">
-                        <line x1="105" y1="48" x2="105" y2="74" stroke="#d4a373" stroke-width="5" stroke-linecap="round"/>
-                        <circle cx="105" cy="34" r="15" fill="#fbcfe8" stroke="#ec839e" stroke-width="2.5"/>
-                        <circle cx="105" cy="77" r="6" fill="#fde68a" stroke="#d4a373" stroke-width="2"/>
-                        <circle cx="100" cy="31" r="2.5" fill="#ffffff"/>
-                        <circle cx="110" cy="36" r="2.5" fill="#ffffff"/>
-                    </g>
-                </svg>
-            </div>
-
             <div class="px-4 sm:px-7 pb-6 pt-1 relative z-10">
                 <div class="nursery-inner-frame rounded-3xl p-4 sm:p-6">
-
-                    <!-- Faixa Superior de Boas-Vindas Estilo Convite de Chá de Bebê -->
                     <div class="flex flex-wrap items-center justify-between gap-2 mb-5 pb-3 border-b-2 border-dashed theme-border">
                         <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-[11px] sm:text-xs font-extrabold uppercase tracking-wider nursery-ribbon-banner shadow-sm mx-auto sm:mx-0">
                             <span class="text-amber-500">✨</span>
@@ -502,16 +419,7 @@
                             <span class="text-pink-400">🧸</span>
                         </div>
 
-                        <!-- Mini ícones de enxoval do bebê + botão personalizar -->
                         <div class="flex items-center gap-2 mx-auto sm:mx-0">
-                            <div class="hidden sm:flex items-center gap-1.5 text-xs font-bold opacity-80 px-3 py-1 rounded-full bg-white border theme-border">
-                                <span title="Mamadeira">🍼</span>
-                                <span title="Ursinho">🧸</span>
-                                <span title="Fraldinha">🧷</span>
-                                <span title="Pezinhos">👣</span>
-                                <span class="text-[11px] font-extrabold ml-1">Mimos & Amor</span>
-                            </div>
-
                             <button onclick="toggleConfigPanel()" class="no-export px-3.5 py-1.5 rounded-full border-2 theme-border bg-white hover:bg-stone-50 font-extrabold text-xs flex items-center gap-1.5 shadow-sm transition">
                                 <i class="fa-solid fa-wand-magic-sparkles text-amber-600"></i>
                                 <span>Personalizar Rifa</span>
@@ -520,87 +428,43 @@
                     </div>
 
                     <div class="flex flex-col lg:flex-row items-center justify-between gap-6">
-
-                        <!-- Coluna Esquerda + Centro: Mascote Infantil + Dados da Rifa -->
                         <div class="flex flex-col md:flex-row items-center md:items-start text-center md:text-left gap-5 sm:gap-7 flex-1 w-full">
-
-                            <!-- Ilustração Infantil: Ursinho Bebê na Nuvem com Chapéu de Festa e Balões Pastéis -->
                             <div class="relative shrink-0 flex flex-col items-center">
                                 <div class="w-36 h-36 sm:w-40 sm:h-40 rounded-full nursery-mascot-frame flex items-center justify-center relative animate-float">
-                                    <!-- Medalhinhas decorativas ao redor do ursinho -->
-                                    <span class="absolute -top-1 -left-1 w-8 h-8 rounded-full bg-amber-100 border-2 border-white shadow-sm flex items-center justify-center text-amber-500 text-xs" title="Estrelinha">
-                                        <i class="fa-solid fa-star"></i>
-                                    </span>
-                                    <span class="absolute top-2 -right-2 w-8 h-8 rounded-full bg-sky-100 border-2 border-white shadow-sm flex items-center justify-center text-sky-500 text-xs" title="Bebê">
-                                        <i class="fa-solid fa-baby"></i>
-                                    </span>
-                                    <span class="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-pink-100 border-2 border-white shadow-sm flex items-center justify-center text-pink-500 text-xs" title="Amor">
-                                        <i class="fa-solid fa-heart"></i>
-                                    </span>
-                                    <span class="absolute -bottom-1 -left-1 w-8 h-8 rounded-full bg-emerald-100 border-2 border-white shadow-sm flex items-center justify-center text-emerald-600 text-xs" title="Sorte">
-                                        <i class="fa-solid fa-clover"></i>
-                                    </span>
-
-                                    <!-- SVG Ursinho Bebê Festivo com 2 Balões Pastéis e Nuvem -->
                                     <svg class="w-32 h-32 sm:w-36 sm:h-36" viewBox="0 0 130 125" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <!-- Cordões dos balões -->
                                         <path d="M102 46 C99 62, 90 74, 82 85" stroke="#b08968" stroke-width="1.5" stroke-dasharray="2 2"/>
                                         <path d="M24 48 C27 62, 34 74, 40 85" stroke="#b08968" stroke-width="1.5" stroke-dasharray="2 2"/>
-
-                                        <!-- Balão esquerdo azul pastel -->
                                         <circle cx="22" cy="32" r="12" fill="#93c5fd"/>
                                         <ellipse cx="18" cy="27" rx="3" ry="4.5" fill="#ffffff" opacity="0.6" transform="rotate(-20 18 27)"/>
                                         <polygon points="22,44 19,48 25,48" fill="#60a5fa"/>
-
-                                        <!-- Balão direito rosa pastel -->
                                         <circle cx="104" cy="30" r="13.5" fill="#f472b6"/>
                                         <ellipse cx="99" cy="25" rx="3.5" ry="5" fill="#ffffff" opacity="0.6" transform="rotate(-20 99 25)"/>
                                         <polygon points="103,43.5 100,48 107,48" fill="#ec4899"/>
-
-                                        <!-- Nuvem fofinha na base -->
                                         <ellipse cx="63" cy="108" rx="38" ry="9" fill="#ffffff" opacity="0.95"/>
                                         <circle cx="38" cy="105" r="9" fill="#ffffff"/>
                                         <circle cx="88" cy="105" r="9" fill="#ffffff"/>
-
-                                        <!-- Orelhinhas do Ursinho -->
                                         <circle cx="40" cy="42" r="13" fill="#d4a373"/>
                                         <circle cx="40" cy="42" r="7.5" fill="#faedcd"/>
                                         <circle cx="84" cy="42" r="13" fill="#d4a373"/>
                                         <circle cx="84" cy="42" r="7.5" fill="#faedcd"/>
-
-                                        <!-- Chapeuzinho de Festa Infantil -->
                                         <polygon points="62,11 48,36 76,36" fill="#60a5fa" stroke="#ffffff" stroke-width="2" stroke-linejoin="round"/>
                                         <circle cx="62" cy="24" r="2.6" fill="#fde68a"/>
                                         <circle cx="56" cy="31" r="2.3" fill="#fbcfe8"/>
                                         <circle cx="68" cy="31" r="2.3" fill="#bbf7d0"/>
                                         <circle cx="62" cy="10" r="5.2" fill="#fbbf24" stroke="#ffffff" stroke-width="1.5"/>
-
-                                        <!-- Corpinho e Babador de Bebê -->
                                         <ellipse cx="62" cy="91" rx="23" ry="18" fill="#e6b88a"/>
-                                        <!-- Babadorzinho com rendinha -->
                                         <path d="M46 78 Q62 86 78 78 Q76 98 62 98 Q48 98 46 78 Z" fill="#ffffff" stroke="#bae6fd" stroke-width="2"/>
-                                        <!-- Coraçãozinho no babador -->
                                         <path d="M62 89 C62 89 57 85.5 57 83 C57 81.3 58.4 80 60 80 C61 80 61.6 80.5 62 81.2 C62.4 80.5 63 80 64 80 C65.6 80 67 81.3 67 83 C67 85.5 62 89 62 89 Z" fill="#f472b6"/>
-
-                                        <!-- Cabecinha do Ursinho -->
                                         <circle cx="62" cy="58" r="25" fill="#e6b88a"/>
-
-                                        <!-- Bochechas Rosadas -->
                                         <ellipse cx="45" cy="62" rx="5.2" ry="3.2" fill="#f48c98" opacity="0.65"/>
                                         <ellipse cx="79" cy="62" rx="5.2" ry="3.2" fill="#f48c98" opacity="0.65"/>
-
-                                        <!-- Olhinhos Brilhantes -->
                                         <circle cx="51" cy="53" r="3.5" fill="#3d2c20"/>
                                         <circle cx="49.8" cy="51.8" r="1.3" fill="#ffffff"/>
                                         <circle cx="73" cy="53" r="3.5" fill="#3d2c20"/>
                                         <circle cx="71.8" cy="51.8" r="1.3" fill="#ffffff"/>
-
-                                        <!-- Focinho e Sorriso Doce -->
                                         <ellipse cx="62" cy="63" rx="11" ry="8.5" fill="#fffdf9"/>
                                         <ellipse cx="62" cy="59.8" rx="4.2" ry="2.8" fill="#4a3f35"/>
                                         <path d="M62 62.5 V66.5 M62 66.5 C59 68.8 56 67.5 55.5 66 M62 66.5 C65 68.8 68 67.5 68.5 66" stroke="#4a3f35" stroke-width="2" stroke-linecap="round"/>
-
-                                        <!-- Patinhas e Pezinhos com almofadinhas -->
                                         <circle cx="41" cy="87" r="7" fill="#d4a373"/>
                                         <circle cx="83" cy="85" r="7" fill="#d4a373"/>
                                         <circle cx="46" cy="103" r="8.5" fill="#d4a373"/>
@@ -609,17 +473,12 @@
                                         <circle cx="78" cy="104" r="4.5" fill="#faedcd"/>
                                     </svg>
                                 </div>
-
-                                <!-- Selinho fofo abaixo do mascote -->
                                 <span class="mt-2.5 inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-[11px] font-extrabold bg-white border-2 theme-border shadow-sm text-amber-900">
                                     <i class="fa-solid fa-paw text-amber-500"></i> Cartela Oficial do Bebê <i class="fa-solid fa-heart text-pink-400"></i>
                                 </span>
                             </div>
 
-                            <!-- Bloco Central: Badges, Título Infantil e Vitrine de 3 Cartões Decorados -->
                             <div class="space-y-4 flex-1 w-full">
-
-                                <!-- Linha 1: Crachá do Bebê & Data do Sorteio -->
                                 <div class="flex flex-wrap items-center justify-center md:justify-start gap-2.5">
                                     <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs sm:text-sm font-extrabold tracking-wide nursery-pill-baby shadow-sm">
                                         <i class="fa-solid fa-baby-carriage"></i>
@@ -638,7 +497,6 @@
                                     </div>
                                 </div>
 
-                                <!-- Linha 2: Título Principal Infantil -->
                                 <div>
                                     <h1 id="displayRaffleTitle" class="font-kid text-2xl sm:text-4xl lg:text-[42px] font-bold tracking-tight leading-tight text-stone-800">
                                         Chá Rifa de Fraldas & Mimos
@@ -649,10 +507,7 @@
                                     </p>
                                 </div>
 
-                                <!-- Linha 3: Vitrine Decorada (Prêmios + Valor/Fraldas + Chave PIX) -->
                                 <div class="grid grid-cols-1 md:grid-cols-12 gap-3 pt-1">
-
-                                    <!-- Cartão 1: Prêmios do Sorteio -->
                                     <div id="displayPrizeRow" class="md:col-span-12 nursery-prize-card rounded-2xl p-3.5 sm:px-4 sm:py-3.5 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3">
                                         <span class="flex flex-col sm:flex-row items-center text-center sm:text-left gap-2.5 text-sm sm:text-base font-semibold w-full">
                                             <span class="w-10 h-10 rounded-2xl bg-amber-100 border-2 border-amber-300 inline-flex items-center justify-center text-amber-600 text-lg shrink-0 shadow-sm">
@@ -670,10 +525,7 @@
                                         </span>
                                     </div>
 
-                                    <!-- Cartão 2 e 3: Valor por Número + Chave PIX -->
                                     <div id="exportDetailsRow" class="md:col-span-12 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs sm:text-sm">
-
-                                        <!-- Cartão Valor por Número & Sugestão de Fraldas -->
                                         <span class="nursery-info-card p-3.5 rounded-2xl font-bold flex flex-col justify-between gap-2 shadow-sm text-center sm:text-left">
                                             <span class="flex items-center justify-center sm:justify-start gap-2.5">
                                                 <span class="w-9 h-9 rounded-xl theme-soft-bg border theme-border inline-flex items-center justify-center text-amber-700 text-base shrink-0">
@@ -695,7 +547,6 @@
                                             </span>
                                         </span>
 
-                                        <!-- Cartão Chave PIX & Contato -->
                                         <span class="p-3.5 rounded-2xl bg-amber-50/95 text-amber-950 font-bold border-2 border-amber-200 flex flex-col justify-between gap-2 shadow-sm text-center sm:text-left">
                                             <span class="flex items-center justify-center sm:justify-start gap-2.5">
                                                 <span class="w-9 h-9 rounded-xl bg-amber-200/80 border border-amber-300 inline-flex items-center justify-center text-amber-900 text-base shrink-0">
@@ -715,10 +566,8 @@
                                                 </button>
                                             </span>
                                         </span>
-
                                     </div>
                                 </div>
-
                             </div>
                         </div>
                     </div>
@@ -804,7 +653,6 @@
                 </div>
             </div>
 
-            <!-- Faixa Decorada da Cartela e Legenda Fofa (Visível também na imagem PNG impressa) -->
             <div class="theme-soft-bg border-2 border-dashed theme-border rounded-2xl p-3 sm:px-4 sm:py-3 flex flex-col sm:flex-row items-center justify-between gap-3">
                 <div class="flex items-center gap-2 text-center sm:text-left">
                     <span class="w-8 h-8 rounded-xl bg-white border theme-border inline-flex items-center justify-center text-amber-600 shadow-sm shrink-0">
@@ -820,7 +668,6 @@
                     </div>
                 </div>
 
-                <!-- Pílulas de Legenda Infantil -->
                 <div class="flex flex-wrap items-center justify-center gap-2 text-[11px] font-extrabold">
                     <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border-2 border-dashed theme-border text-stone-700 shadow-sm">
                         <span class="w-2.5 h-2.5 rounded-full bg-stone-300 inline-block"></span> Livre
@@ -834,11 +681,10 @@
                 </div>
             </div>
 
-            <!-- Grade de Números -->
             <div id="raffleGrid" class="grid grid-cols-5 sm:grid-cols-8 md:grid-cols-10 gap-2 sm:gap-2.5"></div>
         </main>
 
-        <!-- RODAPÉ DECORATIVO DE AGRADECIMENTO (VISÍVEL NA TELA E NO PNG EXPORTADO) -->
+        <!-- RODAPÉ DECORATIVO DE AGRADECIMENTO -->
         <footer class="theme-card rounded-3xl p-4 sm:p-5 relative overflow-hidden">
             <div class="flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
                 <div class="flex items-center gap-3">
@@ -855,7 +701,6 @@
                     </div>
                 </div>
 
-                <!-- Selinhos Fofos de Fechamento do Cartaz -->
                 <div class="flex items-center gap-2 shrink-0">
                     <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-2xl theme-badge text-xs font-extrabold border theme-border">
                         <i class="fa-solid fa-heart text-pink-500"></i> Feito com Amor
@@ -868,10 +713,8 @@
         </footer>
     </div>
 
-    <!-- PAINEL DE CONTROLE / ESTATÍSTICAS (Oculto no Modo PNG) -->
+    <!-- PAINEL DE CONTROLE / ESTATÍSTICAS -->
     <div class="no-export max-w-7xl mx-auto px-4 sm:px-6 mt-6 space-y-6">
-
-        <!-- Cartões de Resumo e Progresso da Rifa -->
         <section class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             <div class="theme-card rounded-2xl p-4 flex items-center gap-3.5">
                 <div class="w-11 h-11 rounded-2xl bg-stone-100 border border-stone-200 flex items-center justify-center text-stone-600 text-lg shrink-0">
@@ -916,7 +759,6 @@
         </section>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-            <!-- Formulário de Marcação -->
             <aside id="bookingPanel" aria-labelledby="bookingModalTitle" tabindex="-1" class="lg:col-span-4 theme-card rounded-3xl p-5 sm:p-6 space-y-5">
                 <div class="flex items-center justify-between border-b theme-border pb-3">
                     <div class="flex items-center gap-2.5">
@@ -980,7 +822,6 @@
                 </form>
             </aside>
 
-            <!-- Tabela de Participantes -->
             <main class="lg:col-span-8 theme-card rounded-3xl p-5 sm:p-6 space-y-5">
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b theme-border pb-4">
                     <h2 class="text-xl font-bold flex items-center gap-2">
@@ -1065,7 +906,7 @@
         </div>
     </div>
 
-    <!-- MODAL DA IMAGEM GERADA (CARTAZ OFICIAL CRIADO DO ZERO, SEM PRINT DE TELA) -->
+    <!-- MODAL DA IMAGEM GERADA -->
     <div id="imagePreviewModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-md hidden items-center justify-center p-3 sm:p-5">
         <div role="dialog" aria-modal="true" aria-labelledby="imagePreviewModalTitle" class="theme-card rounded-3xl max-w-3xl w-full max-h-[calc(100vh-1.5rem)] flex flex-col overflow-hidden shadow-2xl">
             <div class="theme-soft-bg px-4 sm:px-6 py-3.5 flex flex-wrap items-center justify-between gap-3 border-b theme-border shrink-0">
@@ -1132,7 +973,6 @@
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
 
-        // Configuração Firebase embutida diretamente
         const FIREBASE_CONFIG = {
             apiKey: "AIzaSyCHYsmHgYZMOE0BagrKgAuj9TirDB52yWo",
             authDomain: "rifa-66a15.firebaseapp.com",
@@ -1156,15 +996,6 @@
             notes: 'PIX: (11) 99999-9999 • Envie o comprovante no WhatsApp'
         };
 
-        // Mapa de cores sólidas por tema para garantir exportação PNG sem transparência (evita fundo preto ao imprimir no celular)
-        const THEME_SOLID_BG = {
-            neutral: '#fdfbf7',
-            blue: '#f4f9fd',
-            pink: '#fff8fa',
-            mint: '#f4fbf8'
-        };
-
-        // Paletas completas para o Gerador Gráfico Nativo em Canvas 2D
         const THEME_CANVAS_PALETTES = {
             neutral: {
                 bgMain: '#fdfbf7',
@@ -1234,7 +1065,7 @@
 
         let lastGeneratedDataUrl = '';
         let lastGeneratedFileName = 'rifa_bebe_9x16.png';
-        let currentPosterFormatMode = '9x16'; // '9x16' (1080x1920 exato) ou '9x16_tall' (1080px com células extra altas)
+        let currentPosterFormatMode = '9x16';
 
         let appState = {
             theme: 'neutral',
@@ -1668,7 +1499,7 @@
                 helper.innerHTML = `Nº <strong>${formatRaffleNumber(num)}</strong> está livre.`;
                 badge.textContent = `Novo`;
                 submitText.textContent = `Salvar Nº ${formatRaffleNumber(num)}`;
-                releaseBtn.classList.remove('hidden');
+                releaseBtn.classList.add('hidden');
             }
         }
 
@@ -1780,7 +1611,6 @@
             showToast(`Status do número ${formatRaffleNumber(num)} alterado.`, 'success');
         }
 
-        // --- SORTEADOR CAPRICHADO E REALISTA ---
         function openDrawModal() {
             document.getElementById('drawModal').classList.remove('hidden');
             document.getElementById('drawModal').classList.add('flex');
@@ -1860,10 +1690,9 @@
                 step++;
 
                 if (step < maxSteps) {
-                    delay += 10; // Efeito desacelerando
+                    delay += 10;
                     setTimeout(rollStep, delay);
                 } else {
-                    // VENCEDOR FINAL DEFINIDO
                     const winner = candidates[Math.floor(Math.random() * candidates.length)];
                     rollingEl.textContent = formatRaffleNumber(winner.num);
                     nameEl.textContent = `🎉 ${winner.name} 🎉`;
@@ -1881,8 +1710,7 @@
         }
 
         // =========================================================================
-        // GERADOR GRÁFICO NATIVO EM CANVAS 2D (NÃO TIRA PRINT DA TELA!)
-        // Desenha uma arte exclusiva de 1600px com Cabeçalho Infantil + Cartela 10 col
+        // GERADOR GRÁFICO NATIVO EM CANVAS 2D (9:16 VERTICAL PARA CELULAR)
         // =========================================================================
 
         function drawRoundedRect(ctx, x, y, w, h, r, fillStyle = null, strokeStyle = null, lineWidth = 2, dash = []) {
@@ -1925,7 +1753,6 @@
                         lines.push(currentLine);
                         currentLine = word;
                     } else {
-                        // Palavra muito longa: fatia por caractere
                         let chunk = '';
                         for (const ch of word) {
                             if (ctx.measureText(chunk + ch).width <= maxWidth) {
@@ -1992,7 +1819,6 @@
             const flagW = totalWidth / count;
 
             ctx.save();
-            // Cordão superior
             ctx.beginPath();
             ctx.moveTo(startX, startY + 5);
             ctx.quadraticCurveTo(startX + totalWidth * 0.25, startY + 18, startX + totalWidth * 0.5, startY + 8);
@@ -2019,13 +1845,11 @@
                 ctx.strokeStyle = '#ffffff';
                 ctx.stroke();
 
-                // Bolinha branca decorativa no centro da bandeirinha
                 ctx.beginPath();
                 ctx.arc(fx + fw / 2, fy + 14, 3.8, 0, Math.PI * 2);
                 ctx.fillStyle = '#ffffff';
                 ctx.fill();
 
-                // Estrelinha pendurada entre bandeirinhas pares
                 if (i % 2 === 1 && i < count - 1) {
                     drawStarShape(ctx, fx + fw + 4, fy + 26, 5, 5, 2.5, '#fbbf24');
                 }
@@ -2039,7 +1863,6 @@
             ctx.translate(cx, cy);
             ctx.scale(s, s);
 
-            // Moldura circular externa do mascote
             ctx.beginPath();
             ctx.arc(0, 0, 108, 0, Math.PI * 2);
             ctx.fillStyle = '#ffffff';
@@ -2050,13 +1873,11 @@
             ctx.stroke();
             ctx.setLineDash([]);
 
-            // Fundo suave interno
             ctx.beginPath();
             ctx.arc(0, 0, 102, 0, Math.PI * 2);
             ctx.fillStyle = palette.bgSoft;
             ctx.fill();
 
-            // Cordões dos balões
             ctx.beginPath();
             ctx.setLineDash([4, 4]);
             ctx.strokeStyle = '#b08968';
@@ -2068,7 +1889,6 @@
             ctx.stroke();
             ctx.setLineDash([]);
 
-            // Balão esquerdo (azul pastel)
             ctx.beginPath();
             ctx.arc(-58, -50, 18, 0, Math.PI * 2);
             ctx.fillStyle = '#93c5fd';
@@ -2078,7 +1898,6 @@
             ctx.fillStyle = 'rgba(255,255,255,0.65)';
             ctx.fill();
 
-            // Balão direito (rosa pastel)
             ctx.beginPath();
             ctx.arc(60, -52, 20, 0, Math.PI * 2);
             ctx.fillStyle = '#f472b6';
@@ -2088,7 +1907,6 @@
             ctx.fillStyle = 'rgba(255,255,255,0.65)';
             ctx.fill();
 
-            // Nuvem fofinha na base
             ctx.fillStyle = '#ffffff';
             ctx.beginPath();
             ctx.ellipse(0, 68, 56, 15, 0, 0, Math.PI * 2);
@@ -2098,7 +1916,6 @@
             ctx.arc(36, 63, 15, 0, Math.PI * 2);
             ctx.fill();
 
-            // Orelhinhas do Ursinho
             const earY = -32;
             [-33, 33].forEach((ex) => {
                 ctx.beginPath();
@@ -2111,7 +1928,6 @@
                 ctx.fill();
             });
 
-            // Chapeuzinho de Festa Infantil
             ctx.beginPath();
             ctx.moveTo(0, -80);
             ctx.lineTo(-21, -40);
@@ -2123,19 +1939,16 @@
             ctx.strokeStyle = '#ffffff';
             ctx.stroke();
 
-            // Pompom do chapéu
             ctx.beginPath();
             ctx.arc(0, -82, 8, 0, Math.PI * 2);
             ctx.fillStyle = '#fbbf24';
             ctx.fill();
 
-            // Corpinho do Ursinho
             ctx.beginPath();
             ctx.ellipse(0, 42, 34, 27, 0, 0, Math.PI * 2);
             ctx.fillStyle = '#e6b88a';
             ctx.fill();
 
-            // Babadorzinho branco
             ctx.beginPath();
             ctx.arc(0, 32, 22, 0, Math.PI);
             ctx.closePath();
@@ -2146,13 +1959,11 @@
             ctx.stroke();
             drawHeartShape(ctx, 0, 36, 11, '#f472b6');
 
-            // Cabecinha do Ursinho
             ctx.beginPath();
             ctx.arc(0, -6, 37, 0, Math.PI * 2);
             ctx.fillStyle = '#e6b88a';
             ctx.fill();
 
-            // Bochechas rosadas
             ctx.fillStyle = 'rgba(244, 140, 152, 0.7)';
             ctx.beginPath();
             ctx.ellipse(-24, 1, 8, 5, 0, 0, Math.PI * 2);
@@ -2161,7 +1972,6 @@
             ctx.ellipse(24, 1, 8, 5, 0, 0, Math.PI * 2);
             ctx.fill();
 
-            // Olhinhos brilhantes
             [-16, 16].forEach((ox) => {
                 ctx.beginPath();
                 ctx.arc(ox, -12, 5, 0, Math.PI * 2);
@@ -2173,13 +1983,11 @@
                 ctx.fill();
             });
 
-            // Focinho claro
             ctx.beginPath();
             ctx.ellipse(0, 3, 16, 12.5, 0, 0, Math.PI * 2);
             ctx.fillStyle = '#fffdf9';
             ctx.fill();
 
-            // Narizinho e sorriso
             ctx.beginPath();
             ctx.ellipse(0, -2, 6.2, 4.2, 0, 0, Math.PI * 2);
             ctx.fillStyle = '#4a3f35';
@@ -2197,7 +2005,6 @@
             ctx.quadraticCurveTo(4, 11, 0, 8);
             ctx.stroke();
 
-            // Patinhas e pezinhos
             [-24, 24].forEach((px) => {
                 ctx.beginPath();
                 ctx.arc(px, 60, 12, 0, Math.PI * 2);
@@ -2228,25 +2035,27 @@
             exportFullRafflePng(false);
         }
 
-        async function exportFullRafflePng(autoDownload = true) {
+        function exportFullRafflePng(autoDownload = true) {
             if (autoDownload) {
                 showToast('Gerando imagem vertical 9:16 para celular...', 'info');
             }
 
             if (document.fonts && document.fonts.ready) {
-                try { await document.fonts.ready; } catch (e) {}
+                document.fonts.ready.then(() => generatePosterCanvas(autoDownload)).catch(() => generatePosterCanvas(autoDownload));
+            } else {
+                generatePosterCanvas(autoDownload);
             }
+        }
 
+        function generatePosterCanvas(autoDownload) {
             const palette = THEME_CANVAS_PALETTES[appState.theme] || THEME_CANVAS_PALETTES.neutral;
             const { title, babyName, prize, price, priceExtra, totalNumbers, drawDate, notes } = appState.config;
             const total = Number(totalNumbers) || 100;
 
-            // LARGURA FIXA 1080px (Padrão Full HD Vertical 9:16 de Smartphones)
             const W = 1080;
             const outerPad = 22;
-            const contentW = W - outerPad * 2; // 1036px
+            const contentW = W - outerPad * 2;
 
-            // Canvas auxiliar para medir quebras de linha dos textos do cabeçalho
             const measureCanvas = document.createElement('canvas');
             const mCtx = measureCanvas.getContext('2d');
 
@@ -2254,7 +2063,6 @@
             const sectionGap = 14;
             const footerH = 74;
 
-            // 5 Colunas Largas (Cada célula fica com ~190px de largura para máxima leitura no celular!)
             const cols = 5;
             const rows = Math.ceil(total / cols);
             const gridInnerPad = 20;
@@ -2263,19 +2071,17 @@
             const cellGapX = 10;
             const cellW = Math.floor((contentW - gridInnerPad * 2 - cellGapX * (cols - 1)) / cols);
 
-            // Cálculo da altura das células para caber em 1080x1920 (9:16 exato) ou modo ampliado
             let H = 1920;
             let cellGapY = 7;
             let cellH = 56;
 
             if (currentPosterFormatMode === '9x16' && total <= 100) {
-                H = 1920; // Proporção 9:16 exata (1080 x 1920)
+                H = 1920;
                 const availableGridCardH = H - (outerPad * 2 + headerH + sectionGap * 2 + footerH);
                 const availableRowsH = availableGridCardH - gridTopHeaderH - gridBottomPad;
                 cellGapY = rows <= 10 ? 10 : 7;
                 cellH = Math.floor((availableRowsH - cellGapY * (rows - 1)) / rows);
             } else {
-                // Modo 9:16 Ampliado ou rifas com 150/200/300 números
                 cellGapY = 10;
                 cellH = currentPosterFormatMode === '9x16_tall' ? 86 : 62;
                 const computedGridCardH = gridTopHeaderH + rows * cellH + (rows - 1) * cellGapY + gridBottomPad;
@@ -2284,19 +2090,16 @@
 
             const gridCardH = H - (outerPad * 2 + headerH + sectionGap * 2 + footerH);
 
-            // Atualiza texto informativo no modal
             const dimInfo = document.getElementById('posterDimensionInfo');
             if (dimInfo) {
                 dimInfo.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600 mr-1"></i> Imagem vertical <strong>9:16 (${W}×${H} px)</strong> com <strong>5 colunas largas</strong> e fundo 100% opaco — perfeita para ler no celular e imprimir.`;
             }
 
-            // Criação do Canvas Principal 100% Opaco (alpha: false impede fundo preto na impressora do celular)
             const canvas = document.createElement('canvas');
             canvas.width = W;
             canvas.height = H;
             const ctx = canvas.getContext('2d', { alpha: false });
 
-            // 1. FUNDO SÓLIDO OPACO + BOLINHAS DELICADAS DE PAPELARIA INFANTIL
             ctx.fillStyle = '#ffffff';
             ctx.fillRect(0, 0, W, H);
             ctx.fillStyle = palette.bgMain;
@@ -2311,25 +2114,18 @@
                 }
             }
 
-            // =====================================================================
-            // 2. DESENHO DO CABEÇALHO INFANTIL VERTICAL (OTIMIZADO PARA 1080PX)
-            // =====================================================================
             const headerX = outerPad;
             const headerY = outerPad;
 
             drawRoundedRect(ctx, headerX, headerY, contentW, headerH, 30, '#ffffff', palette.border, 3.5);
-
-            // Varal de bandeirinhas coloridas no topo do cabeçalho
             drawNurseryBunting(ctx, headerX + 14, headerY + 3, contentW - 28);
 
-            // Moldura tracejada interna estilo convite de chá de bebê
             const innerX = headerX + 16;
             const innerY = headerY + 54;
             const innerW = contentW - 32;
             const innerH = headerH - 70;
             drawRoundedRect(ctx, innerX, innerY, innerW, innerH, 24, palette.skyTop, palette.border, 2, [9, 6]);
 
-            // Faixa superior de boas-vindas dentro da moldura
             drawRoundedRect(ctx, innerX + 18, innerY + 12, 430, 32, 16, palette.bgSoft, palette.border, 1.5);
             ctx.font = '800 13px "Nunito", sans-serif';
             ctx.fillStyle = palette.textPrimary;
@@ -2337,24 +2133,20 @@
             ctx.textBaseline = 'middle';
             ctx.fillText('✨ CHÁ RIFA ESPECIAL • VENHA CELEBRAR CONOSCO 🧸', innerX + 32, innerY + 28);
 
-            // Selo direito superior na moldura
             drawRoundedRect(ctx, innerX + innerW - 258, innerY + 12, 240, 32, 16, '#ffffff', palette.border, 1.5);
             ctx.font = '800 13px "Nunito", sans-serif';
             ctx.fillStyle = palette.accentDark;
             ctx.textAlign = 'center';
             ctx.fillText('🍼 🧸 🧷 👣  Mimos & Amor', innerX + innerW - 138, innerY + 28);
 
-            // Mascote Ursinho Bebê à esquerda do topo + Título e Badges à direita
             const mascotCx = innerX + 108;
             const mascotCy = innerY + 128;
             drawNurseryBearMascot(ctx, mascotCx, mascotCy, 66, palette);
 
-            // Bloco Superior Direito (Badges + Título Grande)
             const topInfoX = innerX + 206;
             const topInfoW = innerW - 224;
             let cursorY = innerY + 56;
 
-            // Pílula Nome do Bebê
             ctx.font = '800 16px "Nunito", sans-serif';
             const babyBadgeText = `👶 ${babyName || DEFAULT_CONFIG.babyName} ✨`;
             const babyBadgeW = Math.min(320, Math.max(180, ctx.measureText(babyBadgeText).width + 34));
@@ -2363,7 +2155,6 @@
             ctx.textAlign = 'center';
             ctx.fillText(babyBadgeText, topInfoX + babyBadgeW / 2, cursorY + 18);
 
-            // Pílula Data do Sorteio
             const dateBadgeX = topInfoX + babyBadgeW + 10;
             const dateText = `📅 Sorteio: ${drawDate || DEFAULT_CONFIG.drawDate}`;
             const dateBadgeW = Math.min(topInfoW - babyBadgeW - 10, Math.max(240, ctx.measureText(dateText).width + 32));
@@ -2371,7 +2162,6 @@
             ctx.fillStyle = palette.textPrimary;
             ctx.fillText(dateText, dateBadgeX + dateBadgeW / 2, cursorY + 18);
 
-            // Título Principal Infantil em destaque
             cursorY += 46;
             ctx.font = '700 36px "Fredoka", "Quicksand", sans-serif';
             ctx.fillStyle = palette.textPrimary;
@@ -2385,14 +2175,10 @@
             ctx.fillStyle = palette.textSecondary;
             ctx.fillText('★ Escolha seu número da sorte e celebre a chegada do nosso pacotinho de amor!', topInfoX, cursorY);
 
-            // =====================================================================
-            // VITRINE DE CARTÕES EM LARGURA TOTAL (PRÊMIOS + VALOR/FRALDAS + PIX)
-            // =====================================================================
             const cardsX = innerX + 18;
             const cardsW = innerW - 36;
             let cardsY = innerY + 184;
 
-            // Cartão 1: Prêmios Especiais do Sorteio (Largura Total)
             const prizeCardH = 76;
             drawRoundedRect(ctx, cardsX, cardsY, cardsW, prizeCardH, 18, '#ffffff', palette.accent, 2.5, [8, 5]);
             drawRoundedRect(ctx, cardsX + 12, cardsY + 12, 52, 52, 14, '#fef3c7', '#f59e0b', 2);
@@ -2418,12 +2204,10 @@
                 ctx.fillText(prizeLines[1], cardsX + 76, cardsY + 60);
             }
 
-            // Cartões 2 e 3 lado a lado com letras grandes: Valor por Número + Chave PIX
             cardsY += prizeCardH + 10;
             const halfW = Math.floor((cardsW - 12) / 2);
             const bottomCardH = 82;
 
-            // Cartão 2: Valor por Número & Sugestão de Fraldas
             drawRoundedRect(ctx, cardsX, cardsY, halfW, bottomCardH, 18, '#ffffff', palette.border, 2);
             drawRoundedRect(ctx, cardsX + 12, cardsY + 15, 52, 52, 14, palette.bgSoft, palette.border, 1.5);
             ctx.font = '700 24px "Nunito", sans-serif';
@@ -2452,7 +2236,6 @@
             ctx.fillStyle = palette.textSecondary;
             ctx.fillText('🧷 Fraldas: Tam. P • Tam. M • Tam. G', cardsX + 74, cardsY + 66);
 
-            // Cartão 3: Como Pagar / Chave PIX
             const pixX = cardsX + halfW + 12;
             drawRoundedRect(ctx, pixX, cardsY, halfW, bottomCardH, 18, '#fffbeb', '#fcd34d', 2);
             drawRoundedRect(ctx, pixX + 12, cardsY + 15, 52, 52, 14, '#fef3c7', '#f59e0b', 1.5);
@@ -2472,15 +2255,11 @@
                 ctx.fillText(line, pixX + 74, cardsY + 42 + idx * 20);
             });
 
-            // =====================================================================
-            // 3. DESENHO DA CARTELA DE NÚMEROS VERTICAL (5 COLUNAS LARGAS)
-            // =====================================================================
             const gridCardX = outerPad;
             const gridCardY = headerY + headerH + sectionGap;
 
             drawRoundedRect(ctx, gridCardX, gridCardY, contentW, gridCardH, 30, '#ffffff', palette.border, 3.5);
 
-            // Faixa de Título e Legenda da Cartela
             const bannerX = gridCardX + gridInnerPad;
             const bannerY = gridCardY + 14;
             const bannerW = contentW - gridInnerPad * 2;
@@ -2492,7 +2271,6 @@
             ctx.fillStyle = palette.textPrimary;
             ctx.fillText('👣 Escolha seu Número da Sorte (Marcados com × já escolhidos)', bannerX + 16, bannerY + 24);
 
-            // Pílulas de legenda à direita
             const legendItems = [
                 { label: 'Livre', bg: '#ffffff', border: palette.border, text: palette.textPrimary },
                 { label: 'Reservado', bg: '#fef3c7', border: '#f59e0b', text: '#92400e' },
@@ -2511,7 +2289,6 @@
                 legendRightX = pillX - 8;
             }
 
-            // Desenho dos Números em 5 Colunas Largas (~191px de largura por célula!)
             const startGridX = gridCardX + gridInnerPad;
             const startGridY = gridCardY + gridTopHeaderH;
             const isCompactCell = cellH < 68;
@@ -2536,14 +2313,12 @@
                     drawRoundedRect(ctx, cx, cy, cellW, cellH, 14, '#ffffff', palette.border, 1.8, [5, 4]);
                 }
 
-                // Estrelinha decorativa no canto superior esquerdo
                 ctx.font = '700 10px "Nunito", sans-serif';
                 ctx.fillStyle = palette.accent;
                 ctx.textAlign = 'left';
                 ctx.textBaseline = 'top';
                 ctx.fillText('✦', cx + 7, cy + 4);
 
-                // Etiqueta de Status no canto superior direito
                 if (status === 'paid' || status === 'pending') {
                     const tagText = status === 'paid' ? '✓ PAGO' : '⏳ RES.';
                     ctx.font = '800 10px "Nunito", sans-serif';
@@ -2555,7 +2330,6 @@
                 const numCenterX = cx + cellW / 2;
                 const numCenterY = isCompactCell ? cy + Math.round(cellH * 0.36) : cy + 28;
 
-                // Número da Rifa grande e legível
                 ctx.font = isCompactCell
                     ? '700 23px "Fredoka", "Quicksand", sans-serif'
                     : '700 28px "Fredoka", "Quicksand", sans-serif';
@@ -2565,7 +2339,6 @@
                 ctx.fillText(fNum, numCenterX, numCenterY);
 
                 if (entry) {
-                    // Marca "×" vermelha sobre o número escolhido
                     ctx.save();
                     ctx.translate(numCenterX, numCenterY);
                     ctx.rotate(-0.18);
@@ -2577,7 +2350,6 @@
                     ctx.fillText('×', 0, 1);
                     ctx.restore();
 
-                    // Nome completo do participante aproveitando os ~191px de largura da coluna
                     ctx.font = isCompactCell ? '800 13.5px "Nunito", sans-serif' : '800 15px "Nunito", sans-serif';
                     ctx.fillStyle = status === 'paid' ? '#064e3b' : '#78350f';
                     const maxLinesForCell = isCompactCell ? 1 : 2;
@@ -2598,9 +2370,6 @@
                 }
             }
 
-            // =====================================================================
-            // 4. RODAPÉ COMEMORATIVO DE AGRADECIMENTO (COMPACTO VERTICAL)
-            // =====================================================================
             const footerX = outerPad;
             const footerY = gridCardY + gridCardH + sectionGap;
 
@@ -2626,9 +2395,6 @@
             ctx.textAlign = 'center';
             ctx.fillText('♥ Feito com Amor ★', footerX + contentW - 106, footerY + 37);
 
-            // =====================================================================
-            // 5. EXPORTAÇÃO E ABERTURA DO MODAL DE VISUALIZAÇÃO / IMPRESSÃO
-            // =====================================================================
             const modeSuffix = currentPosterFormatMode === '9x16_tall' ? '9x16_ampliado' : '9x16';
             lastGeneratedFileName = `rifa_${(babyName || 'bebe').toLowerCase().replace(/[^a-z0-9]/g, '_')}_${modeSuffix}.png`;
             lastGeneratedDataUrl = canvas.toDataURL('image/png', 1.0);
@@ -2646,12 +2412,61 @@
         }
 
         function openImagePreviewModal() {
-// ... existing code ... -->
+            const modal = document.getElementById('imagePreviewModal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            }
+        }
+
+        function closeImagePreviewModal() {
+            const modal = document.getElementById('imagePreviewModal');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        }
+
+        function downloadGeneratedRaffleImage() {
+            if (!lastGeneratedDataUrl) {
+                exportFullRafflePng(false);
+            }
+            const link = document.createElement('a');
+            link.download = lastGeneratedFileName;
+            link.href = lastGeneratedDataUrl;
+            link.click();
+            showToast('Download da imagem iniciado!', 'success');
+        }
+
+        async function shareGeneratedRaffleImage() {
+            if (!lastGeneratedDataUrl) {
+                exportFullRafflePng(false);
+            }
+            try {
+                const res = await fetch(lastGeneratedDataUrl);
+                const blob = await res.blob();
+                const file = new File([blob], lastGeneratedFileName, { type: 'image/png' });
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    await navigator.share({
+                        title: appState.config.title || 'Chá Rifa do Bebê',
+                        text: `Participe da rifa do ${appState.config.babyName || 'Bebê'}! Escolha seu número da sorte.`,
+                        files: [file]
+                    });
+                    showToast('Compartilhado com sucesso!', 'success');
+                    return;
+                }
+            } catch (err) {
+                if (err.name === 'AbortError') return;
+                console.warn('Web Share API não suportada, abrindo imagem...', err);
+            }
+            downloadGeneratedRaffleImage();
+            showToast('Imagem salva para você enviar no WhatsApp!', 'info');
+        }
+
         function printGeneratedRaffleImage() {
             if (!lastGeneratedDataUrl) {
                 exportFullRafflePng(false);
             }
-            // Cria uma área de impressão exclusiva em modo Retrato (Vertical) apenas com a imagem 9:16 gerada
             let printFrame = document.getElementById('rafflePosterPrintFrame');
             if (!printFrame) {
                 printFrame = document.createElement('iframe');
@@ -2703,7 +2518,100 @@
         }
 
         function copyWhatsAppSummary() {
-// ... existing code ... -->
+            const { title, babyName, prize, price, priceExtra, totalNumbers, drawDate, notes } = appState.config;
+            let paidList = [], freeCount = 0;
+
+            for (let i = 1; i <= totalNumbers; i++) {
+                const e = appState.entries[String(i)];
+                const fNum = formatRaffleNumber(i);
+                if (!e) freeCount++;
+                else if (e.status === 'paid') paidList.push(`✅ ${fNum} - ${e.name}`);
+            }
+
+            const text = [
+                `🍼 *${title.toUpperCase()} - ${babyName.toUpperCase()}* 🧸`,
+                `🎁 *Prêmios:* ${prize}`,
+                `💰 *Valor:* ${formatCurrency(price)} ${priceExtra ? '(' + priceExtra + ')' : ''}`,
+                `📅 *Sorteio:* ${drawDate}`,
+                `📌 *PIX:* ${notes}`,
+                ``,
+                paidList.length > 0 ? `*Confirmados (Pagos):*\n${paidList.join('\n')}` : '',
+                `✨ *Total de números livres:* ${freeCount} disponíveis!`
+            ].filter(Boolean).join('\n');
+
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+            showToast('Resumo copiado para o WhatsApp!', 'success');
+        }
+
+        function launchConfetti() {
+            const canvas = document.getElementById('confettiCanvas');
+            canvas.classList.remove('hidden');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const colors = ['#f59e0b', '#10b981', '#5fa8d3', '#ec839e', '#a855f7'];
+            const pieces = Array.from({ length: 100 }, () => ({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height - canvas.height,
+                r: Math.random() * 6 + 4,
+                color: colors[Math.floor(Math.random() * colors.length)],
+                vy: Math.random() * 3 + 3,
+                vx: (Math.random() - 0.5) * 3,
+                angle: Math.random() * Math.PI * 2
+            }));
+
+            let frame = 0;
+            function draw() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                pieces.forEach(p => {
+                    p.y += p.vy;
+                    p.x += p.vx;
+                    p.angle += 0.08;
+                    ctx.save();
+                    ctx.translate(p.x, p.y);
+                    ctx.rotate(p.angle);
+                    ctx.fillStyle = p.color;
+                    ctx.fillRect(-p.r/2, -p.r/2, p.r, p.r * 1.5);
+                    ctx.restore();
+                });
+                frame++;
+                if (frame < 180) requestAnimationFrame(draw);
+                else { ctx.clearRect(0, 0, canvas.width, canvas.height); canvas.classList.add('hidden'); }
+            }
+            draw();
+        }
+
+        function openResetModal() { document.getElementById('resetModal').classList.remove('hidden'); document.getElementById('resetModal').classList.add('flex'); }
+        function closeResetModal() { document.getElementById('resetModal').classList.add('hidden'); document.getElementById('resetModal').classList.remove('flex'); }
+        function clearAllEntries() { appState.entries = {}; saveStateToStorage(); clearBookingForm(); renderAll(); closeResetModal(); showToast('Todos os números foram limpos.', 'info'); }
+        function loadDemoEntries() {
+            appState.entries = {
+                "1": { name: "Vovó Helena", note: "Fralda M", status: "paid", updatedAt: "08/11/2026" },
+                "7": { name: "Tia Camila", note: "Fralda G", status: "paid", updatedAt: "08/11/2026" }
+            };
+            saveStateToStorage(); clearBookingForm(); renderAll(); closeResetModal(); showToast('Exemplos carregados!', 'success');
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `${type === 'success' ? 'bg-emerald-600' : type === 'error' ? 'bg-rose-600' : 'bg-stone-800'} text-white px-4 py-3 rounded-2xl shadow-lg text-xs font-bold flex items-center gap-2.5`;
+            toast.innerHTML = `<i class="fa-solid ${type === 'success' ? 'fa-circle-check' : 'fa-circle-info'} text-sm"></i> <span>${escapeHtml(message)}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 3000);
+        }
+
         Object.assign(window, {
             setTheme, toggleConfigPanel, autoSaveConfigField, handleFormSubmit, handleNumberInputChange,
             pickRandomAvailableNumber, setFormPaymentStatus, releaseCurrentNumber, clearBookingForm,
