@@ -1717,7 +1717,9 @@
                         </button>
                     </td>
                     <td class="py-3 px-3 text-right">
-                        ${isPaid ? `<button type="button" onclick="downloadPaymentReceipt(${i})" class="mr-1 px-2 py-1 bg-emerald-100 hover:bg-emerald-200 text-emerald-800 rounded text-xs font-bold" aria-label="Baixar comprovante do número ${fNum}"><i class="fa-solid fa-download"></i><span class="hidden sm:inline ml-1">Comprovante</span></button>` : ''}
+                        ${isPaid
+                            ? `<button type="button" onclick="downloadPaymentReceipt(${i})" class="mr-1 px-2 py-1 bg-emerald-100 hover:bg-emerald-200 text-emerald-800 rounded text-xs font-bold" aria-label="Baixar comprovante do número ${fNum}"><i class="fa-solid fa-download"></i><span class="hidden sm:inline ml-1">Comprovante</span></button>`
+                            : `<button type="button" onclick="downloadReservationReceipt(${i})" class="mr-1 px-2 py-1 bg-amber-100 hover:bg-amber-200 text-amber-900 rounded text-xs font-bold" aria-label="Baixar comprovante de reserva do número ${fNum}"><i class="fa-solid fa-download"></i><span class="hidden sm:inline ml-1">Reserva</span></button>`}
                         <button onclick="selectNumberFromGrid(${i})" class="px-2 py-1 bg-stone-100 rounded text-xs font-bold"><i class="fa-solid fa-pen"></i></button>
                     </td>
                 `;
@@ -2222,16 +2224,308 @@
         }
 
         function downloadPaymentReceipt(num) {
+            downloadEntryReceipt(num, 'paid');
+        }
+
+        function downloadReservationReceipt(num) {
+            showToast('Atenção: este documento é apenas uma reserva. Não confirma pagamento nem participação no sorteio.', 'info');
+            downloadEntryReceipt(num, 'pending');
+        }
+
+        function extractPixKey(notes) {
+            const text = String(notes || '').trim();
+            const explicitPix = text.match(/(?:chave\s*)?pix\s*[:=-]\s*([^;|•\n]+)/i);
+            const labeledTaxId = text.match(/\b(cpf|cnpj)\s*[:=-]\s*([\d./-]+)/i);
+            const labeledPhone = text.match(/(?:celular|telefone|tel)\s*[:=-]\s*(\+?[\d\s().-]{10,20})/i);
+            let candidate = labeledPhone ? labeledPhone[1].trim()
+                : labeledTaxId ? labeledTaxId[2].trim()
+                    : explicitPix ? explicitPix[1].trim() : '';
+
+            if (!candidate && /^[+\d\s().-]+$/.test(text)) candidate = text;
+            if (!candidate && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(text)) candidate = text;
+            if (!candidate) return '';
+
+            const digits = candidate.replace(/\D/g, '');
+            if (labeledTaxId) {
+                const expectedLength = labeledTaxId[1].toLowerCase() === 'cpf' ? 11 : 14;
+                return digits.length === expectedLength ? digits : '';
+            }
+            if (labeledPhone) {
+                if (/^\+?55\d{10,11}$/.test(candidate.replace(/[\s().-]/g, ''))) return `+${digits}`;
+                if (/^\d{10,11}$/.test(digits)) return `+55${digits}`;
+                return '';
+            }
+
+            if (candidate.includes('@')) {
+                return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(candidate) ? candidate.toLowerCase() : '';
+            }
+
+            if (/^\+?55\d{10,11}$/.test(candidate.replace(/[\s().-]/g, ''))) {
+                return `+${candidate.replace(/\D/g, '')}`;
+            }
+            if (/^\d{14}$/.test(digits)) return digits;
+            if (/^[\d\s().-]+$/.test(candidate) && /^\d{10,11}$/.test(digits)) return `+55${digits}`;
+            if (/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(candidate)) {
+                return candidate.toLowerCase();
+            }
+            return '';
+        }
+
+        function pixTlv(id, value) {
+            const length = new TextEncoder().encode(value).length;
+            if (length > 99) throw new Error('Campo Pix excede o tamanho permitido.');
+            return `${id}${String(length).padStart(2, '0')}${value}`;
+        }
+
+        function crc16Ccitt(text) {
+            let crc = 0xffff;
+            for (const byte of new TextEncoder().encode(text)) {
+                crc ^= byte << 8;
+                for (let bit = 0; bit < 8; bit++) {
+                    crc = crc & 0x8000 ? (crc << 1) ^ 0x1021 : crc << 1;
+                    crc &= 0xffff;
+                }
+            }
+            return crc.toString(16).toUpperCase().padStart(4, '0');
+        }
+
+        function buildPixPayload(pixKey, num) {
+            const merchantAccount = pixTlv('00', 'BR.GOV.BCB.PIX') + pixTlv('01', pixKey);
+            const merchantName = (appState.config.babyName || 'CHA RIFA')
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/[^a-zA-Z0-9 ]/g, ' ')
+                .trim()
+                .replace(/\s+/g, ' ')
+                .toUpperCase()
+                .slice(0, 25) || 'CHA RIFA';
+            const txid = `RIFA${formatRaffleNumber(num)}`.slice(0, 25);
+            const additionalData = pixTlv('05', txid);
+            const payload = [
+                pixTlv('00', '01'),
+                pixTlv('01', '11'),
+                pixTlv('26', merchantAccount),
+                pixTlv('52', '0000'),
+                pixTlv('53', '986'),
+                pixTlv('58', 'BR'),
+                pixTlv('59', merchantName),
+                pixTlv('60', 'BRASILIA'),
+                pixTlv('62', additionalData),
+                '6304'
+            ].join('');
+            return payload + crc16Ccitt(payload);
+        }
+
+        function qrMultiply(a, b) {
+            let result = 0;
+            for (let i = 7; i >= 0; i--) {
+                result = (result << 1) ^ (((result >>> 7) & 1) * 0x11d);
+                result ^= ((b >>> i) & 1) * a;
+            }
+            return result;
+        }
+
+        function qrReedSolomon(data, degree) {
+            let generator = [1];
+            let root = 1;
+            for (let i = 0; i < degree; i++) {
+                const next = new Array(generator.length + 1).fill(0);
+                generator.forEach((value, index) => {
+                    next[index] ^= value;
+                    next[index + 1] ^= qrMultiply(value, root);
+                });
+                generator = next;
+                root = qrMultiply(root, 2);
+            }
+
+            const result = new Array(degree).fill(0);
+            for (const value of data) {
+                const factor = value ^ result.shift();
+                result.push(0);
+                for (let i = 0; i < degree; i++) result[i] ^= qrMultiply(generator[i + 1], factor);
+            }
+            return result;
+        }
+
+        function createPixQrMatrix(text) {
+            const version = 10;
+            const size = 17 + version * 4;
+            const bytes = [...new TextEncoder().encode(text)];
+            if (bytes.length > 271) throw new Error('Os dados do Pix são longos demais para o QR Code.');
+
+            const bits = [];
+            const appendBits = (value, length) => {
+                for (let i = length - 1; i >= 0; i--) bits.push((value >>> i) & 1);
+            };
+            appendBits(0b0100, 4);
+            appendBits(bytes.length, 16);
+            bytes.forEach(byte => appendBits(byte, 8));
+
+            const dataCapacity = 274;
+            for (let i = 0; i < Math.min(4, dataCapacity * 8 - bits.length); i++) bits.push(0);
+            while (bits.length % 8) bits.push(0);
+            const data = [];
+            for (let i = 0; i < bits.length; i += 8) {
+                data.push(bits.slice(i, i + 8).reduce((value, bit) => (value << 1) | bit, 0));
+            }
+            for (let pad = 0; data.length < dataCapacity; pad++) data.push(pad % 2 === 0 ? 0xec : 0x11);
+
+            const blockSizes = [68, 68, 69, 69];
+            const dataBlocks = [];
+            let offset = 0;
+            for (const blockSize of blockSizes) {
+                dataBlocks.push(data.slice(offset, offset + blockSize));
+                offset += blockSize;
+            }
+            const errorBlocks = dataBlocks.map(block => qrReedSolomon(block, 18));
+            const codewords = [];
+            for (let i = 0; i < 69; i++) {
+                dataBlocks.forEach(block => { if (i < block.length) codewords.push(block[i]); });
+            }
+            for (let i = 0; i < 18; i++) errorBlocks.forEach(block => codewords.push(block[i]));
+
+            const matrix = Array.from({ length: size }, () => new Array(size).fill(null));
+            const setFunction = (x, y, dark) => {
+                if (x >= 0 && x < size && y >= 0 && y < size) matrix[y][x] = Boolean(dark);
+            };
+            const drawFinder = (centerX, centerY) => {
+                for (let dy = -4; dy <= 4; dy++) {
+                    for (let dx = -4; dx <= 4; dx++) {
+                        const distance = Math.max(Math.abs(dx), Math.abs(dy));
+                        setFunction(centerX + dx, centerY + dy, distance !== 2 && distance !== 4);
+                    }
+                }
+            };
+            drawFinder(3, 3);
+            drawFinder(size - 4, 3);
+            drawFinder(3, size - 4);
+
+            [6, 28, 50].forEach(centerY => {
+                [6, 28, 50].forEach(centerX => {
+                    if ((centerX === 6 && centerY === 6)
+                        || (centerX === 6 && centerY === 50)
+                        || (centerX === 50 && centerY === 6)) return;
+                    for (let dy = -2; dy <= 2; dy++) {
+                        for (let dx = -2; dx <= 2; dx++) {
+                            setFunction(centerX + dx, centerY + dy, Math.max(Math.abs(dx), Math.abs(dy)) !== 1);
+                        }
+                    }
+                });
+            });
+
+            for (let i = 8; i < size - 8; i++) {
+                if (matrix[6][i] === null) setFunction(i, 6, i % 2 === 0);
+                if (matrix[i][6] === null) setFunction(6, i, i % 2 === 0);
+            }
+
+            let versionRemainder = version << 12;
+            for (let i = 17; i >= 12; i--) {
+                if ((versionRemainder >>> i) & 1) versionRemainder ^= 0x1f25 << (i - 12);
+            }
+            const versionBits = (version << 12) | versionRemainder;
+            for (let i = 0; i < 18; i++) {
+                const bit = ((versionBits >>> i) & 1) !== 0;
+                const a = size - 11 + (i % 3);
+                const b = Math.floor(i / 3);
+                setFunction(a, b, bit);
+                setFunction(b, a, bit);
+            }
+
+            const formatData = 0b01000;
+            let formatRemainder = formatData << 10;
+            for (let i = 14; i >= 10; i--) {
+                if ((formatRemainder >>> i) & 1) formatRemainder ^= 0x537 << (i - 10);
+            }
+            const formatBits = ((formatData << 10) | formatRemainder) ^ 0x5412;
+            for (let i = 0; i < 15; i++) {
+                const bit = ((formatBits >>> i) & 1) !== 0;
+                let x, y;
+                if (i < 6) { x = 8; y = i; }
+                else if (i < 8) { x = 8; y = i + 1; }
+                else { x = 14 - i; y = 8; }
+                setFunction(x, y, bit);
+
+                if (i < 8) { x = size - 1 - i; y = 8; }
+                else { x = 8; y = size - 15 + i; }
+                setFunction(x, y, bit);
+            }
+            setFunction(8, size - 8, true);
+
+            const stream = codewords.flatMap(byte => Array.from({ length: 8 }, (_, bit) => (byte >>> (7 - bit)) & 1));
+            let bitIndex = 0;
+            let upward = true;
+            for (let right = size - 1; right >= 1; right -= 2) {
+                if (right === 6) right--;
+                for (let vert = 0; vert < size; vert++) {
+                    const y = upward ? size - 1 - vert : vert;
+                    for (let j = 0; j < 2; j++) {
+                        const x = right - j;
+                        if (matrix[y][x] !== null) continue;
+                        let dark = bitIndex < stream.length && stream[bitIndex++] === 1;
+                        if ((x + y) % 2 === 0) dark = !dark;
+                        matrix[y][x] = dark;
+                    }
+                }
+                upward = !upward;
+            }
+            return matrix;
+        }
+
+        function drawQrCode(ctx, payload, x, y, size) {
+            const matrix = createPixQrMatrix(payload);
+            const quietZone = 4;
+            const moduleCount = matrix.length + quietZone * 2;
+            const moduleSize = Math.floor(size / moduleCount);
+            const drawnSize = moduleSize * moduleCount;
+            const offset = (size - drawnSize) / 2;
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(x, y, size, size);
+            ctx.fillStyle = '#14213d';
+            matrix.forEach((row, rowIndex) => {
+                row.forEach((dark, colIndex) => {
+                    if (dark) {
+                        ctx.fillRect(
+                            x + offset + (colIndex + quietZone) * moduleSize,
+                            y + offset + (rowIndex + quietZone) * moduleSize,
+                            moduleSize,
+                            moduleSize
+                        );
+                    }
+                });
+            });
+        }
+
+        function downloadEntryReceipt(num, expectedStatus) {
             const entry = appState.entries[String(num)];
-            if (!entry || entry.status !== 'paid') {
-                showToast('O comprovante fica disponível para números pagos.', 'error');
+            if (!entry || entry.status !== expectedStatus) {
+                showToast(expectedStatus === 'paid'
+                    ? 'O comprovante de pagamento só fica disponível para números pagos.'
+                    : 'O comprovante de reserva só fica disponível para números reservados.', 'error');
                 return;
+            }
+
+            const isPaid = expectedStatus === 'paid';
+            let pixKey = '';
+            let pixPayload = '';
+            if (!isPaid) {
+                pixKey = extractPixKey(appState.config.notes);
+                if (!pixKey) {
+                    showToast('Não encontrei uma chave Pix válida. Configure em Personalizar Rifa no formato “PIX: sua chave”.', 'error');
+                    return;
+                }
+                try {
+                    pixPayload = buildPixPayload(pixKey, num);
+                } catch (err) {
+                    console.error('Erro ao criar os dados do Pix:', err);
+                    showToast('Não foi possível montar o QR Pix com os dados configurados.', 'error');
+                    return;
+                }
             }
 
             try {
                 const palette = THEME_CANVAS_PALETTES[appState.theme] || THEME_CANVAS_PALETTES.neutral;
                 const width = 1080;
-                const height = 1350;
+                const height = isPaid ? 1350 : 1810;
                 const scale = 2;
                 const canvas = document.createElement('canvas');
                 canvas.width = width * scale;
@@ -2253,8 +2547,8 @@
                     drawStarShape(ctx, x, y, 5, i % 3 === 0 ? 10 : 6, 3, palette.accent);
                 }
 
-                drawRoundedRect(ctx, 42, 42, 996, 1266, 46, '#ffffff', palette.accent, 5);
-                drawRoundedRect(ctx, 66, 66, 948, 1218, 36, palette.skyTop, palette.border, 3, [12, 8]);
+                drawRoundedRect(ctx, 42, 42, 996, isPaid ? 1266 : 1738, 46, '#ffffff', palette.accent, 5);
+                drawRoundedRect(ctx, 66, 66, 948, isPaid ? 1218 : 1690, 36, palette.skyTop, palette.border, 3, [12, 8]);
                 drawNurseryBunting(ctx, 94, 88, 892, palette);
 
                 ctx.textAlign = 'center';
@@ -2265,10 +2559,13 @@
 
                 drawNurseryBearMascot(ctx, width / 2, 350, 104, palette);
 
-                drawRoundedRect(ctx, 180, 492, 720, 94, 34, palette.badgeBg, palette.ribbonBorder, 3);
-                ctx.fillStyle = palette.ribbonText;
+                const statusBackground = isPaid ? palette.badgeBg : '#fff0c2';
+                const statusBorder = isPaid ? palette.ribbonBorder : '#d97706';
+                const statusText = isPaid ? palette.ribbonText : '#92400e';
+                drawRoundedRect(ctx, 130, 492, 820, 94, 34, statusBackground, statusBorder, 3);
+                ctx.fillStyle = statusText;
                 ctx.font = '800 38px "Fredoka", "Quicksand", sans-serif';
-                ctx.fillText('✓ PAGAMENTO CONFIRMADO', width / 2, 539);
+                ctx.fillText(isPaid ? '✓ PAGAMENTO CONFIRMADO' : '⏳ RESERVA • PAGAMENTO PENDENTE', width / 2, 539);
 
                 ctx.fillStyle = palette.textSecondary;
                 ctx.font = '700 27px "Nunito", sans-serif';
@@ -2292,21 +2589,45 @@
 
                 ctx.fillStyle = palette.textSecondary;
                 ctx.font = '700 25px "Nunito", sans-serif';
-                ctx.fillText(`Valor: ${formatCurrency(appState.config.price)}  •  Confirmado em ${entry.updatedAt || new Date().toLocaleDateString('pt-BR')}`, width / 2, 1150);
+                ctx.fillText(`Valor: ${formatCurrency(appState.config.price)}  •  ${isPaid ? 'Confirmado' : 'Reservado'} em ${entry.updatedAt || new Date().toLocaleDateString('pt-BR')}`, width / 2, 1150);
 
-                drawRoundedRect(ctx, 116, 1190, 848, 68, 28, palette.ribbonBg, palette.ribbonBorder, 2);
-                ctx.fillStyle = palette.ribbonText;
-                ctx.font = '700 25px "Nunito", sans-serif';
-                ctx.fillText(`Muito obrigado, ${getShortName(entry.name)}! Seu carinho é muito especial. 💕`, width / 2, 1224);
+                if (isPaid) {
+                    drawRoundedRect(ctx, 116, 1190, 848, 68, 28, palette.ribbonBg, palette.ribbonBorder, 2);
+                    ctx.fillStyle = palette.ribbonText;
+                    ctx.font = '700 25px "Nunito", sans-serif';
+                    ctx.fillText(`Muito obrigado, ${getShortName(entry.name)}! Seu carinho é muito especial. 💕`, width / 2, 1224);
+                } else {
+                    drawRoundedRect(ctx, 330, 1165, 420, 390, 30, '#ffffff', palette.ribbonBorder, 3);
+                    drawQrCode(ctx, pixPayload, 375, 1190, 330);
+                    ctx.fillStyle = palette.accentDark;
+                    ctx.font = '800 23px "Nunito", sans-serif';
+                    ctx.fillText('PIX • ESCANEIE PARA PAGAR', width / 2, 1538);
+                    ctx.fillStyle = palette.textPrimary;
+                    ctx.font = '800 25px "Nunito", sans-serif';
+                    ctx.fillText(`NÚMERO RESERVADO: ${formatRaffleNumber(num)}`, width / 2, 1572);
+                    ctx.font = '700 17px "Nunito", sans-serif';
+                    ctx.fillText(`Chave Pix: ${pixKey}`, width / 2, 1600);
+
+                    drawRoundedRect(ctx, 116, 1632, 848, 100, 24, '#fff7e6', '#d97706', 2.5);
+                    ctx.fillStyle = '#92400e';
+                    ctx.font = '800 20px "Nunito", sans-serif';
+                    ctx.fillText('ATENÇÃO: ESTA É APENAS UMA RESERVA', width / 2, 1658);
+                    ctx.font = '700 17px "Nunito", sans-serif';
+                    ctx.fillText('Não é comprovante de pagamento nem confirma participação no sorteio.', width / 2, 1689);
+                    ctx.font = '800 19px "Nunito", sans-serif';
+                    ctx.fillText(`Valor Pix: ${formatCurrency(appState.config.price)}`, width / 2, 1714);
+                }
 
                 const safeName = entry.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
                 const link = document.createElement('a');
-                link.download = `comprovante_rifa_${formatRaffleNumber(num)}_${safeName || 'participante'}.png`;
+                const receiptType = isPaid ? 'comprovante_pagamento' : 'comprovante_reserva';
+                link.download = `${receiptType}_rifa_${formatRaffleNumber(num)}_${safeName || 'participante'}.png`;
                 link.href = canvas.toDataURL('image/png');
                 link.click();
-                showToast('Comprovante em PNG baixado com sucesso!', 'success');
+                if (isPaid) showToast('Comprovante de pagamento em PNG baixado com sucesso!', 'success');
+                else showToast('Aviso: o PNG é apenas uma reserva. O QR cobra o valor da rifa e não confirma participação.', 'info');
             } catch (err) {
-                console.error('Erro ao gerar comprovante de pagamento:', err);
+                console.error('Erro ao gerar comprovante da rifa:', err);
                 showToast('Não foi possível gerar o comprovante. Tente novamente.', 'error');
             }
         }
@@ -2948,7 +3269,7 @@
             setGridFilter, selectNumberFromGrid, toggleEntryPaymentStatus, openDrawModal, closeDrawModal,
             setDrawPool, runRaffleDraw, exportFullRafflePng, copyWhatsAppSummary, openResetModal, closeResetModal,
             clearAllEntries, loadDemoEntries, closeBookingModal, copyPixNotes,
-            openImagePreviewModal, closeImagePreviewModal, downloadGeneratedRaffleImage, downloadPaymentReceipt,
+            openImagePreviewModal, closeImagePreviewModal, downloadGeneratedRaffleImage, downloadPaymentReceipt, downloadReservationReceipt,
             shareGeneratedRaffleImage, printGeneratedRaffleImage
         });
 
