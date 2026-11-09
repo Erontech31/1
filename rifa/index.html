@@ -663,9 +663,9 @@
                                             </span>
                                             <span class="flex flex-wrap items-center justify-center sm:justify-start gap-1.5 pt-1 border-t border-dashed theme-border text-[11px]">
                                                 <span class="opacity-75 font-bold"><i class="fa-solid fa-baby text-amber-600 mr-1"></i>Sugestão Fraldas:</span>
-                                                <span class="px-2 py-0.5 rounded-md bg-sky-50 text-sky-800 border border-sky-200 font-extrabold">Tam. P: 01–10</span>
-                                                <span class="px-2 py-0.5 rounded-md bg-pink-50 text-pink-800 border border-pink-200 font-extrabold">Tam. M: 11–25</span>
-                                                <span class="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-800 border border-emerald-200 font-extrabold">Tam. G: 26–100</span>
+                                                <span class="px-2 py-0.5 rounded-md bg-sky-50 text-sky-800 border border-sky-200 font-extrabold">Tam. P: 00–09</span>
+                                                <span class="px-2 py-0.5 rounded-md bg-pink-50 text-pink-800 border border-pink-200 font-extrabold">Tam. M: 10–24</span>
+                                                <span class="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-800 border border-emerald-200 font-extrabold">Tam. G: 25–99</span>
                                             </span>
                                         </span>
 
@@ -901,7 +901,7 @@
                     <div>
                         <label class="block text-xs font-bold uppercase tracking-wide opacity-80 mb-1.5">1. Número Escolhido</label>
                         <div class="flex items-center gap-2">
-                            <input type="number" id="inputNumber" min="1" max="300" required oninput="handleNumberInputChange(this.value)" class="w-full px-4 py-3 rounded-2xl border-2 theme-border text-lg font-extrabold bg-white">
+                            <input type="number" id="inputNumber" min="0" max="299" required oninput="handleNumberInputChange(this.value)" class="w-full px-4 py-3 rounded-2xl border-2 theme-border text-lg font-extrabold bg-white">
                             <button type="button" onclick="pickRandomAvailableNumber()" class="px-3.5 py-3 rounded-2xl border-2 theme-border bg-stone-50 text-xs font-bold shrink-0">Surpresa</button>
                         </div>
                         <p id="numberStatusHelper" class="mt-1.5 text-xs font-semibold text-stone-500">Clique em um número na cartela.</p>
@@ -964,6 +964,12 @@
                 </div>
             </main>
         </div>
+    </div>
+
+    <div class="no-export max-w-7xl mx-auto px-4 sm:px-6 mt-6 mb-10 flex justify-center">
+        <button onclick="downloadRaffleReportPdf()" class="px-5 py-3 rounded-2xl text-sm font-extrabold bg-rose-600 hover:bg-rose-700 text-white flex items-center gap-2 transition shadow-md" title="Imprimir ou salvar o relatório completo como PDF">
+            <i class="fa-solid fa-file-pdf"></i> Baixar relatório completo em PDF
+        </button>
     </div>
 
     <div id="bookingModalBackdrop" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden" aria-hidden="true" onclick="closeBookingModal()"></div>
@@ -1337,7 +1343,17 @@
 
         function formatRaffleNumber(num) {
             const total = Number(appState.config.totalNumbers) || 100;
-            return String(num).padStart(total > 100 ? 3 : 2, '0');
+            return String(num - 1).padStart(total > 100 ? 3 : 2, '0');
+        }
+
+        function parseRaffleNumberInput(value) {
+            const text = String(value).trim();
+            const displayNum = Number(text);
+            const total = Number(appState.config.totalNumbers) || 100;
+            if (!/^\d+$/.test(text) || !Number.isInteger(displayNum) || displayNum < 0 || displayNum >= total) {
+                return null;
+            }
+            return displayNum + 1;
         }
 
         function formatCurrency(val) {
@@ -1416,7 +1432,7 @@
             document.getElementById('displayPriceExtra').textContent = priceExtra ? `(${priceExtra})` : '';
             document.getElementById('displayDrawDate').textContent = drawDate;
             document.getElementById('displayNotes').textContent = notes;
-            document.getElementById('inputNumber').max = totalNumbers;
+            document.getElementById('inputNumber').max = Math.max(0, totalNumbers - 1);
 
             renderStatsSummary();
             renderRaffleGrid();
@@ -1534,7 +1550,7 @@
 
         function selectNumberFromGrid(num) {
             selectedNumber = Number(num);
-            document.getElementById('inputNumber').value = selectedNumber;
+            document.getElementById('inputNumber').value = formatRaffleNumber(selectedNumber);
             populateFormForNumber(selectedNumber);
             renderRaffleGrid();
             openBookingModal();
@@ -1583,9 +1599,8 @@
         }
 
         function handleNumberInputChange(val) {
-            const num = parseInt(val, 10);
-            const total = Number(appState.config.totalNumbers) || 100;
-            if (!num || num < 1 || num > total) {
+            const num = parseRaffleNumberInput(val);
+            if (num === null) {
                 selectedNumber = null;
                 document.getElementById('numberStatusHelper').textContent = 'Digite um número válido.';
                 document.getElementById('btnReleaseNumber').classList.add('hidden');
@@ -1628,12 +1643,11 @@
 
         function handleFormSubmit(e) {
             e.preventDefault();
-            const total = Number(appState.config.totalNumbers) || 100;
-            const num = parseInt(document.getElementById('inputNumber').value, 10);
+            const num = parseRaffleNumberInput(document.getElementById('inputNumber').value);
             const name = document.getElementById('inputName').value.trim();
             const note = document.getElementById('inputNote').value.trim();
 
-            if (!num || num < 1 || num > total || !name) {
+            if (num === null || !name) {
                 showToast('Preencha o número e o nome do participante corretamente.', 'error');
                 return;
             }
@@ -1653,8 +1667,8 @@
         }
 
         function releaseCurrentNumber() {
-            const num = parseInt(document.getElementById('inputNumber').value, 10);
-            if (!num || !appState.entries[String(num)]) return;
+            const num = parseRaffleNumberInput(document.getElementById('inputNumber').value);
+            if (num === null || !appState.entries[String(num)]) return;
             delete appState.entries[String(num)];
             saveStateToStorage();
             clearBookingForm();
@@ -2858,7 +2872,7 @@
 
             ctx.font = '800 12px "Nunito", sans-serif';
             ctx.fillStyle = palette.textSecondary;
-            ctx.fillText('🧷 Fraldas: P 01–10 • M 11–25 • G 26–100', cardsX + 74, cardsY + 66);
+            ctx.fillText('Fraldas: P 00–09 • M 10–24 • G 25–99', cardsX + 74, cardsY + 66);
 
             const pixX = cardsX + halfW + 12;
             const pixGradient = ctx.createLinearGradient(pixX, cardsY, pixX + halfW, cardsY + bottomCardH);
@@ -3199,6 +3213,109 @@
             showToast('Resumo copiado para o WhatsApp!', 'success');
         }
 
+        function downloadRaffleReportPdf() {
+            const { title, babyName, prize, price, priceExtra, totalNumbers, drawDate, notes } = appState.config;
+            const total = Number(totalNumbers) || 100;
+            let paid = 0;
+            let pending = 0;
+            const rows = [];
+
+            for (let num = 1; num <= total; num++) {
+                const entry = appState.entries[String(num)];
+                const status = entry?.status === 'paid' ? 'Pago' : entry ? 'Reservado' : 'Livre';
+                if (status === 'Pago') paid++;
+                else if (status === 'Reservado') pending++;
+                rows.push(`
+                    <tr>
+                        <td>${escapeHtml(formatRaffleNumber(num))}</td>
+                        <td>${status}</td>
+                        <td>${escapeHtml(entry?.name || '—')}</td>
+                        <td>${escapeHtml(entry?.note || '—')}</td>
+                        <td>${escapeHtml(entry?.updatedAt || '—')}</td>
+                    </tr>
+                `);
+            }
+
+            const available = total - paid - pending;
+            const generatedAt = new Date().toLocaleString('pt-BR');
+            const safeTitle = escapeHtml(title || 'Chá Rifa');
+            const reportHtml = `<!DOCTYPE html>
+                <html lang="pt-BR">
+                <head>
+                    <meta charset="UTF-8">
+                    <title>Relatório - ${safeTitle}</title>
+                    <style>
+                        @page { size: A4 portrait; margin: 14mm; }
+                        * { box-sizing: border-box; }
+                        body { margin: 0; color: #292524; font: 10px Arial, sans-serif; }
+                        h1 { margin: 0 0 4px; color: #9f1239; font-size: 22px; }
+                        h2 { margin: 18px 0 8px; color: #44403c; font-size: 13px; }
+                        p { margin: 3px 0; }
+                        .muted { color: #78716c; }
+                        .summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; margin: 14px 0; }
+                        .card { padding: 8px; border: 1px solid #e7e5e4; border-radius: 6px; background: #fafaf9; }
+                        .card strong { display: block; margin-top: 3px; font-size: 14px; }
+                        table { width: 100%; border-collapse: collapse; }
+                        th, td { padding: 5px 6px; border: 1px solid #e7e5e4; text-align: left; vertical-align: top; overflow-wrap: anywhere; }
+                        th { background: #fff1f2; color: #881337; }
+                        tr:nth-child(even) td { background: #fafaf9; }
+                        .report-footer { margin-top: 12px; color: #78716c; font-size: 9px; }
+                        @media print { thead { display: table-header-group; } tr { break-inside: avoid; } }
+                    </style>
+                </head>
+                <body>
+                    <h1>Relatório completo da rifa</h1>
+                    <p><strong>${safeTitle}</strong> — ${escapeHtml(babyName || 'Bebê')}</p>
+                    <p class="muted">Sorteio: ${escapeHtml(drawDate || 'A definir')} | Gerado em ${escapeHtml(generatedAt)}</p>
+                    <h2>Dados da rifa</h2>
+                    <p><strong>Prêmios:</strong> ${escapeHtml(prize || '—')}</p>
+                    <p><strong>Valor por número:</strong> ${escapeHtml(formatCurrency(price))}${priceExtra ? ` (${escapeHtml(priceExtra)})` : ''}</p>
+                    <p><strong>PIX / instruções:</strong> ${escapeHtml(notes || '—')}</p>
+                    <div class="summary">
+                        <div class="card">Total de números<strong>${total}</strong></div>
+                        <div class="card">Livres<strong>${available}</strong></div>
+                        <div class="card">Reservados<strong>${pending}</strong></div>
+                        <div class="card">Pagos<strong>${paid}</strong></div>
+                    </div>
+                    <p><strong>Arrecadado:</strong> ${escapeHtml(formatCurrency(paid * (Number(price) || 0)))} <span class="muted">(considera somente números pagos)</span></p>
+                    <h2>Lista completa de números</h2>
+                    <table>
+                        <thead><tr><th>Número</th><th>Status</th><th>Participante</th><th>Telefone / observação</th><th>Última atualização</th></tr></thead>
+                        <tbody>${rows.join('')}</tbody>
+                    </table>
+                    <p class="report-footer">Relatório gerado localmente pela cartela da rifa.</p>
+                </body>
+                </html>`;
+
+            let printFrame = document.getElementById('raffleReportPrintFrame');
+            if (!printFrame) {
+                printFrame = document.createElement('iframe');
+                printFrame.id = 'raffleReportPrintFrame';
+                printFrame.title = 'Pré-visualização do relatório PDF';
+                printFrame.style.position = 'fixed';
+                printFrame.style.right = '0';
+                printFrame.style.bottom = '0';
+                printFrame.style.width = '0';
+                printFrame.style.height = '0';
+                printFrame.style.border = '0';
+                document.body.appendChild(printFrame);
+            }
+
+            const reportDocument = printFrame.contentWindow?.document;
+            if (!reportDocument) {
+                showToast('Não foi possível abrir a impressão do relatório.', 'error');
+                return;
+            }
+            reportDocument.open();
+            reportDocument.write(reportHtml);
+            reportDocument.close();
+            setTimeout(() => {
+                printFrame.contentWindow.focus();
+                printFrame.contentWindow.print();
+            }, 250);
+            showToast('Na janela de impressão, escolha “Salvar como PDF” para baixar o relatório.', 'info');
+        }
+
         function launchConfetti() {
             const canvas = document.getElementById('confettiCanvas');
             canvas.classList.remove('hidden');
@@ -3267,7 +3384,7 @@
             setTheme, toggleConfigPanel, autoSaveConfigField, handleFormSubmit, handleNumberInputChange,
             pickRandomAvailableNumber, setFormPaymentStatus, releaseCurrentNumber, clearBookingForm,
             setGridFilter, selectNumberFromGrid, toggleEntryPaymentStatus, openDrawModal, closeDrawModal,
-            setDrawPool, runRaffleDraw, exportFullRafflePng, copyWhatsAppSummary, openResetModal, closeResetModal,
+            setDrawPool, runRaffleDraw, exportFullRafflePng, copyWhatsAppSummary, downloadRaffleReportPdf, openResetModal, closeResetModal,
             clearAllEntries, loadDemoEntries, closeBookingModal, copyPixNotes,
             openImagePreviewModal, closeImagePreviewModal, downloadGeneratedRaffleImage, downloadPaymentReceipt, downloadReservationReceipt,
             shareGeneratedRaffleImage, printGeneratedRaffleImage
