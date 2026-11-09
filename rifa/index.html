@@ -2509,7 +2509,7 @@
             });
         }
 
-        function downloadEntryReceipt(num, expectedStatus) {
+        async function downloadEntryReceipt(num, expectedStatus) {
             const entry = appState.entries[String(num)];
             if (!entry || entry.status !== expectedStatus) {
                 showToast(expectedStatus === 'paid'
@@ -2537,10 +2537,11 @@
             }
 
             try {
+                if (document.fonts && document.fonts.ready) await document.fonts.ready;
                 const palette = THEME_CANVAS_PALETTES[appState.theme] || THEME_CANVAS_PALETTES.neutral;
                 const width = 1080;
                 const height = isPaid ? 1350 : 1810;
-                const scale = 2;
+                const scale = 3;
                 const canvas = document.createElement('canvas');
                 canvas.width = width * scale;
                 canvas.height = height * scale;
